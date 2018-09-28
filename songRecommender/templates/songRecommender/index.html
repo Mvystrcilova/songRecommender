@@ -1,8 +1,8 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-  <p>Ahoj u Mishky recommenderu neboli <em>doporucovaci</em>!</p>
-  <h2>Dynamic content</h2>
+    <div class="row">
+<div class="col-md-6">
     <p>Pisnicky pro vas:</p>
     {% if home_list %}
     <ul class = "list-group">
@@ -15,7 +15,10 @@
     {% else %}
     <p>There are no songs recommended for you.</p>
     {% endif %}
-      <p>Vase listy:</p>
+
+      </div>
+<div class="col-md-6">
+    <p>Vase listy:</p>
       <ul class="list-group">
       {% for list in my_lists %}
         <li class="list-group-item">
@@ -23,4 +26,6 @@
         </li>
       {% endfor %}
       </ul>
+</div>
+    </div>
 {% endblock %}
