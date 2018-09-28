@@ -1,0 +1,26 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+  <p>Ahoj u Mishky recommenderu neboli <em>doporucovaci</em>!</p>
+  <h2>Dynamic content</h2>
+    <p>Pisnicky pro vas:</p>
+    {% if home_list %}
+    <ul class = "list-group">
+    {% for song in home_list %}
+      <li class="list-group-item">
+          <a href=""> {{ song }}</a>
+      </li>
+    {% endfor %}
+    </ul>
+    {% else %}
+    <p>There are no songs recommended for you.</p>
+    {% endif %}
+      <p>Vase listy:</p>
+      <ul class="list-group">
+      {% for list in my_lists %}
+        <li class="list-group-item">
+          <a href="">{{ list }}</a>
+        </li>
+      {% endfor %}
+      </ul>
+{% endblock %}
