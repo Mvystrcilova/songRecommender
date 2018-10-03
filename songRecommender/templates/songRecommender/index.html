@@ -1,31 +1,43 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <div class="row">
-<div class="col-md-6">
-    <p>Pisnicky pro vas:</p>
-    {% if home_list %}
-    <ul class = "list-group">
-    {% for song in home_list %}
-      <li class="list-group-item">
-          <a href=""> {{ song }}</a>
-      </li>
-    {% endfor %}
-    </ul>
-    {% else %}
-    <p>There are no songs recommended for you.</p>
-    {% endif %}
 
-      </div>
-<div class="col-md-6">
-    <p>Vase listy:</p>
-      <ul class="list-group">
-      {% for list in my_lists %}
-        <li class="list-group-item">
-          <a href="">{{ list }}</a>
-        </li>
-      {% endfor %}
-      </ul>
-</div>
+    <div class="row" style="margin-bottom: 2%">
+
+        <div class="col-md-6">
+            <p style="margin-top: 5%">Doporucene skladby:</p>
+            {% if home_list %}
+                <ul class = "list-group" style="margin-bottom: 2%">
+                    {% for song in home_list %}
+                        <li class="list-group-item">
+                            <a href=""> {{ song }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>There are no songs recommended for you.</p>
+            {% endif %}
+        </div>
+
+        <div class="col-md-6">
+            <p style="margin-top: 5%">Vase seznamy skladeb:</p>
+            <ul class="list-group">
+                <li class="list-group-item">
+                    <a href="">Played</a>
+                </li>
+                {% if my_lists %}
+                    {% for list in my_lists %}
+                        <li class="list-group-item">
+                            <a href="">{{ list }}</a>
+                        </li>
+                    {% endfor %}
+                {% endif %}
+            </ul>
+        </div>
+        <div class="col-md-12">
+            <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block"> + </button>
+        </div>
+
     </div>
+
 {% endblock %}

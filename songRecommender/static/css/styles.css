@@ -1,18 +1,13 @@
-.nav.nav-pills.nav-fill {
-	margin-top: 0px;
-	padding: 0;
-    background: beige;
-    color: #75cdff;
-    list-style: none;
-}
-
-ul.list-group {
-    float: left;
-}
-
 .zaver {
     margin-left: 5px ;
     font-size: 10pt;
     color: #fff392;
+}
+
+.nadpis {
+    font-size: medium;
+    margin-top: 15px;
+    margin-left: 5%;
+    color: #b21f2d;
 }
 
