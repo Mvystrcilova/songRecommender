@@ -23,3 +23,6 @@ class HomePageView(generic.ListView):
         context['my_lists'] = List.objects.all()[:10]
         return context
 
+class AddSongView(generic.ListView):
+    model = Song
+    template_name = 'songRecommender/addSong.html'
