@@ -19,7 +19,7 @@ class Song(models.Model):
 
 
     def get_absolute_url(self):
-        return reverse(args=[str(self.id)])
+        return reverse('song_detail', args=[str(self.id)])
 
 class List(models.Model):
     name = models.CharField(max_length=100, default='My_List')
@@ -32,7 +32,7 @@ class List(models.Model):
         return self.name
 
     def get_absolute_url(self):
-        return reverse('list-detail', args=[str(self.id)])
+        return reverse('list_detail', args=[str(self.id)])
         
 class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
@@ -46,7 +46,7 @@ class Song_in_List(models.Model):
         return self.song_id.name
 
     def get_absolute_url(self):
-        return reverse('song-detail', args=[str(self.song_id.id)])
+        return reverse('song_detail', args=[str(self.song_id.id)])
 
 
 

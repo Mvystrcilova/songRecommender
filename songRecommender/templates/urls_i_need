@@ -1,5 +1,27 @@
 songRecommender/index
+
 songRecommender/addSong
+
 songRecommender/list/id
+    Song_in_list
+    List
+    Distance_to_list
+
 songRecommender/song/id
+    Distance
+
+
 songRecommender/settings
+
+
+songRecommender/recommended_songs
+    Song
+    List
+    Song_in_list
+    Played_song
+
+songRecommender/my_lists
+    List
+    Song_in_list
+    Song
+    Distance_to_List

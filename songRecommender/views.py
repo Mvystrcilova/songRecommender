@@ -4,25 +4,33 @@ from songRecommender.models import Song, List, Song_in_List, Played_Song, Distan
 
 # Create your views here.
 
-# def index(request):
-#    songs = Song.objects.all().count()
-
-#    context = {
-#       'songs': songs
-#    }
-
-#    return render(request, 'songRecommender/index.html', context=context)
-
 class HomePageView(generic.ListView):
     context_object_name = 'home_list'
-    queryset = Song.objects.all()[:10]
+    queryset = Song.objects.all()
     template_name = 'songRecommender/index.html'
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
-        context['my_lists'] = List.objects.all()[:10]
+        context['my_lists'] = List.objects.all()
         return context
 
 class AddSongView(generic.ListView):
     model = Song
     template_name = 'songRecommender/addSong.html'
+
+
+class SongDetailView(generic.DetailView):
+    model = Song
+    template_name = 'songRecommender/song_detail.html'
+
+class ListDetailView(generic.DetailView):
+    model = List
+    template_name = 'songRecommender/list_detail.html'
+
+class MyListsView(generic.ListView):
+    model = List
+    template_name = 'songRecommender/my_lists.html'
+
+class RecommendedSongsView(generic.ListView):
+    model = Song
+    template_name = 'songRecommender/recommended_songs.html'

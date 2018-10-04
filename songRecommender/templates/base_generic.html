@@ -24,8 +24,8 @@
 
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
                 <ul class="navbar-nav mr-auto">
-                    <li class="nav-item active">
-                        <a class="nav-link" href="#">Home <span class="sr-only">(current)</span></a>
+                    <a class="nav-item active">
+                        <a class="nav-link" href="{% url 'index' %}">Home </a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" href="#">Recommended</a>
@@ -34,7 +34,7 @@
                         <a class="nav-link" href="#">My Lists</a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">Add song</a>
+                        <a class="nav-link" href="{% url 'addSong' %}">Add song</a>
                     </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0 mr-2">
@@ -63,7 +63,7 @@
 <!-- Spodek co je vsude -->
 <div class="container fixed-bottom">
     <div class="row">
-        <p>spodek</p>
+        <div>Icons made by <a href="https://www.flaticon.com/authors/minh-hoang" title="Minh Hoang">Minh Hoang</a> from <a href="https://www.flaticon.com/" title="Flaticon">www.flaticon.com</a> is licensed by <a href="http://creativecommons.org/licenses/by/3.0/" title="Creative Commons BY 3.0" target="_blank">CC 3.0 BY</a></div>
     </div>
 </div>
 
