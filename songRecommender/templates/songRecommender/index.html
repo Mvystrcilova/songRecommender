@@ -10,7 +10,7 @@
                 <ul class="list-group" style="margin-bottom: 2%">
                     {% for song in home_list %}
                         <li class="list-group-item">
-                            <a href=""> {{ song }}</a>
+                            <a href="{% url 'song_detail' song.pk %}"> {{ song }}</a>
                         </li>
                     {% endfor %}
                 </ul>

@@ -9,8 +9,8 @@ class Song(models.Model):
     artist = models.CharField(max_length=100)
     text = models.TextField()
     link = models.URLField() #default max is 200
-    users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song')
-    distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False)
+    users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song', related_name='played_songs')
+    distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
     #nearby_users = models.ManyToManyField(get_user_model(), through='Distance_to_User') #later add to user when customizing user model
 
 

@@ -1,22 +1,19 @@
-{% extends base_generic.html %}
+{% extends "base_generic.html" %}
 
 {% block content %}
     <div class="row">
         <div class="embed-responsive embed-responsive-16by9 col-md-8">
-            <iframe class="embed-responsive-item" src={% song.link %}
-                    allowfullscreen></iframe>
+            <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
         </div>
         <div class="col-md-4">
             <p style="margin-top: 5%">Skladby podobne teto:</p>
-            <!--{% if home_list %}-->
                 <ul class="list-group" style="margin-bottom: 2%">
-                    {#                    {% for song in home_list %}#}
+                    {% for nearby_song in song.songs_nearby.all %}
                     <li class="list-group-item">
-                        <a href=""> {{ song }}</a>
+                        <a href=""> {{ nearby_song }}</a>
                     </li>
-                    {#                    {% endfor %}#}
+                    {% endfor %}
                 </ul>
-                /*{% endif %}*/
         </div>
     </div>
     <div clas="row">

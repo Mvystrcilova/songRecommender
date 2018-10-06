@@ -18,7 +18,7 @@ templates
 Logic/Tf-idf
     algoritmus na pocitani vzdalenosti pisnicek pomoci TF-idf, pro pisnicky uz spocitane
     
-    /document-similarity-master/
+Logic/document-similarity-master/data
        algoritmus pou6ivajici predtrenovany Google W2V model na urcovani vzdalenosti souboru
        
 ToDo:
