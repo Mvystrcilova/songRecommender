@@ -28,7 +28,7 @@
                 {% if my_lists %}
                     {% for list in my_lists %}
                         <li class="list-group-item">
-                            <a href="">{{ list }}</a>
+                            <a href="{% url 'list_detail' list.pk %}">{{ list }}</a>
                         </li>
                     {% endfor %}
                 {% endif %}

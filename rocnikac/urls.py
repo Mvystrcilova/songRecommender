@@ -27,3 +27,8 @@ urlpatterns = [
     path('songRecommender/', include('songRecommender.urls')),
     path('', RedirectView.as_view(url='/songRecommender/')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
+
+#Add Django site authentication urls (for login, logout, password management)
+urlpatterns += [
+    path('accounts/', include('django.contrib.auth.urls')),
+]

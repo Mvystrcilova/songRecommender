@@ -1,9 +1,38 @@
-{% extends base_generic.html %}
+{% extends "base_generic.html" %}
 
 {% block content %}
 
-    <div class="container">
+    <div class="row">
+        <div class="col-md-6">
+            <p style="margin-top: 5%">{{ list.name }}</p>
+            <ul class="list-group" style="margin-bottom: 2%">
+                {% for songinlist in list.songs.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'song_detail' songinlist.pk %}"> {{ songinlist }}</a>
+                    </li>
+                {% endfor %}
+            <li>
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+</button>
+            </li>
+            </ul>
+        </div>
+        <div class="col-md-6">
+            <p style="margin-top: 5%">Skladby podobne tem v tomto listu:</p>
+            <ul class="list-group" style="margin-bottom: 2%">
+                {% for nearby_song in list.nearby_songs.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                    </li>
+                {% endfor %}
+            <li>
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">...</button>
+            </li>
+            </ul>
+        </div>
 
+        <div clas="row">
+
+        </div>
     </div>
 
 {% endblock %}

@@ -30,6 +30,7 @@ class ListDetailView(generic.DetailView):
 class MyListsView(generic.ListView):
     model = List
     template_name = 'songRecommender/my_lists.html'
+    #queryset =
 
 class RecommendedSongsView(generic.ListView):
     model = Song
