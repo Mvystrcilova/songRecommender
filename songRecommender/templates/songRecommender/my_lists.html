@@ -1,0 +1,23 @@
+{% extends "base_generic.html" %}
+
+{% block content %}
+    <h1>My lists:</h1>
+
+    {% if list_list %}
+        <ul class="mt-2">
+            {% for l in list_list %}
+                <a href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                {% if l.nearby_songs.all %}
+                {% for song in l.nearby_songs.all %}
+                    <li>
+                    <a href="{% url 'song_detail' song.pk %}"> {{ song.name }}</a>
+                {% endfor %}
+                {% endif %}
+            </li>
+            {% endfor %}
+        </ul>
+
+    {% else %}
+        <p>You have not created any list</p>
+    {% endif %}
+{% endblock %}
