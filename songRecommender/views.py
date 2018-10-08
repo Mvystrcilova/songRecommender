@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.views import generic
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance
 from django.contrib.auth.mixins import LoginRequiredMixin
+from itertools import chain
 
 
 # Create your views here.
@@ -36,11 +37,13 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
         return List.objects.filter(user_id=self.request.user)
 
 
-class MyListsView(generic.ListView):
+class MyListsView(LoginRequiredMixin, generic.ListView):
     model = List
     template_name = 'songRecommender/my_lists.html'
-    # queryset =
+    paginate_by = 10
 
+    def get_queryset(self):
+        return List.objects.filter(user_id=self.request.user)
 
 class RecommendedSongsView(generic.ListView):
     model = Song
