@@ -2,28 +2,63 @@
 
 {% block content %}
     <h1>My lists:</h1>
-    <ul class="mt-2">
-        <a href=""> Played </a>
-        <li>
+    <div class="row">
+        <div class="col-md-6 p-3">
+            <ul class="list-group">
+                <a class="p-3" href=""> Played </a>
+                <li class="list-group-item">
 
-        </li>
-    </ul>
-    {% if list_list %}
-        <ul class="mt-2">
-            {% for l in list_list %}
-                <a href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
-                {% if l.songs.all %}
-                    {% for song in l.songs.all %}
-                        <li class="pl-3">
-                            <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
+                </li>
+            </ul>
+        </div>
+        <div class="col-md-6 p-3">
+            <ul class="list-group">
+                <p class="p-2"> Songs similar to your played songs </p>
+
+                <li class="list-group-item">
+
+                </li>
+
+            </ul>
+        </div>
+    </div>
+    {% if moje_listy %}
+        {% for l in moje_listy %}
+            {% if l.songs.all %}
+                <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                        {% for song in l.songs.all %}
+                            <li class="list-group-item">
+                                <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <p class="p-2">Here are songs similar to {{ l.name }} </p>
+                        {% for nearby_song in l.nearby_songs.all %}
+                            <li class="list-group-item">
+                                <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song.song_name }} </a>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            {% else %}
+                <div class="col-md-6">
+                    <ul class="list-group">
+                        <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}
+                        </a>
+                        <li class="list-unstyled">
+                            <p class="p-0 m-0">This list is empty</p>
                         </li>
-                    {% endfor %}
-                {% else %}
-                    <p>There are no songs in this list</p>
-                {% endif %}
-            {% endfor %}
-        </ul>
-
+                    </ul>
+                </div>
+            {% endif %}
+        </div>
+        {% endfor %}
     {% else %}
         <p>You have not created any list</p>
     {% endif %}
