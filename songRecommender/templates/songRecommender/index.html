@@ -23,7 +23,7 @@
             <p style="margin-top: 5%">Vase seznamy skladeb:</p>
             <ul class="list-group">
                 <li class="list-group-item">
-                    <a href="">Played</a>
+                    <a href="{% url 'recommended_songs' %}">Played</a>
                 </li>
                 {% if my_lists %}
                     {% for list in my_lists %}

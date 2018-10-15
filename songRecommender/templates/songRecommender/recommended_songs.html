@@ -2,22 +2,39 @@
 
 {% block content %}
     <h1>My played songs:</h1>
+        <div class="row">
+        {% if played_songs %}
+        <div class="col-md-6 p-3">
+                <ul class="list-group">
+                    <p class="p-2"> Songs recommended for you </p>
+                    {% for nearby_song in nearby_songs %}
+                    <li class="list-group-item">
+                        <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id.song_name }}</a>
+                    </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6 p-3">
+                <ul class="list-group">
+                    <a class="p-3" href=""> Played </a>
+                    {% for played_song in played_songs %}
+                        <li class="list-group-item">
+                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1.song_name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
 
-    {% if list_list %}
-        <ul class="mt-2">
-            {% for l in list_list %}
-                <a href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
-                {% if l.nearby_songs.all %}
-                {% for song in l.nearby_songs.all %}
-                    <li>
-                    <a href="{% url 'song_detail' song.pk %}"> {{ song.name }}</a>
-                {% endfor %}
-                {% endif %}
-            </li>
-            {% endfor %}
-        </ul>
+        {% else %}
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <a class="p-3" href="">Played</a>
+                    <li class="list-unstyled">
+                        <p class="p-0 m-0">You have not played any songs yet</p>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+    </div>
 
-    {% else %}
-        <p>You have not created any list</p>
-    {% endif %}
 {% endblock %}

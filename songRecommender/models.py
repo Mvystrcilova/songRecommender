@@ -1,5 +1,5 @@
 from django.db import models
-from django.contrib.auth import get_user_model
+from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -15,7 +15,7 @@ class Song(models.Model):
     #users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song', related_name='played_songs')
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
     #nearby_users = models.ManyToManyField(get_user_model(), through='Distance_to_User') #later add to user when customizing user model
-
+    pole_co_tu_jen_oxiduje = models.CharField(null=True, max_length=1)
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
@@ -25,23 +25,35 @@ class Song(models.Model):
         return reverse('song_detail', args=[str(self.id)])
 
 class Profile(models.Model):
-    user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
+    user = models.OneToOneField(User, on_delete=models.PROTECT)
     played_songs = models.ManyToManyField(Song, through='Played_Song', related_name='Songs_played_by_user')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
 
-    @receiver(post_save, sender=get_user_model())
+    def get_object(self):
+        return self.request.user
+
+    def __str__(self):
+        return self.request.user.username
+
+    @receiver(post_save, sender=User)
     def create_user_profile(sender, instance, created, **kwargs):
         if created:
             Profile.objects.create(user=instance)
 
-    @receiver(post_save, sender=get_user_model())
+    @receiver(post_save, sender=User)
     def save_user_profile(sender, instance, **kwargs):
         instance.profile.save()
+
+    def update_profile(request, user_id):
+        user = User.objects.get(pk=user_id)
+        #user.profile.bio = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit...'
+        user.save()
+
 
 
 class List(models.Model):
     name = models.CharField(max_length=100, default='My_List')
-    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     songs = models.ManyToManyField(Song, through='Song_in_list', related_name= 'songs_in_list')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name= 'nearby_songs')
 
@@ -118,7 +130,7 @@ class Distance_to_User(models.Model):
             ('TF-idf', 'TF-idf'),
             ('W2V', 'Word2Vec')
     )
-    distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES, default='TF-idf')
+    distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 
     def get_nearby_songs(userid):
         nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]

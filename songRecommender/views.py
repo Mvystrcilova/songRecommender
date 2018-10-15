@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.views import generic
-from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance
+from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from itertools import chain
 
@@ -44,14 +44,29 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return List.objects.filter(user_id=self.request.user)
+        return List.objects.filter(user_id=self.request.user.profile.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user)
+        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
+        context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
 
-class RecommendedSongsView(generic.ListView):
-    model = Song
+class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
+    model = Distance_to_User
     template_name = 'songRecommender/recommended_songs.html'
+    context_object_name = 'nearby_songs'
+    paginate_by = 10
+
+    def get_queryset(self):
+        return Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(RecommendedSongsView, self).get_context_data(**kwargs)
+        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
+        #context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+
+        return context
+
+
