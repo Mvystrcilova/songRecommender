@@ -1,63 +1,75 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1>My lists:</h1>
+    <h1>My lists: </h1>
     <div class="row">
-        <div class="col-md-6 p-3">
-            <ul class="list-group">
-                <a class="p-3" href=""> Played </a>
-                <li class="list-group-item">
+        {% if played_songs %}
+            <div class="col-md-6 p-3">
+                <ul class="list-group">
+                    <a class="p-3" href=""> Played </a>
+                    {% for played_song in played_songs %}
+                        <li class="list-group-item">
+                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1.song_name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+            <div class="col-md-6 p-3">
+                <ul class="list-group">
+                    <p class="p-2"> Songs similar to your played songs </p>
 
-                </li>
-            </ul>
-        </div>
-        <div class="col-md-6 p-3">
-            <ul class="list-group">
-                <p class="p-2"> Songs similar to your played songs </p>
+                    <li class="list-group-item">
 
-                <li class="list-group-item">
+                    </li>
 
-                </li>
-
-            </ul>
-        </div>
+                </ul>
+            </div>
+        {% else %}
+            <div class="col-md-6">
+                <ul class="list-group">
+                    <a class="p-3" href="">Played</a>
+                    <li class="list-unstyled">
+                        <p class="p-0 m-0">You have not played any songs yet</p>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
     </div>
     {% if moje_listy %}
         {% for l in moje_listy %}
-            {% if l.songs.all %}
-                <div class="row">
-                <div class="col-md-6">
-                    <ul class="list-group">
-                        <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
-                        {% for song in l.songs.all %}
-                            <li class="list-group-item">
-                                <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
+            <div class="row">
+                {% if l.songs.all %}
+                    <div class="col-md-6">
+                        <ul class="list-group">
+                            <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                            {% for song in l.songs.all %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <ul class="list-group">
+                            <p class="p-2">Here are songs similar to {{ l.name }} </p>
+                            {% for nearby_song in l.nearby_songs.all %}
+                                <li class="list-group-item">
+                                    <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song.song_name }} </a>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% else %}
+                    <div class="col-md-6">
+                        <ul class="list-group">
+                            <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                            <li class="list-unstyled">
+                                <p class="p-0 m-0">This list is empty</p>
                             </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-                <div class="col-md-6">
-                    <ul class="list-group">
-                        <p class="p-2">Here are songs similar to {{ l.name }} </p>
-                        {% for nearby_song in l.nearby_songs.all %}
-                            <li class="list-group-item">
-                                <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song.song_name }} </a>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            {% else %}
-                <div class="col-md-6">
-                    <ul class="list-group">
-                        <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}
-                        </a>
-                        <li class="list-unstyled">
-                            <p class="p-0 m-0">This list is empty</p>
-                        </li>
-                    </ul>
-                </div>
-            {% endif %}
-        </div>
+                        </ul>
+                    </div>
+                {% endif %}
+            </div>
         {% endfor %}
     {% else %}
         <p>You have not created any list</p>

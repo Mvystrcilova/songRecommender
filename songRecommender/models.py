@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.urls import reverse
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 # Create your models here
 
@@ -9,7 +12,7 @@ class Song(models.Model):
     artist = models.CharField(max_length=100)
     text = models.TextField()
     link = models.URLField() #default max is 200
-    users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song', related_name='played_songs')
+    #users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song', related_name='played_songs')
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
     #nearby_users = models.ManyToManyField(get_user_model(), through='Distance_to_User') #later add to user when customizing user model
 
@@ -21,11 +24,26 @@ class Song(models.Model):
     def get_absolute_url(self):
         return reverse('song_detail', args=[str(self.id)])
 
+class Profile(models.Model):
+    user = models.OneToOneField(get_user_model(), on_delete=models.PROTECT)
+    played_songs = models.ManyToManyField(Song, through='Played_Song', related_name='Songs_played_by_user')
+    nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
+
+    @receiver(post_save, sender=get_user_model())
+    def create_user_profile(sender, instance, created, **kwargs):
+        if created:
+            Profile.objects.create(user=instance)
+
+    @receiver(post_save, sender=get_user_model())
+    def save_user_profile(sender, instance, **kwargs):
+        instance.profile.save()
+
+
 class List(models.Model):
     name = models.CharField(max_length=100, default='My_List')
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
-    songs = models.ManyToManyField(Song, through='Song_in_list', related_name = 'songs_in_list')
-    nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name = 'nearby_songs')
+    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
+    songs = models.ManyToManyField(Song, through='Song_in_list', related_name= 'songs_in_list')
+    nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name= 'nearby_songs')
 
 
     def __str__(self):
@@ -53,7 +71,7 @@ class Song_in_List(models.Model):
 
 class Played_Song(models.Model):
     song_id1 = models.ForeignKey(Song, on_delete=models.CASCADE)
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
     numOfTimesPlayed = models.PositiveIntegerField(default=1) #esi neco nebude fungovat tak je to tady
     OPINION_CHOICES = (
             (1, 'Like'),
@@ -88,12 +106,12 @@ class Distance_to_List(models.Model):
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES)
 
     def get_nearby_songs(listid):
-       nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
-       return nearby_songs
+        nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
+        return nearby_songs
     
 
 class Distance_to_User(models.Model):
-    user_id = models.ForeignKey(get_user_model(), on_delete=models.CASCADE, null=True)
+    user_id = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True)
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
@@ -103,5 +121,5 @@ class Distance_to_User(models.Model):
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES, default='TF-idf')
 
     def get_nearby_songs(userid):
-       nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
-       return nearby_songs
+        nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
+        return nearby_songs
