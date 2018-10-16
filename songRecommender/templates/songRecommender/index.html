@@ -34,9 +34,20 @@
                 {% endif %}
             </ul>
         </div>
-        <div class="col-md-12">
-            <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+</button>
+
+        <div class="col-md-6">
+            {% if home_list.count > 10 %}
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+
+                </button>
+            {% endif %}
         </div>
+        <div class="col-md-6">
+            {% if my_lists.count > 10 %}
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+
+                </button>
+            {% endif %}
+        </div>
+
 
     </div>
 

@@ -3,7 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-
+from django.forms import ModelForm
 
 # Create your models here
 
@@ -23,6 +23,8 @@ class Song(models.Model):
 
     def get_absolute_url(self):
         return reverse('song_detail', args=[str(self.id)])
+
+
 
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT)

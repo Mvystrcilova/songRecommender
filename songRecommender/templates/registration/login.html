@@ -2,38 +2,44 @@
 
 {% block content %}
 
-{% if form.errors %}
-  <p>Your username and password didn't match. Please try again.</p>
-{% endif %}
+    {% if form.errors %}
+        <div class="col-md-12 p-2">
+            <p>Your username and password didn't match. Please try again.</p>
+        </div>
+    {% endif %}
 
-{% if next %}
-  {% if user.is_authenticated %}
-    <p>Your account doesn't have access to this page. To proceed,
-    please login with an account that has access.</p>
-  {% else %}
-    <p>Please login to see this page.</p>
-  {% endif %}
-{% endif %}
+    {% if next %}
+        {% if user.is_authenticated %}
+            <div class="col-md-12 p-2">
+            <p>Your account doesn't have access to this page. To proceed,
+                please login with an account that has access.</p>
+            </div>
+        {% else %}
+            <p class="col-md-12 p-2">Please login to see this page.</p>
+        {% endif %}
+    {% endif %}
 
-<form method="post" action="{% url 'login' %}">
-{% csrf_token %}
+    <form method="post" action="{% url 'login' %}">
+        {% csrf_token %}
 
-<div>
-  <td>{{ form.username.label_tag }}</td>
-  <td>{{ form.username }}</td>
-</div>
-<div>
-  <td>{{ form.password.label_tag }}</td>
-  <td>{{ form.password }}</td>
-</div>
+        <div class="form-group col-md-12">
+            <label class="col-md-12">{{ form.username.label_tag }}</label>
+            <p class="pl-2">{{ form.username }}</p>
+        </div>
+        <div class="form-group col-md-12">
+            <label class="col-md-12">{{ form.password.label_tag }}</label>
+            <p class="pl-2">{{ form.password }}</>
+        </div>
 
-<div>
-  <input type="submit" value="login" />
-  <input type="hidden" name="next" value="{{ next }}" />
-</div>
-</form>
+        <div>
+            <button class="btn btn-outline-success ml-4 my-sm-2 bg-light text-dark btn-outline-dark"
+                    type="submit">Login
+            </button>
+            <input type="hidden" name="next" value="{{ next }}"/>
+        </div>
+    </form>
 
-{# Assumes you setup the password_reset view in your URLconf #}
-<p><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    {# Assumes you setup the password_reset view in your URLconf #}
+    <p class="p-4"><a href="{% url 'password_reset' %}">Lost password?</a></p>
 
 {% endblock %}

@@ -3,6 +3,11 @@ from django.views import generic
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
 from itertools import chain
+from django.shortcuts import get_object_or_404
+from django.http import HttpResponseRedirect
+from django.urls import reverse
+
+from songRecommender.forms import SongModelForm
 
 
 # Create your views here.
@@ -18,9 +23,9 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class AddSongView(generic.ListView):
-    model = Song
-    template_name = 'songRecommender/addSong.html'
+#class AddSongView(generic.ListView):
+ #   model = Song
+  #  template_name = 'songRecommender/addSong.html'
 
 
 class SongDetailView(generic.DetailView):
@@ -68,5 +73,24 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         #context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
+
+def addSong(request):
+    if request.method == 'POST':
+        form = SongModelForm(request.POST)
+
+        if form.is_valid():
+            song = form.save(commit=False)
+            song.save()
+
+            return HttpResponseRedirect(reverse('recommended_songs'))
+    else:
+        form = SongModelForm()
+
+        context = {
+            'form': form
+
+        }
+
+        return render(request, 'songRecommender/addSong.html', {'form': form})
 
 

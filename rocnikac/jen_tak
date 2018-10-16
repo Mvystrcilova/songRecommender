@@ -1,0 +1,38 @@
+<div class="form-group">
+            <label for="formGroupExampleInput">Song name : {{ song.song_name }}</label>
+            <input type="text" class="form-control" id="formGroupExampleInput">
+        </div>
+        <div class="form-group">
+            <label for="formGroupExampleInput2">Artist : {{ song.artist }}</label>
+            <input type="text" class="form-control" id="formGroupExampleInput2">
+        </div>
+        <div class="form-group">
+            <label for="lyricsArea">Song Lyrics : {{ song.text }}</label>
+            <textarea class="form-control" id="lyricsArea" rows="3"></textarea>
+        </div>
+    <div class="form-group">
+        <label for="urlArea">Youtube video: {{ song.link }}</label>
+        <input type="url" class="form-control" id="urlArea" placeholder="Add a youtube link to your song">
+    </div>
+    <div class="row">
+        <button class="btn btn-outline-success ml-3 my-sm-2 bg-light text-dark btn-outline-dark"
+                            type="submit">Add</button>
+    </div>
+
+
+    song_instance = get_object_or_404(Song)
+    if request.method == 'POST':
+        add_song_form = SongModelForm(request.POST)
+
+        if add_song_form.is_valid():
+            song_instance.save()
+
+            return HttpResponseRedirect(reverse('recommended_songs'))
+    else:
+        add_song_form = SongModelForm()
+
+        context = {
+            'form': add_song_form,
+            'song': song_instance
+
+        }
