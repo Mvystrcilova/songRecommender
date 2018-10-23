@@ -71,6 +71,9 @@
                 {% endif %}
             </div>
         {% endfor %}
+        <button class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
+                    type="submit"><a href="{% url 'list_form' %}">+</a>
+            </button>
     {% else %}
         <p>You have not created any list</p>
     {% endif %}

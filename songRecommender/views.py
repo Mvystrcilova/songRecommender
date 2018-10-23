@@ -6,16 +6,21 @@ from itertools import chain
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponseRedirect
 from django.urls import reverse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.urls import reverse_lazy
 
-from songRecommender.forms import SongModelForm
+from songRecommender.forms import SongModelForm, ListModelForm
 
 
 # Create your views here.
 
 class HomePageView(LoginRequiredMixin, generic.ListView):
+    model = Distance_to_User
     context_object_name = 'home_list'
-    queryset = Song.objects.all()
     template_name = 'songRecommender/index.html'
+
+    def get_queryset(self):
+        return Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
@@ -40,6 +45,22 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_queryset(self):
         return List.objects.filter(user_id=self.request.user)
+
+
+class ListCreate(LoginRequiredMixin, CreateView):
+    model = List
+    fields = ['name']
+
+
+
+class ListUpdate(LoginRequiredMixin, UpdateView):
+    model = List
+    fields = ['name']
+
+
+class ListDelete(LoginRequiredMixin, DeleteView):
+    model = List
+    success_url = reverse_lazy('my_lists')
 
 
 class MyListsView(LoginRequiredMixin, generic.ListView):
@@ -82,15 +103,26 @@ def addSong(request):
             song = form.save(commit=False)
             song.save()
 
+
             return HttpResponseRedirect(reverse('recommended_songs'))
     else:
         form = SongModelForm()
 
-        context = {
-            'form': form
-
-        }
-
         return render(request, 'songRecommender/addSong.html', {'form': form})
 
 
+def save_list(request):
+    if request.method == 'POST':
+        l = ListModelForm(request.POST)
+
+        if l.is_valid():
+            new_list = l.save(commit=False)
+            new_list.save()
+            l.save_m2m()
+
+        return HttpResponseRedirect(reverse('my_lists'))
+
+    else:
+        form = ListModelForm()
+
+        return render(request, 'songRecommender/list_create', {'form': form})

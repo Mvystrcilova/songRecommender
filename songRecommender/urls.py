@@ -11,3 +11,8 @@ urlpatterns = [
     path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs')
 ]
 
+urlpatterns += [
+    path('list/create/', views.save_list, name='list_form'),
+    path('list/<int:pk>/update/', views.ListUpdate.as_view(), name='list_update'),
+    path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
+]

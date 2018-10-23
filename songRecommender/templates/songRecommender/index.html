@@ -43,7 +43,7 @@
         </div>
         <div class="col-md-6">
             {% if my_lists.count > 10 %}
-                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block"> <a href="{% url 'list_form' %}">+</a>
                 </button>
             {% endif %}
         </div>

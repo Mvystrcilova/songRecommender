@@ -12,9 +12,7 @@ class Song(models.Model):
     artist = models.CharField(max_length=100)
     text = models.TextField()
     link = models.URLField() #default max is 200
-    #users_who_played_this_song = models.ManyToManyField(get_user_model(), through='Played_Song', related_name='played_songs')
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
-    #nearby_users = models.ManyToManyField(get_user_model(), through='Distance_to_User') #later add to user when customizing user model
     pole_co_tu_jen_oxiduje = models.CharField(null=True, max_length=1)
 
     def __str__(self):
@@ -23,6 +21,10 @@ class Song(models.Model):
 
     def get_absolute_url(self):
         return reverse('song_detail', args=[str(self.id)])
+
+    def save(self, force_insert=False, force_update=False, using=None,
+             update_fields=None):
+        self.link
 
 
 
@@ -48,7 +50,7 @@ class Profile(models.Model):
 
     def update_profile(request, user_id):
         user = User.objects.get(pk=user_id)
-        #user.profile.bio = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit...'
+
         user.save()
 
 
