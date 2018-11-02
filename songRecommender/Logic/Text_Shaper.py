@@ -3,8 +3,8 @@ import pandas
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-from gensim.models.keyedvectors import KeyedVectors
-from songRecommender.Logic.DocSim import DocSim
+# from gensim.models.keyedvectors import KeyedVectors
+# from songRecommender.Logic.DocSim import DocSim
 
 
 # model_path = 'songRecommender/Logic/GoogleNews-vectors-negative300.bin'

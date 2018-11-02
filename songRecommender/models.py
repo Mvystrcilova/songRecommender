@@ -32,6 +32,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT)
     played_songs = models.ManyToManyField(Song, through='Played_Song', related_name='Songs_played_by_user')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
+    email_confirmed = models.BooleanField(default=False)
 
     def get_object(self):
         return self.request.user
@@ -50,7 +51,6 @@ class Profile(models.Model):
 
     def update_profile(request, user_id):
         user = User.objects.get(pk=user_id)
-
         user.save()
 
 

@@ -1,5 +1,6 @@
 from django.urls import path
 from songRecommender import views
+from django.conf.urls import url
 
 
 urlpatterns = [
@@ -17,4 +18,10 @@ urlpatterns += [
     path('list/create/', views.ListCreate.as_view(), name='list_create'),
     path('list/<int:pk>/update/', views.ListUpdate.as_view(), name='list_update'),
     path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
+]
+
+urlpatterns += [
+    url(r'^account_activation_sent/$', views.account_activation_sent, name='account_activation_sent'),
+    url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
+        views.activate, name='activate'),
 ]
