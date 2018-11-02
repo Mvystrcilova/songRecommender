@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render, render_to_response
 from django.views import generic
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -8,8 +8,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
+from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_TFidf_distances
 
-from songRecommender.forms import SongModelForm, ListModelForm
+from songRecommender.forms import SongModelForm, ListModelForm, PlayedModelFrom
 
 
 # Create your views here.
@@ -36,6 +37,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
 class SongDetailView(generic.DetailView):
     model = Song
     template_name = 'songRecommender/song_detail.html'
+    paginate_by = 10
 
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
@@ -51,11 +53,20 @@ class ListCreate(LoginRequiredMixin, CreateView):
     model = List
     fields = ['name']
 
+    def post(self, request, *args, **kwargs):
+        form = ListModelForm(data=request.POST)
+        if form.is_valid():
+            list = form.save(commit=False)
+            list.user_id = request.user
+            list.save()
+        return HttpResponseRedirect(reverse('index'))
+
+
 
 
 class ListUpdate(LoginRequiredMixin, UpdateView):
     model = List
-    fields = ['name']
+    # fields = ['name']
 
 
 class ListDelete(LoginRequiredMixin, DeleteView):
@@ -91,38 +102,25 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
         context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
-        #context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+        # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
+
 
 def addSong(request):
     if request.method == 'POST':
         form = SongModelForm(request.POST)
-
         if form.is_valid():
-            song = form.save(commit=False)
-            song.save()
+            song = form.save(commit=True)
+            save_TFidf_distances(get_TFidf_distance(song), song)
 
+            played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
+            played_song.save()
 
             return HttpResponseRedirect(reverse('recommended_songs'))
+
     else:
         form = SongModelForm()
+    return render(request, 'songRecommender/addSong.html', {'form': form})
 
-        return render(request, 'songRecommender/addSong.html', {'form': form})
 
-
-def save_list(request):
-    if request.method == 'POST':
-        l = ListModelForm(request.POST)
-
-        if l.is_valid():
-            new_list = l.save(commit=False)
-            new_list.save()
-            l.save_m2m()
-
-        return HttpResponseRedirect(reverse('my_lists'))
-
-    else:
-        form = ListModelForm()
-
-        return render(request, 'songRecommender/list_create', {'form': form})

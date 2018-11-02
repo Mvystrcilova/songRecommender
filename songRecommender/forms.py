@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.models import User
-from .models import Profile, Song, List
+from .models import Profile, Song, List, Played_Song
 from django.forms import ModelForm
 
 
@@ -15,28 +15,33 @@ class ProfileForm(forms.ModelForm):
         model = Profile
         fields = ('played_songs', 'nearby_songs')
 
+class PlayedModelFrom(ModelForm):
+    class Meta:
+        model = Played_Song
+        fields = ['user_id', 'song_id1', 'numOfTimesPlayed', 'opinion']
+
 
 class SongModelForm(ModelForm):
     song_name = forms.CharField(label='',
-                                widget= forms.TextInput(attrs={
-                                            "class":"form-control mr-sm-2 bg-light text-white col-md-6"
-                                                                }
-                                                        )
+                                widget=forms.TextInput(attrs={
+                                    "class": "form-control mr-sm-2 bg-light text-lightgray col-md-6"
+                                }
+                                )
                                 )
     artist = forms.CharField(label='',
-                                widget= forms.TextInput(attrs={
-                                            "class":"form-control mr-sm-2 bg-light text-white col-md-6",
-                                                                }
-                                                        )
-                                )
+                             widget=forms.TextInput(attrs={
+                                 "class": "form-control mr-sm-2 bg-light text-lightgray col-md-6",
+                             }
+                             )
+                             )
     text = forms.CharField(label='',
-                           widget= forms.Textarea(attrs={
-                               "class": "form-control mr-sm-2 bg-light text-white col-md-6"
+                           widget=forms.Textarea(attrs={
+                               "class": "form-control mr-sm-2 bg-light text-lightgray col-md-6"
                            }))
     link = forms.URLField(label='',
-                          widget= forms.Textarea(attrs={
-                               "class": "form-control mr-sm-2 bg-light text-white col-md-6 row-md-1"
-                           }))
+                          widget=forms.TextInput(attrs={
+                              "class": "form-control mr-sm-2 bg-light text-lightgray col-md-6"
+                          }))
 
     class Meta:
         model = Song
@@ -44,6 +49,13 @@ class SongModelForm(ModelForm):
 
 
 class ListModelForm(ModelForm):
+    name = forms.CharField(label='',
+                           widget=forms.TextInput(attrs={
+                               "class": "form-control mr-sm-2 bg-light text-lightgray col-md-6"
+                           }
+                           )
+                           )
+
     class Meta:
         model = List
         fields = ['name']

@@ -19,7 +19,7 @@
                     <a class="p-3" href=""> Played </a>
                     {% for played_song in played_songs %}
                         <li class="list-group-item">
-                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1.song_name }}</a>
+                            <a href="{% url 'song_detail' played_song.song_id1.pk %}">{{ played_song.song_id1.song_name }} - {{ played_song.song_id1.artist }}</a>
                         </li>
                     {% endfor %}
                 </ul>

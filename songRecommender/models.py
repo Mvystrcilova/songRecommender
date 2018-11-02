@@ -22,9 +22,9 @@ class Song(models.Model):
     def get_absolute_url(self):
         return reverse('song_detail', args=[str(self.id)])
 
-    def save(self, force_insert=False, force_update=False, using=None,
-             update_fields=None):
-        self.link
+    # def save(self, force_insert=False, force_update=False, using=None,
+    #          update_fields=None):
+    #     self.link
 
 
 
@@ -67,6 +67,7 @@ class List(models.Model):
 
     def get_absolute_url(self):
         return reverse('list_detail', args=[str(self.id)])
+
         
 class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)

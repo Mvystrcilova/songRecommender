@@ -12,7 +12,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('list/create/', views.save_list, name='list_form'),
+    path('list/create/', views.ListCreate.as_view(), name='list_create'),
     path('list/<int:pk>/update/', views.ListUpdate.as_view(), name='list_update'),
     path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
 ]

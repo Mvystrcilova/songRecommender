@@ -42,6 +42,8 @@
                     <div class="col-md-6">
                         <ul class="list-group">
                             <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                            <p class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
+                    type="submit"><a href="{% url 'list_delete'  l.pk %}">-</a>
                             {% for song in l.songs.all %}
                                 <li class="list-group-item">
                                     <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
@@ -72,7 +74,7 @@
             </div>
         {% endfor %}
         <button class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
-                    type="submit"><a href="{% url 'list_form' %}">+</a>
+                    type="submit"><a href="{% url 'list_create' %}">+</a>
             </button>
     {% else %}
         <p>You have not created any list</p>
