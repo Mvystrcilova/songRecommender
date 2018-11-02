@@ -1,16 +1,15 @@
-from django.shortcuts import render, render_to_response
+from django.shortcuts import render
 from django.views import generic
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
 from django.contrib.auth.mixins import LoginRequiredMixin
-from itertools import chain
-from django.shortcuts import get_object_or_404
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
-from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_TFidf_distances
+from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
+# from songRecommender.Logic.Text_Shaper import get_W2V_distance
 
-from songRecommender.forms import SongModelForm, ListModelForm, PlayedModelFrom
+from songRecommender.forms import SongModelForm, ListModelForm
 
 
 # Create your views here.
@@ -107,12 +106,29 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         return context
 
 
+def likeSong(request, pk):
+    played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
+    if played_song.opinion != 1:
+        played_song.opinion = 1
+        played_song.update()
+    return HttpResponse(status=204)
+
+
+def dislikeSong(request,pk):
+    played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
+    if played_song.opinion != -1:
+        played_song.opinion = -1
+        played_song.update()
+    return HttpResponse(status=204)
+
+
 def addSong(request):
     if request.method == 'POST':
         form = SongModelForm(request.POST)
         if form.is_valid():
             song = form.save(commit=True)
-            save_TFidf_distances(get_TFidf_distance(song), song)
+            save_distances(get_TFidf_distance(song), song, "TF-idf")
+#            save_distances(get_W2V_distance(song), song, "W2V")
 
             played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
             played_song.save()
@@ -121,6 +137,7 @@ def addSong(request):
 
     else:
         form = SongModelForm()
+
     return render(request, 'songRecommender/addSong.html', {'form': form})
 
 

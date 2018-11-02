@@ -2,23 +2,30 @@
 
 {% block content %}
         <div class="row">
-            <p class="col-md-8 pt-2">{{ song.artist}} - {{ song.song_name }}</p>
+            <p class="col-md-8 pt-4">{{ song.artist}} - {{ song.song_name }}</p>
         </div>
         <div class="row">
-        <div class="embed-responsive embed-responsive-16by9 col-md-8">
-            <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
+            <div class="col-md-8">
+                <div class="embed-responsive embed-responsive-16by9">
+                    <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
+                </div>
+
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likeSong' song.pk %}">Like</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Dislike</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Add to list</a>
+
+            </div>
+            <div class="col-md-4">
+                <p style="margin-top: 1%">Skladby podobne teto:</p>
+                <ul class="list-group" style="margin-bottom: 2%">
+                    {% for nearby_song in song.songs_nearby.all %}
+                        <li class="list-group-item">
+                            <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
         </div>
-        <div class="col-md-4">
-            <p style="margin-top: 5%">Skladby podobne teto:</p>
-            <ul class="list-group" style="margin-bottom: 2%">
-                {% for nearby_song in song.songs_nearby.all %}
-                    <li class="list-group-item">
-                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
-                    </li>
-                {% endfor %}
-            </ul>
-        </div>
-    </div>
     <div clas="row">
 
     </div>
