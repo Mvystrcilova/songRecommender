@@ -9,11 +9,15 @@
                 <div class="embed-responsive embed-responsive-16by9">
                     <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
                 </div>
-
+                {% if played_song.opinion == -1 %}
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likeSong' song.pk %}">Like</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Disliked</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Add to list</a>
+                {% elif played_song.opinion == 1 %}
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'likeSong' song.pk %}">Liked</a>
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Dislike</a>
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikeSong' song.pk %}">Add to list</a>
-
+            {% endif %}
             </div>
             <div class="col-md-4">
                 <p style="margin-top: 1%">Skladby podobne teto:</p>

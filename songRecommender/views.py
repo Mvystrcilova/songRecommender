@@ -32,7 +32,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
     template_name = 'songRecommender/index.html'
 
     def get_queryset(self):
-        return Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+        return Distance_to_User.objects.filter(user_id=self.request.user.pk)
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
@@ -49,6 +49,12 @@ class SongDetailView(generic.DetailView):
     model = Song
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(SongDetailView, self).get_context_data(**kwargs)
+        context['played_song'] = Played_Song.objects.filter(song_id1=context['object'])[0]
+
+        return context
 
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
@@ -92,12 +98,12 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return List.objects.filter(user_id=self.request.user.profile.pk)
+        return List.objects.filter(user_id=self.request.user.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
-        context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.pk)
+        context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.pk)
 
         return context
 
@@ -108,11 +114,11 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+        return Distance_to_User.objects.filter(user_id=self.request.user.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
+        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.pk)
         # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
@@ -122,16 +128,16 @@ def likeSong(request, pk):
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     if played_song.opinion != 1:
         played_song.opinion = 1
-        played_song.update()
+        played_song.save()
     return HttpResponse(status=204)
 
 
-def dislikeSong(request,pk):
+def dislikeSong(request, pk):
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     if played_song.opinion != -1:
         played_song.opinion = -1
-        played_song.update()
-    return HttpResponse(status=204)
+        played_song.save()
+    return HttpResponseRedirect('song/request.path.split('/')[2])')
 
 
 def addSong(request):
@@ -158,7 +164,7 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            user.is_active = False
+            user.is_active = True
             user.save()
             current_site = get_current_site(request)
             subject = 'Activate Your MySite Account'
@@ -187,9 +193,9 @@ def activate(request, uidb64, token):
         user.profile.email_confirmed = True
         user.save()
         login(request, user)
-        return redirect('home')
+        return redirect('index')
     else:
         return render(request, 'account_activation_invalid.html')
 
 def account_activation_sent(request):
-    return redirect()
+    return render(request, 'account_activation_sent.html')

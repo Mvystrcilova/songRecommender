@@ -25,7 +25,7 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('songRecommender/', include('songRecommender.urls')),
-    path('', RedirectView.as_view(url='/songRecommender/')),
+    path('', include('songRecommender.urls')),
 ] + static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
 
 #Add Django site authentication urls (for login, logout, password management)

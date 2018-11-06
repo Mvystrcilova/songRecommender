@@ -1,20 +1,9 @@
 from django import forms
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Profile, Song, List, Played_Song
+from .models import Song, List, Played_Song
 from django.forms import ModelForm
 
-
-class UserForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ('first_name', 'last_name', 'email')
-
-
-class ProfileForm(forms.ModelForm):
-    class Meta:
-        model = Profile
-        fields = ('played_songs', 'nearby_songs')
 
 class PlayedModelFrom(ModelForm):
     class Meta:
@@ -60,6 +49,7 @@ class ListModelForm(ModelForm):
     class Meta:
         model = List
         fields = ['name']
+
 
 class SignUpForm(UserCreationForm):
     email = forms.EmailField(max_length=254, help_text='Required. Inform a valid email address.')
