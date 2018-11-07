@@ -51,8 +51,10 @@ class SongDetailView(generic.DetailView):
     paginate_by = 10
 
     def get_context_data(self, *, object_list=None, **kwargs):
+
         context = super(SongDetailView, self).get_context_data(**kwargs)
         context['played_song'] = Played_Song.objects.filter(song_id1=context['object'])[0]
+        context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
         return context
 
@@ -129,7 +131,10 @@ def likeSong(request, pk):
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     if played_song.opinion != 1:
         played_song.opinion = 1
-        played_song.save()
+    else:
+        played_song.opinion = 0
+    played_song.save()
+
     return redirect('song_detail', request.path.split('/')[2])
 
 
@@ -137,7 +142,10 @@ def dislikeSong(request, pk):
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     if played_song.opinion != -1:
         played_song.opinion = -1
-        played_song.save()
+    else:
+        played_song.opinion = 0
+    played_song.save()
+
     return redirect('song_detail', request.path.split('/')[2])
 
 
@@ -200,3 +208,7 @@ def activate(request, uidb64, token):
 
 def account_activation_sent(request):
     return render(request, 'account_activation_sent.html')
+
+def add_song_to_list(request, pk):
+
+    return redirect('song_detail', request.path.split('/')[2])

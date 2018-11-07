@@ -12,9 +12,25 @@
                 {% if played_song.opinion == -1 %}
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Like</a>
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Disliked</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'song_detail' song.pk %}">Add to list</a>
+                    <div class="dropdown">
+                      <button class="btn btn-outline-dark mt-4 col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add to list</button>
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                          {% if my_lists %}
+                              {% for list in my_lists %}
+                                <a class="dropdown-item" href="{% url 'add_song_to_list' %}">{{ list.name }}</a>
+                              {% endfor %}
+                          {% else %}
+                              <a class="dropdown-item" href="#">You have not created any lists</a>
+                          {% endif %}
+                      </div>
+                    </div>
                 {% elif played_song.opinion == 1 %}
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Liked</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Dislike</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'song_detail' song.pk %}">Add to list</a>
+                {% elif played_song.opinion == 0 %}
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Like</a>
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Dislike</a>
                     <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'song_detail' song.pk %}">Add to list</a>
             {% endif %}
