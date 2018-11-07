@@ -22,8 +22,10 @@ Logic/document-similarity-master/data
        algoritmus pou6ivajici predtrenovany Google W2V model na urcovani vzdalenosti souboru
        
 ToDo:
-    Dat moznost aby se pisnicka libila
-    dat moznost pridat pisnicku do listu
-    prepocitat vzdalenost pri pridani pisnicky
-    Najit youtube linky k jednotlivym skladbam     
+    Delat si ucty + maily - hotovo
+    Dat moznost aby se pisnicka libila - hotovo
+    dat moznost pridat pisnicku do listu - skoro hotovo
+    prepocitat vzdalenost pri pridani pisnicky - hotovo
+    Najit youtube linky k jednotlivym skladbam   
+    Urcit koeficienty pro podobnost a skladat jednotlive vzdalenosti
  
