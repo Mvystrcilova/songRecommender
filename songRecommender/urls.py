@@ -6,8 +6,8 @@ from django.conf.urls import url
 urlpatterns = [
     path('index/', views.HomePageView.as_view(), name='index'),
     path('addSong/', views.addSong, name='addSong'),
-    path('likeSong/<int:pk>', views.likeSong, name='likeSong'),
-    path('dislikeSong/<int:pk>', views.dislikeSong, name='dislikeSong'),
+    path('likeSong/<int:pk>', views.likeSong, name='likesong'),
+    path('dislikeSong/<int:pk>', views.dislikeSong, name='dislikesong'),
     path('song/<int:pk>', views.SongDetailView.as_view(), name='song_detail'),
     path('list/<int:pk>', views.ListDetailView.as_view(), name='list_detail'),
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),

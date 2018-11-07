@@ -57,6 +57,7 @@ class SongDetailView(generic.DetailView):
         return context
 
 
+
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
     model = List
     template_name = 'songRecommender/list_detail.html'
@@ -129,7 +130,7 @@ def likeSong(request, pk):
     if played_song.opinion != 1:
         played_song.opinion = 1
         played_song.save()
-    return HttpResponse(status=204)
+    return redirect('song_detail', request.path.split('/')[2])
 
 
 def dislikeSong(request, pk):
@@ -137,7 +138,7 @@ def dislikeSong(request, pk):
     if played_song.opinion != -1:
         played_song.opinion = -1
         played_song.save()
-    return HttpResponseRedirect('song/request.path.split('/')[2])')
+    return redirect('song_detail', request.path.split('/')[2])
 
 
 def addSong(request):
