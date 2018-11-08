@@ -78,7 +78,7 @@ class List(models.Model):
 class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
-    order = models.PositiveIntegerField()
+    order = models.PositiveIntegerField(null=True)
 
     class Meta:
         ordering = ['-order']

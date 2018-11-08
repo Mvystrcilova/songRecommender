@@ -1,51 +1,90 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-        <div class="row">
-            <p class="col-md-8 pt-4">{{ song.artist}} - {{ song.song_name }}</p>
-        </div>
-        <div class="row">
-            <div class="col-md-8">
-                <div class="embed-responsive embed-responsive-16by9">
-                    <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
-                </div>
-                {% if played_song.opinion == -1 %}
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Like</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Disliked</a>
-                    <div class="dropdown">
-                      <button class="btn btn-outline-dark mt-4 col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                        Add to list</button>
-                      <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                          {% if my_lists %}
-                              {% for list in my_lists %}
-                                <a class="dropdown-item" href="{% url 'add_song_to_list' %}">{{ list.name }}</a>
-                              {% endfor %}
-                          {% else %}
-                              <a class="dropdown-item" href="#">You have not created any lists</a>
-                          {% endif %}
-                      </div>
+    <div class="row">
+        <p class="col-md-8 pt-4">{{ song.artist }} - {{ song.song_name }}</p>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="embed-responsive embed-responsive-16by9">
+                <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
+            </div>
+
+            {% if played_song %}
+
+                {% if played_song.0.opinion == -1 %}
+
+                <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2"
+                   href="{% url 'likesong' song.pk %}">Like</a>
+                <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2"
+                   href="{% url 'dislikesong' song.pk %}">Disliked</a>
+                <button class="btn btn-outline-dark mt-4 col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    Add to list
+                </button>
+                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% if my_lists %}
+                        {% for list in my_lists %}
+                            <a class="dropdown-item"
+                               href="{% url 'add_song_to_list' song.pk list.pk %}">{{ list.name }}</a>
+                        {% endfor %}
+                {% else %}
+                    <p class="dropdown-item" href="">You have not created any lists</p>
+                {% endif %}
                     </div>
-                {% elif played_song.opinion == 1 %}
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Liked</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Dislike</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'song_detail' song.pk %}">Add to list</a>
-                {% elif played_song.opinion == 0 %}
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'likesong' song.pk %}">Like</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'dislikesong' song.pk %}">Dislike</a>
-                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2" href="{% url 'song_detail' song.pk %}">Add to list</a>
+
+                {% elif played_song.0.opinion == 1 %}
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-dark text-light btn-outline-dark float-md-left m-2"
+                       href="{% url 'likesong' song.pk %}">Liked</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2"
+                       href="{% url 'dislikesong' song.pk %}">Dislike</a>
+                    <button class="btn btn-outline-dark mt-4 col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add to list
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% if my_lists %}
+                        {% for list in my_lists %}
+                            <a class="dropdown-item"
+                               href="{% url 'add_song_to_list' song.pk list.pk %}">{{ list.name }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p class="dropdown-item" href="">You have not created any lists</p>
+                    {% endif %}
+                    </div>
+                {% elif played_song.0.opinion == 0 %}
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2"
+                       href="{% url 'likesong' song.pk %}">Like</a>
+                    <a class="btn btn-outline-success mt-4 col-md-2  bg-light text-dark btn-outline-dark float-md-left m-2"
+                       href="{% url 'dislikesong' song.pk %}">Dislike</a>
+                    <button class="btn btn-outline-dark mt-4 col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle"
+                        type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                        Add to list
+                    </button>
+                    <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                    {% if my_lists %}
+                        {% for list in my_lists %}
+                            <a class="dropdown-item"
+                               href="{% url 'add_song_to_list' song.pk list.pk %}">{{ list.name }}</a>
+                        {% endfor %}
+                    {% else %}
+                        <p class="dropdown-item" href="">You have not created any lists</p>
+                    {% endif %}
+                {% endif %}
             {% endif %}
-            </div>
-            <div class="col-md-4">
-                <p style="margin-top: 1%">Skladby podobne teto:</p>
-                <ul class="list-group" style="margin-bottom: 2%">
-                    {% for nearby_song in song.songs_nearby.all %}
-                        <li class="list-group-item">
-                            <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </div>
+
         </div>
+        <div class="col-md-4">
+            <p style="margin-top: 1%">Skladby podobne teto:</p>
+            <ul class="list-group" style="margin-bottom: 2%">
+                {% for nearby_song in song.songs_nearby.all %}
+                    <li class="list-group-item">
+                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
     <div clas="row">
 
     </div>

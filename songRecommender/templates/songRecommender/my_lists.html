@@ -80,5 +80,8 @@
             </button>
     {% else %}
         <p>You have not created any list</p>
+        <button class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
+                    type="submit"><a href="{% url 'list_create' %}">+</a>
+        </button>
     {% endif %}
 {% endblock %}

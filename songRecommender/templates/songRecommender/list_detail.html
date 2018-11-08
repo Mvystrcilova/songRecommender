@@ -5,28 +5,37 @@
     <div class="row">
         <div class="col-md-6">
             <p style="margin-top: 5%">{{ list.name }}</p>
-            <ul class="list-group" style="margin-bottom: 2%">
+            <ul class="list-group list-unstyled" style="margin-bottom: 2%">
+            {% if list.songs.all %}
                 {% for songinlist in list.songs.all %}
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' songinlist.pk %}"> {{ songinlist }}</a>
                     </li>
                 {% endfor %}
+            {% else %}
+                <p>This list is empty</p>
+            {% endif %}
             <li>
-                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block" value="+"></button>
+                <a class="btn btn-outline-success mt-2 col-md-6  bg-light text-dark btn-outline-dark float-md-left m-2">+</a>
             </li>
             </ul>
         </div>
         <div class="col-md-6">
             <p style="margin-top: 5%">Skladby podobne tem v tomto listu:</p>
-            <ul class="list-group" style="margin-bottom: 2%">
+            <ul class="list-group list-unstyled" style="margin-bottom: 2%">
+            {% if list.nearby_songs.all %}
                 {% for nearby_song in list.nearby_songs.all %}
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
                     </li>
                 {% endfor %}
             <li>
-                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block" value="..."></button>
+                <a style="margin-top: 1%" class="btn btn-outline-success mt-2 col-md-6  bg-light text-dark btn-outline-dark float-md-left m-2">...</a>
             </li>
+
+            {% else %}
+                <p>There are no songs similar to those in this list</p>
+            {% endif %}
             </ul>
         </div>
 

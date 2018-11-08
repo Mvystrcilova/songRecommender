@@ -7,6 +7,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
 # from songRecommender.Logic.Text_Shaper import get_W2V_distance
+from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -53,7 +54,7 @@ class SongDetailView(generic.DetailView):
     def get_context_data(self, *, object_list=None, **kwargs):
 
         context = super(SongDetailView, self).get_context_data(**kwargs)
-        context['played_song'] = Played_Song.objects.filter(song_id1=context['object'])[0]
+        context['played_song'] = Played_Song.objects.filter(song_id1=context['object'], user_id=self.request.user.profile)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
         return context
@@ -154,11 +155,20 @@ def addSong(request):
         form = SongModelForm(request.POST)
         if form.is_valid():
             song = form.save(commit=True)
-            save_distances(get_TFidf_distance(song), song, "TF-idf")
-#            save_distances(get_W2V_distance(song), song, "W2V")
+            TFidf_distances = get_TFidf_distance(song)
+#            W2V_distances = get_W2V_distance(song)
+
+            save_distances(TFidf_distances, song, "TF-idf")
+#            save_distances(W2V_distances, song, "W2V")
+
+            save_user_distances()
+            save_list_distances()
+
 
             played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
             played_song.save()
+
+
 
             return HttpResponseRedirect(reverse('recommended_songs'))
 
@@ -206,9 +216,12 @@ def activate(request, uidb64, token):
     else:
         return render(request, 'account_activation_invalid.html')
 
+
 def account_activation_sent(request):
     return render(request, 'account_activation_sent.html')
 
-def add_song_to_list(request, pk):
 
-    return redirect('song_detail', request.path.split('/')[2])
+def add_song_to_list(request, pk, pk2):
+    song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
+    song_in_list.save()
+    return redirect('song_detail', pk)
