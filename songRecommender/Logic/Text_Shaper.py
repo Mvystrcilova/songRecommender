@@ -1,7 +1,9 @@
-from songRecommender.models import Song, Distance
 import pandas
-from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
+from songRecommender.models import Song, Distance
+
 
 # from gensim.models.keyedvectors import KeyedVectors
 # from songRecommender.Logic.DocSim import DocSim
@@ -9,7 +11,6 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 
 # model_path = 'songRecommender/Logic/GoogleNews-vectors-negative300.bin'
 # w2v_model = KeyedVectors.load_word2vec_format(model_path, binary=True)
-
 
 
 def get_TFidf_distance(addedSong):
@@ -43,7 +44,6 @@ def save_distances(distances, addedSong, dist_Type):
             counter += 1
     return
 
-
 # def get_W2V_distance(addedSong):
 #     ds = DocSim(w2v_model)
 #     df = pandas.DataFrame(list(Song.objects.all().order_by('-id').values('text')))
@@ -52,4 +52,3 @@ def save_distances(distances, addedSong, dist_Type):
 #     songs = df['text'].tolist()
 #
 #     return ds.calculate_similarity(addedSong.text, songs)
-

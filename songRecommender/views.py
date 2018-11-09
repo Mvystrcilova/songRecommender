@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
 # from songRecommender.Logic.Text_Shaper import get_W2V_distance
 from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
+from songRecommender.Logic.Recommender import check_if_in_played
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -41,11 +42,6 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-#class AddSongView(generic.ListView):
- #   model = Song
-  #  template_name = 'songRecommender/addSong.html'
-
-
 class SongDetailView(generic.DetailView):
     model = Song
     template_name = 'songRecommender/song_detail.html'
@@ -58,7 +54,6 @@ class SongDetailView(generic.DetailView):
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
         return context
-
 
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
@@ -81,8 +76,6 @@ class ListCreate(LoginRequiredMixin, CreateView):
             list.user_id = request.user
             list.save()
         return HttpResponseRedirect(reverse('index'))
-
-
 
 
 class ListUpdate(LoginRequiredMixin, UpdateView):
@@ -110,6 +103,7 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.pk)
 
         return context
+
 
 class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     model = Distance_to_User
@@ -161,14 +155,14 @@ def addSong(request):
             save_distances(TFidf_distances, song, "TF-idf")
 #            save_distances(W2V_distances, song, "W2V")
 
-            save_user_distances()
-            save_list_distances()
-
-
             played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
             played_song.save()
 
+            save_user_distances(song, request.user.profile, "TF-idf")
 
+            lists = List.objects.filter(user_id=request.user.profile)
+            for l in lists:
+                save_list_distances(song, l, request.user.profile, "TF-idf")
 
             return HttpResponseRedirect(reverse('recommended_songs'))
 
@@ -224,4 +218,7 @@ def account_activation_sent(request):
 def add_song_to_list(request, pk, pk2):
     song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
     song_in_list.save()
+
+    check_if_in_played(pk, request.user.profile, is_being_played=False)
+
     return redirect('song_detail', pk)
