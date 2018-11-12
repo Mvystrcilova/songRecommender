@@ -3,3 +3,4 @@
 Logic/document-similarity-master
 *.sqlite3
 Logic/GoogleNews-vectors-negative300.bin
+**/__pycache__
