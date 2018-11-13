@@ -1,5 +1,6 @@
 {% extends "base_generic.html" %}
 
+
 {% block content %}
     <div class="row">
         <h1 class="col-md-3">My lists: </h1>
@@ -36,6 +37,7 @@
                 </ul>
             </div>
         {% endif %}
+
     </div>
     {% if moje_listy %}
         {% for l in moje_listy %}
@@ -56,7 +58,7 @@
                     <div class="col-md-6">
                         <ul class="list-group">
                             <p class="p-2">Here are songs similar to {{ l.name }} </p>
-                            {% for nearby_song in l.nearby_songs.all %}
+                            {% for nearby_song in l.nearby_songs.all|slice:"0:10" %}
                                 <li class="list-group-item">
                                     <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
                                 </li>

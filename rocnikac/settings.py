@@ -129,4 +129,6 @@ LOGIN_REDIRECT_URL = '/songRecommender/index'
 #aby zatim fungovaly maily
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
-#AUTH_USER_MODEL = 'songRecommender.Profile'
+
+
+

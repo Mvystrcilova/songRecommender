@@ -125,6 +125,9 @@ class Distance(models.Model):
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES)
 
+    def __str__(self):
+        return str(self.distance)
+
 
 class Distance_to_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
@@ -139,6 +142,9 @@ class Distance_to_List(models.Model):
     def get_nearby_songs(listid):
         nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
         return nearby_songs
+
+    def __str__(self):
+        return self.song_id.artist + ' - ' + self.song_id.song_name
     
 
 class Distance_to_User(models.Model):
@@ -154,3 +160,6 @@ class Distance_to_User(models.Model):
     def get_nearby_songs(userid):
         nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
         return nearby_songs
+
+    def __str__(self):
+        return self.song_id.artist + ' - ' + self.song_id.song_name

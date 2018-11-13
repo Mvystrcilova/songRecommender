@@ -78,7 +78,7 @@
         <div class="col-md-4">
             <p style="margin-top: 1%">Skladby podobne teto:</p>
             <ul class="list-group" style="margin-bottom: 2%">
-                {% for nearby_song in song.songs_nearby.all %}
+                {% for nearby_song in song.songs_nearby.all|slice:"0:10" %}
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
                     </li>

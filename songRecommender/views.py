@@ -99,8 +99,8 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)
-        context['nearby_songs'] = Distance_to_User.objects.all().filter(user_id=self.request.user.pk)
+        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)[:10]
+        context['nearby_songs'] = Distance_to_User.objects.all().filter(user_id=self.request.user.pk)[:10]
 
         return context
 
@@ -108,7 +108,7 @@ class AllSongsView(generic.ListView):
     model = Song
     template_name = 'songRecommender/all_songs.html'
     context_object_name = 'songs'
-    paginate_by = 10
+    paginate_by = 15
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(AllSongsView, self).get_context_data(**kwargs)
@@ -159,13 +159,13 @@ def addSong(request):
         form = SongModelForm(request.POST)
         if form.is_valid():
             song = form.save(commit=True)
-            # new_link = change_youtube_url(song.link)
-            # if new_link:
-            #     song.link = new_link
-            #     song.save()
-            # else:
-            #     form = SongModelForm()
-            #     return render(request, 'songRecommender/addSong.html', {'form': form})
+            new_link = change_youtube_url(song.link)
+            if new_link:
+                song.link = new_link
+                song.save()
+            else:
+                form = SongModelForm()
+                return render(request, 'songRecommender/addSong.html', {'form': form})
 
             TFidf_distances = get_TFidf_distance(song)
 #            W2V_distances = get_W2V_distance(song)

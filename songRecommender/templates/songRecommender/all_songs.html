@@ -1,50 +1,68 @@
 {% extends "base_generic.html" %}
 
 {% block content %}
-    <h1>Songs:</h1>
-        <div class="row">
-{% if user.is_authenticated %}
-        <div class="col-md-8 p-3">
+
+<h1>Songs:</h1>
+    <div class="row">
+        {% if user.is_authenticated %}
+            <div class="col-md-8 p-3">
                 <ul class="list-group">
                     {% for song in songs %}
-                    <li class="list-group-item">
-                        <a class="list-item col-md-8"  href="{% url 'song_detail' song.pk %}">{{ song.song_name }} {{song.artist }}</a>
-                        <button class="btn btn-outline-dark col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" style="float: right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                    Add to list
-                </button>
-                <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-                    {% if my_lists %}
-                        {% for list in my_lists %}
-                            <a class="dropdown-item"
-                               href="{% url 'add_song_to_list' song.pk list.pk %}">{{ list.name }}</a>
-                        {% endfor %}
-                {% else %}
-                    <p class="dropdown-item" href="">You have not created any lists</p>
-                {% endif %}
-                    </div>
-
-                    </li>
-                {% endfor %}
-                </ul>
-            </div>
-
-
-
-            </div>
-
-{% else %}
-<div class="col-md-8 p-3">
-                <ul class="list-group">
-                    {% for song in songs %}
-                    <li class="list-group-item">
-                        <a class="list-group-item" href="{% url 'song_detail' song.pk %}">{{ song_id.song_name }}</a>
-                    </li>
+                        <li class="list-group-item">
+                            <a class="list-item col-md-8"  href="{% url 'song_detail' song.pk %}">{{ song.song_name }} {{song.artist }}</a>
+                            <button class="btn btn-outline-dark col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" style="float: right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                Add to list</button>
+                            <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            {% if my_lists %}
+                                {% for list in my_lists %}
+                                    <a class="dropdown-item"
+                                    href="{% url 'add_song_to_list' song.pk list.pk %}">{{ list.name }}</a>
+                                {% endfor %}
+                            {% else %}
+                                <p class="dropdown-item" href="">You have not created any lists</p>
+                            {% endif %}
+                            </div>
+                        </li>
                     {% endfor %}
                 </ul>
             </div>
-{% endif %}
 
-
+        {% else %}
+            <div class="col-md-8 p-3">
+                <ul class="list-group">
+                    {% for song in songs %}
+                        <li class="list-group-item">
+                            <a class="list-group-item" href="{% url 'song_detail' song.pk %}">{{ song_id.song_name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
     </div>
+<div class="text-center">
+    {% if is_paginated %}
+        <ul class="pagination text-center">
+            {% if page_obj.has_previous %}
+              <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            {% for i in paginator.page_range %}
+              {% if page_obj.number == i %}
+                <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+              {% else %}
+                <li><a href="?page={{ i }}">{{ i }}</a></li>
+              {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+              <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+          </ul>
+
+    {% endif %}
+</div>
+
 
 {% endblock %}
