@@ -11,7 +11,7 @@
                     <a class="p-3" href="{% url 'recommended_songs' %}"> Played </a>
                     {% for played_song in played_songs %}
                         <li class="list-group-item">
-                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1.song_name }}</a>
+                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1 }}</a>
                         </li>
                     {% endfor %}
                 </ul>
@@ -21,7 +21,7 @@
                     <p class="p-2"> Songs similar to your played songs </p>
                     {% for nearby_song in nearby_songs %}
                     <li class="list-group-item">
-                        <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id.song_name }}</a>
+                        <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id }}</a>
                     </li>
                     {% endfor %}
                 </ul>
@@ -48,7 +48,7 @@
                     type="submit"><a href="{% url 'list_delete'  l.pk %}">-</a>
                             {% for song in l.songs.all %}
                                 <li class="list-group-item">
-                                    <a href="{% url 'song_detail' song.pk %}"> {{ song.song_name }} </a>
+                                    <a href="{% url 'song_detail' song.pk %}"> {{ song }} </a>
                                 </li>
                             {% endfor %}
                         </ul>
@@ -58,7 +58,7 @@
                             <p class="p-2">Here are songs similar to {{ l.name }} </p>
                             {% for nearby_song in l.nearby_songs.all %}
                                 <li class="list-group-item">
-                                    <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song.song_name }} </a>
+                                    <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
                                 </li>
                             {% endfor %}
                         </ul>

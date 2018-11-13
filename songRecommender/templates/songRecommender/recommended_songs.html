@@ -9,7 +9,7 @@
                     <p class="p-2"> Songs recommended for you </p>
                     {% for nearby_song in nearby_songs %}
                     <li class="list-group-item">
-                        <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id.song_name }}</a>
+                        <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id }}</a>
                     </li>
                     {% endfor %}
                 </ul>

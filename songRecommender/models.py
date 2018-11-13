@@ -19,8 +19,8 @@ class Song(models.Model):
         return self.artist + ' - ' + self.song_name
 
 
-    def get_absolute_url(self):
-        return reverse('song_detail', args=[str(self.id)])
+    # def get_absolute_url(self):
+    #     return reverse('song_detail', args=[str(self.id)])
 
     # def save(self, force_insert=False, force_update=False, using=None,
     #          update_fields=None):
@@ -39,6 +39,9 @@ class Profile(models.Model):
 
     def __str__(self):
         return self.request.user.username
+
+    def get_profile(self):
+        return self
 
     # @receiver(post_save, sender=User)
     # def create_user_profile(sender, instance, created, **kwargs):
@@ -79,12 +82,13 @@ class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(null=True)
+    pole_co_tu_jen_oxiduje = models.CharField(max_length=200, null=True)
 
     class Meta:
         ordering = ['-order']
 
     def __str__(self):
-        return self.song_id.name
+        return self.song_id.song_name
 
     def get_absolute_url(self):
         return reverse('song_detail', args=[str(self.song_id.id)])
@@ -102,6 +106,10 @@ class Played_Song(models.Model):
             (2, 'Dislike'),
     )
     opinion = models.IntegerField(choices=OPINION_CHOICES, default=0)
+
+
+    def __str__(self):
+        return self.song_id1.song_name
 
     def get_absolute_url(self):
         return reverse('song-detail', args=[str(self.song_id.id)])

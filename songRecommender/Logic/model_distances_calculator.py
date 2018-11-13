@@ -5,7 +5,7 @@ from songRecommender.models import Song, Distance, Distance_to_List, Distance_to
 
 def save_user_distances(added_song, cur_user, distance_type):
     all_songs = Song.objects.all().order_by('-id')  # gets all songs from database
-    played_songs = Played_Song.objects.all().filter(user_id=cur_user)  # gets all the users played songs
+    played_songs = Played_Song.objects.all().filter(user_id_id=cur_user.profile.pk)  # gets all the users played songs
 
     counter = 0
     user_to_song_distance = 0
@@ -13,7 +13,7 @@ def save_user_distances(added_song, cur_user, distance_type):
     # for every song in the database if it is not the added song and the user played the song, it adds the distance
     # the higher the distance the closer is the song
     for song in all_songs:
-        if (song.pk != added_song.pk) and (song in played_songs.values_list('song_id1', flat=True)):
+        if (song.pk != added_song.pk) and (song.pk in played_songs.values_list('song_id1_id', flat=True)):
 
             the_song = Played_Song.objects.get(song_id1=song)
 
@@ -27,8 +27,12 @@ def save_user_distances(added_song, cur_user, distance_type):
                 user_to_song_distance += the_distance * num_of_times_played + the_distance * the_song.opinion
                 counter += 1
 
-    distance_to_user = Distance_to_User(distance=user_to_song_distance / counter, distance_Type=distance_type,
+    if counter != 0:
+        distance_to_user = Distance_to_User(distance=user_to_song_distance / counter, distance_Type=distance_type,
                                         song_id_id=added_song.pk, user_id_id=cur_user.pk)
+    else:
+        distance_to_user = Distance_to_User(0, distance_Type=distance_type,
+                                            song_id_id=added_song.pk, user_id_id=cur_user.pk)
     distance_to_user.save()
 
     return
@@ -45,9 +49,9 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
     # for every song in the database if it is not the added song and the list contains the song, it adds the distance
     # the higher the distance the closer is the song
     for song in all_songs:
-        if (song.pk != added_song.pk) and (song in songs_from_list.values_list('song_id', flat=True)):
+        if (song.pk != added_song.pk) and (song.pk in songs_from_list.values_list('song_id_id', flat=True)):
 
-            the_song = Played_Song.objects.get(song_id1=song, user_id=cur_user)
+            the_song = Played_Song.objects.get(song_id1=song, user_id=cur_user.profile)
 
             if the_song.opinion != -1:
                 the_distance = Distance.objects.get(song_1=song, song_2=added_song,
@@ -59,8 +63,13 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
                 list_to_song_distance += the_distance * num_of_times_played + the_distance * the_song.opinion
                 counter += 1
 
-    distance_to_list = Distance_to_List(distance=list_to_song_distance / counter, distance_Type=distance_type,
-                                        song_id_id=added_song.pk, list_id_id=list.pk)
+    if counter != 0:
+        distance_to_list = Distance_to_List(distance=list_to_song_distance / counter, distance_Type=distance_type,
+                                        song_id_id=added_song.pk, list_id_id=the_list.pk)
+    else:
+        distance_to_list = Distance_to_List(0, distance_Type=distance_type,
+                                            song_id_id=added_song.pk, list_id_id=the_list.pk)
+
     distance_to_list.save()
 
     return

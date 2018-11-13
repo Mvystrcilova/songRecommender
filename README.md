@@ -21,11 +21,22 @@ Logic/Tf-idf
 Logic/document-similarity-master/data
        algoritmus pou6ivajici predtrenovany Google W2V model na urcovani vzdalenosti souboru
        
-ToDo:
-    Delat si ucty + maily - hotovo
-    Dat moznost aby se pisnicka libila - hotovo
-    dat moznost pridat pisnicku do listu - skoro hotovo
-    prepocitat vzdalenost pri pridani pisnicky - hotovo
-    Najit youtube linky k jednotlivym skladbam   
-    Urcit koeficienty pro podobnost a skladat jednotlive vzdalenosti
+To Do - programovaci:
+     Najit youtube linky k jednotlivym skladbam  
+     Odhlasit pri odhlaseni
+     Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu
+     Udelat stranku se vsemi pisnickami - skoro hotovo
+     Udelat vyhledavani
+     Trochu omezit co lze pridat
+     Regexovat youtube linky - hotovo
+     Delat si ucty + maily - hotovo
+     Dat moznost aby se pisnicka libila - hotovo
+     dat moznost pridat pisnicku do listu -  hotovo
+     prepocitat vzdalenost pri pridani pisnicky - hotovo
+     Urcit koeficienty pro podobnost a skladat jednotlive vzdalenosti - hotovo
  
+ TO DO - neprogramovaci:
+    Okomentovat kod
+    Vytvorit dokumentaci strojovou
+    vytvorit dokumentaci programatorskou
+    udelat balicek

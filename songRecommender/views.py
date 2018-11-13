@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
 # from songRecommender.Logic.Text_Shaper import get_W2V_distance
 from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
-from songRecommender.Logic.Recommender import check_if_in_played
+from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -42,7 +42,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         return context
 
 
-class SongDetailView(generic.DetailView):
+class SongDetailView(LoginRequiredMixin, generic.DetailView):
     model = Song
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
@@ -95,16 +95,26 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return List.objects.filter(user_id=self.request.user.pk)
+        return List.objects.filter(user_id=self.request.user.pk).all()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.pk)
-        context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.pk)
+        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)
+        context['nearby_songs'] = Distance_to_User.objects.all().filter(user_id=self.request.user.pk)
 
         return context
 
+class AllSongsView(generic.ListView):
+    model = Song
+    template_name = 'songRecommender/all_songs.html'
+    context_object_name = 'songs'
+    paginate_by = 10
 
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(AllSongsView, self).get_context_data(**kwargs)
+        context['my_lists'] = List.objects.filter(user_id=self.request.user)
+
+        return context
 class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     model = Distance_to_User
     template_name = 'songRecommender/recommended_songs.html'
@@ -112,11 +122,11 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Distance_to_User.objects.filter(user_id=self.request.user.pk)
+        return Distance_to_User.objects.all().filter(user_id=self.request.user.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.filter(user_id=self.request.user.pk)
+        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)
         # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
@@ -149,6 +159,14 @@ def addSong(request):
         form = SongModelForm(request.POST)
         if form.is_valid():
             song = form.save(commit=True)
+            # new_link = change_youtube_url(song.link)
+            # if new_link:
+            #     song.link = new_link
+            #     song.save()
+            # else:
+            #     form = SongModelForm()
+            #     return render(request, 'songRecommender/addSong.html', {'form': form})
+
             TFidf_distances = get_TFidf_distance(song)
 #            W2V_distances = get_W2V_distance(song)
 
@@ -158,11 +176,11 @@ def addSong(request):
             played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
             played_song.save()
 
-            save_user_distances(song, request.user.profile, "TF-idf")
+            save_user_distances(song, request.user, "TF-idf")
 
-            lists = List.objects.filter(user_id=request.user.profile)
+            lists = List.objects.all().filter(user_id_id=request.user.id)
             for l in lists:
-                save_list_distances(song, l, request.user.profile, "TF-idf")
+                save_list_distances(song, l, request.user, "TF-idf")
 
             return HttpResponseRedirect(reverse('recommended_songs'))
 

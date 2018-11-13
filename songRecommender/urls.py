@@ -9,6 +9,7 @@ urlpatterns = [
     path('likeSong/<int:pk>', views.likeSong, name='likesong'),
     path('dislikeSong/<int:pk>', views.dislikeSong, name='dislikesong'),
     path('add_song_to_list/<int:pk>/<int:pk2>', views.add_song_to_list, name='add_song_to_list'),
+    path('all_songs', views.AllSongsView.as_view(), name='all_songs'),
     path('song/<int:pk>', views.SongDetailView.as_view(), name='song_detail'),
     path('list/<int:pk>', views.ListDetailView.as_view(), name='list_detail'),
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),
