@@ -39,7 +39,9 @@
         </div>
     </form>
 
-    {# Assumes you setup the password_reset view in your URLconf #}
+    <div class="row">
     <p class="p-4"><a href="{% url 'password_reset' %}">Lost password?</a></p>
+    <p class="p-4"><a href="{% url 'signup' %}">Sign up</a></p>
+    </div>
 
 {% endblock %}

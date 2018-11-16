@@ -23,7 +23,7 @@ Logic/document-similarity-master/data
        
 To Do - programovaci:
      Najit youtube linky k jednotlivym skladbam  
-     Odhlasit pri odhlaseni
+     Odhlasit pri odhlaseni - hotovo
      Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu
      Udelat stranku se vsemi pisnickami - skoro hotovo
      Udelat vyhledavani
