@@ -40,12 +40,11 @@
                         <a class="nav-link" href="{% url 'all_songs' %}">All songs</a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0 mr-2">
-                    <input class="form-control mr-sm-2 bg-light text-white" type="search" placeholder="Search"
+                <form class="form-inline my-2 my-lg-0 mr-2" type="get">
+                    <input class="form-control mr-sm-2 bg-light text-black" type="search" id="search_box" name="search_box" placeholder="Search"
                            aria-label="Search">
-                    <button class="btn btn-outline-success my-2 my-sm-0 bg-light text-dark btn-outline-dark"
-                            type="submit">Search
-                    </button>
+                    <a class="btn btn-outline-success my-2 my-sm-0 bg-light text-dark btn-outline-dark"
+                            type="submit" href="{% url 'search_results' %}">Search</a>
                 </form>
                 <ul class="nav justify-content-end">
                     <li class="nav-item">
@@ -54,8 +53,8 @@
                         <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
                            aria-haspopup="true" aria-expanded="false">{{ user.get_username }}</a>
                         <div class="dropdown-menu">
-                            <a class="dropdown-item" href="#">Settings</a>
-                            <a class="dropdown-item" href="{% url 'logout'%}?next={{request.path}}">Log out</a>
+                            <a class="dropdown-item" href="">Settings</a>
+                            <a class="dropdown-item" href="{% url 'logout' %}?next={{request.path}}">Log out</a>
                         </div>
                     </li>
                     {% else %}

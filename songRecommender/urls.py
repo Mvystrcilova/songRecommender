@@ -13,13 +13,15 @@ urlpatterns = [
     path('song/<int:pk>', views.SongDetailView.as_view(), name='song_detail'),
     path('list/<int:pk>', views.ListDetailView.as_view(), name='list_detail'),
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),
-    path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs')
+    path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs'),
+
 ]
 
 urlpatterns += [
     path('list/create/', views.ListCreate.as_view(), name='list_create'),
     path('list/<int:pk>/update/', views.ListUpdate.as_view(), name='list_update'),
     path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
+
 ]
 
 urlpatterns += [
@@ -27,4 +29,5 @@ urlpatterns += [
     url(r'^signup/$', views.signup, name='signup'),
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='activate'),
+    url(r'^search_results/?$', views.search, name='search_results'),
 ]

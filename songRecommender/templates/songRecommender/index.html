@@ -5,7 +5,7 @@
     <div class="row" style="margin-bottom: 2%">
 
         <div class="col-md-6">
-            <p style="margin-top: 5%">Doporucene skladby:</p>
+            <p style="margin-top: 5%">Songs for you:</p>
             {% if home_list %}
                 <ul class="list-group" style="margin-bottom: 2%">
                     {% for song in home_list %}
@@ -20,7 +20,7 @@
         </div>
 
         <div class="col-md-6">
-            <p style="margin-top: 5%">Vase seznamy skladeb:</p>
+            <p style="margin-top: 5%">Your lists:</p>
             <ul class="list-group">
                 <li class="list-group-item">
                     <a href="{% url 'recommended_songs' %}">Played</a>

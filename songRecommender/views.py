@@ -26,10 +26,13 @@ from .tokens import account_activation_token
 
 from songRecommender.forms import SongModelForm, ListModelForm
 
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
-# Create your views here.
 
 class HomePageView(LoginRequiredMixin, generic.ListView):
+    """class showing the home page
+    shows his lists and recommended songs to the user"""
+
     model = Distance_to_User
     context_object_name = 'home_list'
     template_name = 'songRecommender/index.html'
@@ -44,6 +47,8 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
 
 
 class SongDetailView(LoginRequiredMixin, generic.DetailView):
+    """class creating a detail view for each song
+    """
     model = Song
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
@@ -250,4 +255,9 @@ def logout(request):
     return render(request, 'registration/logged_out.html')
 
 
+def search(request):
+    vector = SearchVector('artist', 'name')
+    query = SearchQuery('bla')
+    entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
 
+    return redirect('search_results')
