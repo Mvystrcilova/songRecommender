@@ -256,8 +256,14 @@ def logout(request):
 
 
 def search(request):
-    vector = SearchVector('artist', 'name')
-    query = SearchQuery('bla')
-    entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')
+    vector = SearchVector('artist', 'song_name')
+    if 'q' in request.GET and request.GET['q']:
+        q = request.GET['q']
+        query = SearchQuery(q)
 
-    return redirect('search_results')
+    entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')[:10]
+
+    return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q})
+
+# def search_form(request):
+#     return render(request, 'base_generic.html')

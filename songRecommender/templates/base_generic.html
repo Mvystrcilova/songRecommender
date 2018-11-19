@@ -40,11 +40,11 @@
                         <a class="nav-link" href="{% url 'all_songs' %}">All songs</a>
                     </li>
                 </ul>
-                <form class="form-inline my-2 my-lg-0 mr-2" type="get">
-                    <input class="form-control mr-sm-2 bg-light text-black" type="search" id="search_box" name="search_box" placeholder="Search"
+                <form class="form-inline my-2 my-lg-0 mr-2" type="get" action="/search_results/">
+                    <input class="form-control mr-sm-2 bg-light text-black" type="text" id="search_box" name="q" placeholder="Search"
                            aria-label="Search">
-                    <a class="btn btn-outline-success my-2 my-sm-0 bg-light text-dark btn-outline-dark"
-                            type="submit" href="{% url 'search_results' %}">Search</a>
+                    <button class="btn btn-outline-success my-2 my-sm-0 bg-light text-dark btn-outline-dark"
+                            type="submit">Search</button>
                 </form>
                 <ul class="nav justify-content-end">
                     <li class="nav-item">
@@ -88,8 +88,5 @@
         integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
         crossorigin="anonymous"></script>
 <script src="{% static 'js/bootstrap.min.js' %}"></script>
-<script src="{% static 'js/jquery-3.1.1.min.js' %}"></script>
-<script src="{% static 'js/jquery.waypoints.min.js' %}"></script>
-<script src="{% static 'js/infinite.min.js' %}"></script>
 </body>
 </html>

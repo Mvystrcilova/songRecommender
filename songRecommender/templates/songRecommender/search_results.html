@@ -1,12 +1,14 @@
 {% extends 'base_generic.html' %}
 
+{% block content %}
+<p>Tohle je search_resutls</p>
 <div class="row">
         {% if entries %}
             <div class="col-md-8 p-3">
                 <ul class="list-group">
                     {% for entry in entries %}
                         <li class="list-group-item">
-                            <a class="list-item col-md-8"  href="{% url 'song_detail' entry.pk %}">{{ song.song_name }} {{song.artist }}</a>
+                            <a class="list-item col-md-8"  href="{% url 'song_detail' entry.pk %}">{{ entry.song_name }} {{entry.artist }}</a>
                             <button class="btn btn-outline-dark col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" style="float: right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Add to list</button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
@@ -34,3 +36,4 @@
             </div>
         {% endif %}
     </div>
+{% endblock %}
