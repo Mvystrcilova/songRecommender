@@ -15,7 +15,7 @@
                             {% if my_lists %}
                                 {% for list in my_lists %}
                                     <a class="dropdown-item"
-                                    href="{% url 'add_song_to_list' entry list.pk %}">{{ list.name }}</a>
+                                    href="{% url 'add_song_to_list' entry.pk list.pk %}">{{ list.name }}</a>
                                 {% endfor %}
                             {% else %}
                                 <p class="dropdown-item" href="">You have not created any lists</p>

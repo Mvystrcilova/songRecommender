@@ -21,6 +21,7 @@ urlpatterns += [
     path('list/create/', views.ListCreate.as_view(), name='list_create'),
     path('list/<int:pk>/update/', views.ListUpdate.as_view(), name='list_update'),
     path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
+    path('add_to_list_failed/<int:pk>/<int:pk2>', views.add_to_list_failed, name='add_to_list_failed')
 
 ]
 

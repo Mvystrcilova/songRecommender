@@ -42,12 +42,12 @@ You need to have `docker` and `docker-compose` installed to deploy
 containerized application.
  
 ## To Do - programovaci:
-* Najit youtube linky k jednotlivym skladbam  
-* Odhlasit pri odhlaseni - hotovo
+* zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk
 * Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu
+* Najit youtube linky k jednotlivym skladbam - uz vim jak
+* Odhlasit pri odhlaseni - hotovo
 * Udelat stranku se vsemi pisnickami - hotovo
 * Udelat vyhledavani - hotovo
-* Trochu omezit co lze pridat
 * Regexovat youtube linky - hotovo
 * Delat si ucty + maily - hotovo
 * Dat moznost aby se pisnicka libila - hotovo
@@ -59,4 +59,4 @@ containerized application.
 * Okomentovat kod
 * Vytvorit dokumentaci strojovou
 * vytvorit dokumentaci programatorskou
-* udelat balicek
+* udelat balicek - hotovo

@@ -8,12 +8,14 @@ from django.forms import ModelForm
 # Create your models here
 
 class Song(models.Model):
+    """a model representing the Song table in the database,
+    stores the song name, artist, lyrics and link and also the distance to other songs"""
     song_name = models.CharField(max_length=100)
     artist = models.CharField(max_length=100)
     text = models.TextField()
     link = models.URLField() #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
-    pole_co_tu_jen_oxiduje = models.CharField(null=True, max_length=1)
+    pole_co_tu_jen_oxiduje = models.CharField(null=True, max_length=1)   # for when debugging migrations
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
@@ -29,6 +31,8 @@ class Song(models.Model):
 
 
 class Profile(models.Model):
+    """an one to one field to user, is created and also deleted with the user
+    it has the purpose of having a many to many connection to played songs and nearby songs"""
     user = models.OneToOneField(User, on_delete=models.PROTECT)
     played_songs = models.ManyToManyField(Song, through='Played_Song', related_name='Songs_played_by_user')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
@@ -53,23 +57,24 @@ class Profile(models.Model):
     #     instance.profile.save()
 
     def update_profile(request, user_id):
+        """if the profile is updated, the user is updated too"""
         user = User.objects.get(pk=user_id)
         user.save()
 
     @receiver(post_save, sender=User)
     def update_user_profile(sender, instance, created, **kwargs):
+        """when the user is created or updated the profile is created or updated as well"""
         if created:
             Profile.objects.create(user=instance)
         instance.profile.save()
 
 
-
 class List(models.Model):
+    """a model representing """
     name = models.CharField(max_length=100, default='My_List')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     songs = models.ManyToManyField(Song, through='Song_in_list', related_name= 'songs_in_list')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name= 'nearby_songs')
-
 
     def __str__(self):
         return self.name

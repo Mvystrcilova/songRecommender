@@ -2,6 +2,7 @@ import pandas
 import string
 import urllib.request
 from bs4 import BeautifulSoup
+import time
 
 df = pandas.read_csv('~/Documents/matfyz/rocnikac/songs_with_lyrics', sep=';', quotechar='"', names=[ 'artist', 'songTitle', 'lyrics'], engine='python', error_bad_lines=False, usecols=[2,3,4])
 df = df.drop_duplicates(subset=['artist', 'songTitle'])
@@ -18,7 +19,8 @@ for i, row in df.iterrows():
         soup = BeautifulSoup(html, 'html.parser')
         # for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
         #     print('https://www.youtube.com' + vid['href'])
-
+        if (( i % 500) == 0) and (i != 0):
+            time.sleep(600)
         vid = soup.findAll(attrs={'class':'yt-uix-tile-link'})[0]
         l = 'https://www.youtube.com' + vid['href']
         df.at[i, 'link'] = l

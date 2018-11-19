@@ -6,9 +6,9 @@ from django.urls import reverse
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.urls import reverse_lazy
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
-# from songRecommender.Logic.Text_Shaper import get_W2V_distance
+#from songRecommender.Logic.Text_Shaper import get_W2V_distance
 from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
-from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
+from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url, recalculate_distances
 
 from django.contrib.sites.shortcuts import get_current_site
 from django.utils.encoding import force_bytes
@@ -38,7 +38,9 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
     template_name = 'songRecommender/index.html'
 
     def get_queryset(self):
-        return Distance_to_User.objects.filter(user_id=self.request.user.pk)
+        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.pk).exclude(opinion=-1)[:10]
+        return Distance_to_User.objects.filter(user_id=self.request.user.pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
 
     def get_context_data(self, **kwargs):
         context = super(HomePageView, self).get_context_data(**kwargs)
@@ -53,10 +55,12 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
 
-    def get_context_data(self, *, object_list=None, **kwargs):
 
+    def get_context_data(self, *, object_list=None, **kwargs):
         context = super(SongDetailView, self).get_context_data(**kwargs)
-        context['played_song'] = Played_Song.objects.filter(song_id1=context['object'], user_id=self.request.user.profile)
+        check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
+        context['played_song'] = Played_Song.objects.filter(
+            song_id1=context['object'], user_id=self.request.user.profile)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
         return context
@@ -105,8 +109,11 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)[:10]
-        context['nearby_songs'] = Distance_to_User.objects.all().filter(user_id=self.request.user.pk)[:10]
+        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.pk).exclude(opinion=-1)[:10]
+        context['played_songs'] = played_songs
+        context['nearby_songs'] = Distance_to_User.objects.all().filter(
+            user_id=self.request.user.pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
 
         return context
 
@@ -122,6 +129,8 @@ class AllSongsView(LoginRequiredMixin, generic.ListView):
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
         return context
+
+
 class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     model = Distance_to_User
     template_name = 'songRecommender/recommended_songs.html'
@@ -129,23 +138,30 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        return Distance_to_User.objects.all().filter(user_id=self.request.user.pk)
+        played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.pk).exclude(opinion=-1)
+        return Distance_to_User.objects.all().filter(
+            user_id=self.request.user.pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)
+        )
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk)
+        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.pk).exclude(opinion=-1)
         # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
 
 
 def likeSong(request, pk):
-    played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
+    played_song = Played_Song.objects.filter(song_id1_id__exact=pk, user_id=request.user.profile).get()
     if played_song.opinion != 1:
         played_song.opinion = 1
+
     else:
         played_song.opinion = 0
     played_song.save()
+
+    recalculate_distances(request)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -154,9 +170,13 @@ def dislikeSong(request, pk):
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     if played_song.opinion != -1:
         played_song.opinion = -1
+
+
     else:
         played_song.opinion = 0
     played_song.save()
+
+    recalculate_distances(request)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -166,31 +186,36 @@ def addSong(request):
     if request.method == 'POST':
         form = SongModelForm(request.POST)
         if form.is_valid():
-            song = form.save(commit=True)
-            new_link = change_youtube_url(song.link)
-            if new_link:
-                song.link = new_link
-                song.save()
+            song, created = Song.objects.get_or_create(song_name=form.song_name, artist=form.artist)
+            if created:
+                song = form.save(commit=True)
+                new_link = change_youtube_url(song.link)
+                if new_link:
+                    song.link = new_link
+                    song.save()
+                else:
+                    form = SongModelForm()
+                    return render(request, 'songRecommender/addSong.html', {'form': form})
+
+                TFidf_distances = get_TFidf_distance(song)
+    #            W2V_distances = get_W2V_distance(song)
+
+                save_distances(TFidf_distances, song, "TF-idf")
+    #            save_distances(W2V_distances, song, "W2V")
+
+                played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
+                played_song.save()
+
+                save_user_distances(song, request.user, "TF-idf")
+
+                lists = List.objects.all().filter(user_id_id=request.user.id)
+                for l in lists:
+                    save_list_distances(song, l, request.user, "TF-idf")
+
+                return HttpResponseRedirect(reverse('recommended_songs'))
+
             else:
-                form = SongModelForm()
-                return render(request, 'songRecommender/addSong.html', {'form': form})
-
-            TFidf_distances = get_TFidf_distance(song)
-#            W2V_distances = get_W2V_distance(song)
-
-            save_distances(TFidf_distances, song, "TF-idf")
-#            save_distances(W2V_distances, song, "W2V")
-
-            played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
-            played_song.save()
-
-            save_user_distances(song, request.user, "TF-idf")
-
-            lists = List.objects.all().filter(user_id_id=request.user.id)
-            for l in lists:
-                save_list_distances(song, l, request.user, "TF-idf")
-
-            return HttpResponseRedirect(reverse('recommended_songs'))
+                return render(request, 'add_song_failed')
 
     else:
         form = SongModelForm()
@@ -210,7 +235,7 @@ def signup(request):
             message = render_to_string('account_activation_email.html', {
                 'user': user,
                 'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
                 'token': account_activation_token.make_token(user),
             })
             user.email_user(subject, message)
@@ -234,7 +259,7 @@ def activate(request, uidb64, token):
         login(request, user)
         return redirect('index')
     else:
-        return render(request, 'account_activation_invalid.html')
+        return redirect(request, 'account_activation_invalid.html')
 
 
 def account_activation_sent(request):
@@ -242,12 +267,24 @@ def account_activation_sent(request):
 
 
 def add_song_to_list(request, pk, pk2):
-    song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
-    song_in_list.save()
+    try:
+        Song_in_List.objects.get(song_id_id=pk, list_id_id=pk2)
 
-    check_if_in_played(pk, request.user.profile, is_being_played=False)
+    except:
+        song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
+        song_in_list.save()
 
-    return redirect('song_detail', pk)
+        check_if_in_played(pk, request.user, is_being_played=False)
+
+        return redirect('song_detail', pk)
+
+    return redirect('add_to_list_failed', pk, pk2)
+
+def add_to_list_failed(request, pk, pk2):
+    song = Song.objects.get(id=pk)
+    list = List.objects.get(id=pk2)
+
+    return render(request, 'songRecommender/add_to_list_failed.html', {'song': song, 'list': list})
 
 def logout(request):
 
@@ -262,8 +299,6 @@ def search(request):
         query = SearchQuery(q)
 
     entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')[:10]
+    my_lists = List.objects.all().filter(user_id=request.user)
 
-    return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q})
-
-# def search_form(request):
-#     return render(request, 'base_generic.html')
+    return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q, 'my_lists': my_lists})
