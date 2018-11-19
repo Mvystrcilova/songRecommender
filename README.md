@@ -43,10 +43,10 @@ containerized application.
  
 ## To Do - programovaci:
 * Najit youtube linky k jednotlivym skladbam  
-* Odhlasit pri odhlaseni
+* Odhlasit pri odhlaseni - hotovo
 * Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu
-* Udelat stranku se vsemi pisnickami - skoro hotovo
-* Udelat vyhledavani
+* Udelat stranku se vsemi pisnickami - hotovo
+* Udelat vyhledavani - hotovo
 * Trochu omezit co lze pridat
 * Regexovat youtube linky - hotovo
 * Delat si ucty + maily - hotovo

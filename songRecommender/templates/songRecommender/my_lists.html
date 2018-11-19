@@ -3,7 +3,12 @@
 
 {% block content %}
     <div class="row">
-        <h1 class="col-md-3">My lists: </h1>
+        <h1 class="col-md-3">My lists:</h1>
+    </div>
+    <div class="row">
+        <button class="btn btn-outline-success ml-3 mt-3 bg-light text-dark btn-outline-dark"
+                    type="submit"><a href="{% url 'list_create' %}">Create new list</a>
+        </button>
     </div>
     <div class="row">
         {% if played_songs %}
@@ -15,6 +20,9 @@
                             <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1 }}</a>
                         </li>
                     {% endfor %}
+                    <li class="list-unstyled">
+                        <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2" href="{% url 'recommended_songs' %}">Show more</a>
+                    </li>
                 </ul>
             </div>
             <div class="col-md-6 p-3">
@@ -25,6 +33,9 @@
                         <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id }}</a>
                     </li>
                     {% endfor %}
+                    <li class="list-unstyled">
+                        <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2" href="{% url 'recommended_songs' %}">Show more</a>
+                    </li>
                 </ul>
             </div>
         {% else %}
@@ -45,24 +56,32 @@
                 {% if l.songs.all %}
                     <div class="col-md-6">
                         <ul class="list-group">
-                            <a class="p-3" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
-                            <p class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
-                    type="submit"><a href="{% url 'list_delete'  l.pk %}">-</a>
+                            <li class="list-unstyled float-lg-right mt-4">
+                                <a class="col-md-2" href="{% url 'list_detail' l.pk %}">{{ l.name }}</a>
+                                <a class="btn btn-outline-success col-md-1 bg-light text-dark btn-outline-dark float-center mb-2"
+                                   type="submit" href="{% url 'list_delete'  l.pk %}">-</a>
+                            </li>
                             {% for song in l.songs.all %}
                                 <li class="list-group-item">
                                     <a href="{% url 'song_detail' song.pk %}"> {{ song }} </a>
                                 </li>
                             {% endfor %}
+                            <li class="list-unstyled">
+                                <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2 mb-3" href="{% url 'list_detail' l.pk %}">Show more</a>
+                            </li>
                         </ul>
                     </div>
                     <div class="col-md-6">
-                        <ul class="list-group">
-                            <p class="p-2">Here are songs similar to {{ l.name }} </p>
+                        <ul class="list-group mt-3">
+                            <p class="m-3">Here are songs similar to {{ l.name }} </p>
                             {% for nearby_song in l.nearby_songs.all|slice:"0:10" %}
                                 <li class="list-group-item">
                                     <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
                                 </li>
                             {% endfor %}
+                            <li class="list-unstyled">
+                                <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2 mb-3" href="{% url 'list_detail' l.pk %}">Show more</a>
+                            </li>
                         </ul>
                     </div>
                 {% else %}
@@ -77,13 +96,11 @@
                 {% endif %}
             </div>
         {% endfor %}
-        <button class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
-                    type="submit"><a href="{% url 'list_create' %}">+</a>
-            </button>
+
     {% else %}
         <p>You have not created any list</p>
-        <button class="btn btn-outline-success mt-4 col-md-6  bg-light text-dark btn-outline-dark"
-                    type="submit"><a href="{% url 'list_create' %}">+</a>
+        <button class="btn btn-outline-success mb-4 mr-4 col-md-6  bg-light text-dark btn-outline-dark"
+                    type="submit"><a href="{% url 'list_create' %}">Create new list</a>
         </button>
     {% endif %}
 {% endblock %}

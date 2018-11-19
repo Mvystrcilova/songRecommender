@@ -5,3 +5,4 @@ Logic/document-similarity-master
 Logic/GoogleNews-vectors-negative300.bin
 **/__pycache__
 *.pyc
+songRecommender/migrations

@@ -18,6 +18,7 @@ from .forms import SignUpForm
 
 from django.contrib.auth import login
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.utils.encoding import force_text
 from django.utils.http import urlsafe_base64_decode
@@ -25,10 +26,13 @@ from .tokens import account_activation_token
 
 from songRecommender.forms import SongModelForm, ListModelForm
 
+from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
-# Create your views here.
 
 class HomePageView(LoginRequiredMixin, generic.ListView):
+    """class showing the home page
+    shows his lists and recommended songs to the user"""
+
     model = Distance_to_User
     context_object_name = 'home_list'
     template_name = 'songRecommender/index.html'
@@ -43,6 +47,8 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
 
 
 class SongDetailView(LoginRequiredMixin, generic.DetailView):
+    """class creating a detail view for each song
+    """
     model = Song
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
@@ -104,7 +110,8 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
 
         return context
 
-class AllSongsView(generic.ListView):
+
+class AllSongsView(LoginRequiredMixin, generic.ListView):
     model = Song
     template_name = 'songRecommender/all_songs.html'
     context_object_name = 'songs'
@@ -154,6 +161,7 @@ def dislikeSong(request, pk):
     return redirect('song_detail', request.path.split('/')[2])
 
 
+@login_required()
 def addSong(request):
     if request.method == 'POST':
         form = SongModelForm(request.POST)
@@ -240,3 +248,22 @@ def add_song_to_list(request, pk, pk2):
     check_if_in_played(pk, request.user.profile, is_being_played=False)
 
     return redirect('song_detail', pk)
+
+def logout(request):
+
+    logout(request)
+    return render(request, 'registration/logged_out.html')
+
+
+def search(request):
+    vector = SearchVector('artist', 'song_name')
+    if 'q' in request.GET and request.GET['q']:
+        q = request.GET['q']
+        query = SearchQuery(q)
+
+    entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank')[:10]
+
+    return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q})
+
+# def search_form(request):
+#     return render(request, 'base_generic.html')

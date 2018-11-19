@@ -75,21 +75,39 @@
             {% endif %}
         </div>
 
-        <div class="col-md-4">
+        <div class="infinite-container col-md-4">
             <p style="margin-top: 1%">Skladby podobne teto:</p>
             <ul class="list-group" style="margin-bottom: 2%">
-                {% for nearby_song in song.songs_nearby.all|slice:"0:10" %}
+                {% for nearby_song in song.songs_nearby.all %}
+                <div class="infinite-item">
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
                     </li>
+                </div>
                 {% endfor %}
             </ul>
         </div>
 
     </div>
-    <div clas="row">
+    <div class="loading" style="display: none;">
+    Loading...
+  </div>
 
-    </div>
+  {% if page_obj.has_next %}
+    <a class="infinite-more-link" href="?page={{ song.songs_nearby.next_page_number }}">More</a>
+  {% endif %}
+
+  <script>
+    var infinite = new Waypoint.Infinite({
+      element: $('.infinite-container')[0],
+      onBeforePageLoad: function () {
+        $('.loading').show();
+      },
+      onAfterPageLoad: function ($items) {
+        $('.loading').hide();
+      }
+    });
+  </script>
 
 
 {% endblock %}
