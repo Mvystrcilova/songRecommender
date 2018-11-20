@@ -77,7 +77,7 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
         # distance_to_list = Distance_to_List.get(distance=list_to_song_distance / counter, distance_Type=distance_type,
         #                                 song_id_id=added_song.pk, list_id_id=the_list.pk)
     else:
-        distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song, list_id_id=the_list.pk,
+        distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song.pk, list_id_id=the_list.pk,
                                                                  distance_Type=distance_type,
                                                                  defaults={'distance': 0})
         # distance_to_list = Distance_to_List(0, distance_Type=distance_type,

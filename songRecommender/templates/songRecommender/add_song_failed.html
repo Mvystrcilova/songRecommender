@@ -1,0 +1,7 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <div class="mt-4">
+        <p>Sadly, you cannot add <strong>{{ song }}</strong>  It is probably already added <a href="{% url 'song_detail' song.pk %}">Here</a> .</p>
+    </div>
+{% endblock %}
