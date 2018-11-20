@@ -33,14 +33,16 @@ def change_youtube_url(url):
     return youtube_regex_match
 
 
-df = pandas.read_csv('~/Documents/matfyz/rocnikac/songs_with_lyrics', sep=';', quotechar='"', names=[ 'artist', 'songTitle', 'lyrics'], engine='python', error_bad_lines=False, usecols=[2,3,4])
+df = pandas.read_csv('~/Documents/matfyz/rocnikac/songs_with_lyrics', sep=';', quotechar='"',
+                     names=['artist', 'songTitle', 'lyrics'], engine='python',
+                     error_bad_lines=False, usecols=[2, 3, 4])
 df = df.drop_duplicates(subset=['artist', 'songTitle'])
 
 h = open('songs_for_database', 'a', encoding='utf8')
 
 for i, row in df.iterrows():
 
-    if i >= 2761:
+    if i >= 4278:
         try:
             textToSearch = row['artist'] + ' ' + row['songTitle']
             query = urllib.parse.quote(textToSearch)

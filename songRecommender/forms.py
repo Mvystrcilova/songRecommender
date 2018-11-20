@@ -5,12 +5,6 @@ from .models import Song, List, Played_Song
 from django.forms import ModelForm
 
 
-# class PlayedModelFrom(ModelForm):
-#     class Meta:
-#         model = Played_Song
-#         fields = ['user_id', 'song_id1', 'numOfTimesPlayed', 'opinion']
-
-
 class SongModelForm(ModelForm):
     """form that allows the user to add a new song into the database"""
     song_name = forms.CharField(label='',

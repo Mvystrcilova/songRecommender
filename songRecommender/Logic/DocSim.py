@@ -15,6 +15,7 @@ class DocSim(object):
             try:
                 vec = self.w2v_model[word]
                 word_vecs.append(vec)
+
             except KeyError:
                 # Ignore, if the word doesn't exist in the vocabulary
                 pass

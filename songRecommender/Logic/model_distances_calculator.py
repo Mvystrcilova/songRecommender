@@ -80,7 +80,6 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
                                                                  distance_Type=distance_type,
                                                                  defaults={'distance': 0})
 
-
     distance_to_list.save()
 
     return

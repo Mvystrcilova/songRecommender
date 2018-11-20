@@ -5,8 +5,7 @@ from django.db.models.signals import post_save
 from django.dispatch import receiver
 from django.forms import ModelForm
 
-# Create your models here
-
+""""""
 
 class Song(models.Model):
     """a model representing the Song table in the database,
@@ -56,8 +55,8 @@ class List(models.Model):
     """a model representing """
     name = models.CharField(max_length=100, default='My_List')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
-    songs = models.ManyToManyField(Song, through='Song_in_list', related_name= 'songs_in_list')
-    nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name= 'nearby_songs')
+    songs = models.ManyToManyField(Song, through='Song_in_list', related_name='songs_in_list')
+    nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name='nearby_songs')
 
     def __str__(self):
         return self.name
@@ -150,9 +149,9 @@ class Distance_to_List(models.Model):
     )
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES)
 
-    def get_nearby_songs(listid):
-        nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
-        return nearby_songs
+    # def get_nearby_songs(listid):
+    #     nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
+    #     return nearby_songs
 
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name
@@ -177,9 +176,9 @@ class Distance_to_User(models.Model):
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 
-    def get_nearby_songs(userid):
-        nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
-        return nearby_songs
+    # def get_nearby_songs(userid):
+    #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
+    #     return nearby_songs
 
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name

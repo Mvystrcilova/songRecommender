@@ -2,6 +2,7 @@ from django.urls import path
 from songRecommender import views
 from django.conf.urls import url
 
+"""this module contains all urls that the app contains"""
 
 urlpatterns = [
     path('index/', views.HomePageView.as_view(), name='index'),

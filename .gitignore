@@ -6,3 +6,6 @@ Logic/GoogleNews-vectors-negative300.bin
 **/__pycache__
 *.pyc
 songRecommender/migrations
+songRecommender/data/song_*
+Logic/TF-idf/*
+

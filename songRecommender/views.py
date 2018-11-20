@@ -1,12 +1,12 @@
 from django.views import generic
 from django.shortcuts import render, redirect
-from django.http import HttpResponseRedirect, HttpResponse
+from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
 
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
-#from songRecommender.Logic.Text_Shaper import get_W2V_distance
+# from songRecommender.Logic.Text_Shaper import get_W2V_distance
 from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url, recalculate_distances
 from songRecommender.forms import SongModelForm, ListModelForm
@@ -26,23 +26,37 @@ from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
+"""this module contains all the view in the application"""
 
 
 class HomePageView(LoginRequiredMixin, generic.ListView):
     """class showing the home page
-    shows his lists and recommended songs to the user"""
+    shows his lists and recommended songs to the user
+
+    Overridden methods:
+    ------------------
+    get_queryset()
+        :returns all songs the user has not played yet but with respect
+        to their distance to the user
+
+    get_context_data()
+        besides the queryset specified in get_queryset() it adds the users
+        lists to the context and returns the updated context
+    """
 
     model = Distance_to_User
     context_object_name = 'home_list'
     template_name = 'songRecommender/index.html'
 
     def get_queryset(self):
-        """:returns """
+        """:returns all songs the user has not played yet but with respect
+        to their distance to the user """
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk).exclude(opinion=-1)[:10]
         return Distance_to_User.objects.filter(user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
 
     def get_context_data(self, **kwargs):
+        """:returns the queryset with the current users lists included"""
         context = super(HomePageView, self).get_context_data(**kwargs)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
         return context
@@ -50,13 +64,30 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
 
 class SongDetailView(LoginRequiredMixin, generic.DetailView):
     """class creating a detail view for each song
+
+    Overridden Methods
+    -----------------
+    get_context_data()
+        besides the song it also checks if the song the user is accessing was
+        viewed before, if not, it is added to the played songs
+
+        then the played song with this song and the current user is passed
+        and all the current users lists
     """
     model = Song
     template_name = 'songRecommender/song_detail.html'
     paginate_by = 10
 
-
     def get_context_data(self, *, object_list=None, **kwargs):
+        """function that returns the context for the html page,
+        has the same parameters as base function
+
+        additionally checks if the song the user is viewing is already in his played
+        songs, if not it adds it
+
+        the context provided, besides the song specified by an unique id
+        is also the played song corresponding to the song from the detail view and
+        all the lists created by the current user"""
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
         context['played_song'] = Played_Song.objects.filter(
@@ -67,6 +98,14 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 class ListDetailView(LoginRequiredMixin, generic.DetailView):
+    """class generating a detail view for a particular list
+
+    Overridden Methods
+    -----------------
+    get_gueryset()
+        :returns all lists created by the current user, not just
+        the one in the view
+    """
     model = List
     template_name = 'songRecommender/list_detail.html'
     paginate_by = 10
@@ -76,29 +115,49 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
 
 class ListCreate(LoginRequiredMixin, CreateView):
+    """ class representing a create view, which means a form
+    for a list
+
+    Overridden Methods
+    -----------------
+
+    post()
+        since the user does not fill the user_id field
+        after submiting the form, the user_id is added to the list
+        and saved afterwards
+    """
+
     model = List
     fields = ['name']
 
     def post(self, request, *args, **kwargs):
+        """overrides the base post method
+        adds the current user id to the lists user_id field
+        in table"""
         form = ListModelForm(data=request.POST)
         if form.is_valid():
-            list = form.save(commit=False)
-            list.user_id = request.user
-            list.save()
+            _list = form.save(commit=False)
+            _list.user_id = request.user
+            _list.save()
         return HttpResponseRedirect(reverse('index'))
 
 
 class ListUpdate(LoginRequiredMixin, UpdateView):
+    """build in django view for updating an instance of a model in the database,
+     in this case a list"""
     model = List
     # fields = ['name']
 
 
 class ListDelete(LoginRequiredMixin, DeleteView):
+    """build in django view for deleting an instance of a model
+    from the database, in this case a list"""
     model = List
     success_url = reverse_lazy('my_lists')
 
 
 class MyListsView(LoginRequiredMixin, generic.ListView):
+    """a class based view to """
     model = List
     template_name = 'songRecommender/my_lists.html'
     context_object_name = 'moje_listy'
@@ -137,7 +196,7 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
     displays songs the user played and did not dislike and the songs that are
     recommended to him based on all played songs
 
-    Overriden Methods
+    Overridden Methods
     -----------------
 
     get_query_set(self)
@@ -181,6 +240,8 @@ def likeSong(request, pk):
     played_song.save()
 
     recalculate_distances(request)
+    # TO DO: distance type can be also passed here
+
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -196,6 +257,7 @@ def dislikeSong(request, pk):
     played_song.save()
 
     recalculate_distances(request)
+    # TO DO: distance type can be also passed here
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -228,10 +290,11 @@ def addSong(request):
 
                 # calculates the distances of this song to all other songs already in the database
                 TFidf_distances = get_TFidf_distance(song)
-    #           W2V_distances = get_W2V_distance(song)
+                # W2V_distances = get_W2V_distance(song)
+
                 # saves the distances to the database
                 save_distances(TFidf_distances, song, "TF-idf")
-    #            save_distances(W2V_distances, song, "W2V")
+                # save_distances(W2V_distances, song, "W2V")
 
                 # adds the song the user added to his played songs
                 played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
@@ -239,12 +302,14 @@ def addSong(request):
 
                 # calculates the distance of this song to the user
                 save_user_distances(song, request.user, "TF-idf")
+                # save_user_distances(song, request.user, "W2V")
 
                 #  calculates the distance of this song to all of the lists the current
                 # user created
                 lists = List.objects.all().filter(user_id_id=request.user.id)
                 for l in lists:
                     save_list_distances(song, l, request.user, "TF-idf")
+                    # save_list_distances(song, l, request.user, "W2V")
 
                 # redirects the user to his recommended songs
                 return HttpResponseRedirect(reverse('recommended_songs'))

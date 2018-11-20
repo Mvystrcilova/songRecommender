@@ -40,6 +40,10 @@ def change_youtube_url(url):
 
 
 def recalculate_distances(request):
+    """for every song in the database it recalculates
+    the distance to every user and the distance to every list
+    the current user has created"""
+
     songs = Song.objects.all()
     lists = List.objects.all().filter(user_id_id=request.user.id)
 
