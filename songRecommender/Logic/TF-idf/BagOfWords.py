@@ -4,6 +4,7 @@ from sklearn.metrics.pairwise import cosine_similarity
 import pandas
 import numpy as np
 
+
 f = open('songs_with_lyrics', 'r', encoding='utf-8')
 
 #precte cely soubor s pisnickama (jedna tam muze byt vickrat)

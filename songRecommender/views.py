@@ -132,13 +132,31 @@ class AllSongsView(LoginRequiredMixin, generic.ListView):
 
 
 class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
+    """
+    class used for the recommended songs page
+    displays songs the user played and did not dislike and the songs that are
+    recommended to him based on all played songs
+
+    Overriden Methods
+    -----------------
+
+    get_query_set(self)
+        :returns only the songs recommended to the user that he did not played
+        before
+
+    get_context_data
+        :returns the songs recommended based on get_query_set and adds
+        played songs except of those the user disliked to be shown in this
+        view
+    """
     model = Distance_to_User
     template_name = 'songRecommender/recommended_songs.html'
     context_object_name = 'nearby_songs'
     paginate_by = 10
 
     def get_queryset(self):
-        played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk).exclude(opinion=-1)
+        """"""
+        played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk)
         return Distance_to_User.objects.all().filter(
             user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)
@@ -146,7 +164,8 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk).exclude(opinion=-1)
+        context['played_songs'] = Played_Song.objects.all().filter(
+            user_id=self.request.user.profile.pk).exclude(opinion=-1)
         # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
 
         return context
@@ -186,7 +205,8 @@ def addSong(request):
     """is called when a new song is being added
     it checks if the same song is not already in the database, if not, it creates it,
     fixes the youtube link,adds it to the users played songs, and calculates the distance
-     of the added song to the current user and all his lists"""
+     of the added song to the current user and all his lists
+     """
 
     if request.method == 'POST':
         form = SongModelForm(request.POST)

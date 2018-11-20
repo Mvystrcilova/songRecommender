@@ -7,6 +7,7 @@ from django.forms import ModelForm
 
 # Create your models here
 
+
 class Song(models.Model):
     """a model representing the Song table in the database,
     stores the song name, artist, lyrics and link and also the distance to other songs"""
@@ -19,15 +20,6 @@ class Song(models.Model):
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
-
-
-    # def get_absolute_url(self):
-    #     return reverse('song_detail', args=[str(self.id)])
-
-    # def save(self, force_insert=False, force_update=False, using=None,
-    #          update_fields=None):
-    #     self.link
-
 
 
 class Profile(models.Model):
@@ -46,15 +38,6 @@ class Profile(models.Model):
 
     def get_profile(self):
         return self
-
-    # @receiver(post_save, sender=User)
-    # def create_user_profile(sender, instance, created, **kwargs):
-    #     if created:
-    #         Profile.objects.create(user=instance)
-
-    # @receiver(post_save, sender=User)
-    # def save_user_profile(sender, instance, **kwargs):
-    #     instance.profile.save()
 
     def update_profile(request, user_id):
         """if the profile is updated, the user is updated too"""
@@ -84,6 +67,10 @@ class List(models.Model):
 
         
 class Song_in_List(models.Model):
+    """class representing song_in_list table in the database
+    each has a song id and a list id which together create an unique identifier
+    as does an automatically generated unique object id
+    the order field is not being used"""
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(null=True)
@@ -99,9 +86,11 @@ class Song_in_List(models.Model):
         return reverse('song_detail', args=[str(self.song_id.id)])
 
 
-
-
 class Played_Song(models.Model):
+    """class representing a played song
+    for each song, there should be only one played song for each user
+    meaning, the user_id and the song_id create an unique identifier
+    """
     song_id1 = models.ForeignKey(Song, on_delete=models.CASCADE)
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
     numOfTimesPlayed = models.PositiveIntegerField(default=1) #esi neco nebude fungovat tak je to tady
@@ -121,6 +110,14 @@ class Played_Song(models.Model):
 
 
 class Distance(models.Model):
+    """
+    class representing the distance table in the database
+    stores the distance between songs song_1 and song_2
+    there can be more distance types added
+
+    for each distance type there is a method to calculate the distance
+    in songRecommender/Logic/Text_Shaper.py
+    """
     song_1 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_1')
     song_2 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_2')
     distance = models.FloatField(default=0)
@@ -135,6 +132,15 @@ class Distance(models.Model):
 
 
 class Distance_to_List(models.Model):
+    """
+    class representing the distance_to_list table in the database
+    stores distance between a song and each list for every user
+
+    there can be more distance types added
+    each distance types added in the songRecommender/Logic/Text_Shaper.py
+    and then used in songRecommender/Logic/model_distance_calculator.py
+    in save_list_distances
+    """
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True)
     distance = models.FloatField()
@@ -153,6 +159,15 @@ class Distance_to_List(models.Model):
     
 
 class Distance_to_User(models.Model):
+    """
+    class representing the distance_to_user table in the database
+    stores distance between a song and all played songs for every user
+
+    there can be more distance types added
+    each distance types added in the songRecommender/Logic/Text_Shaper.py
+    and then used in songRecommender/Logic/model_distance_calculator.py
+    in save_user_distances
+    """
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True)
     distance = models.FloatField(default=0)
