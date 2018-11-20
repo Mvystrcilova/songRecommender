@@ -43,8 +43,11 @@ containerized application.
  
 ## To Do - programovaci:
 * zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk
-* Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu
-* Najit youtube linky k jednotlivym skladbam - uz vim jak
+* poresit to, kdyz uzivatel dislikne pisnicku aby ji nasel jen pri vylozene vyhledavani
+* Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu - hotovo
+* Najit youtube linky k jednotlivym skladbam - uz vim jak, ale problem
+* Udelat aby se nedala pridat dvakrat stejna pisnicka do list - hotovo
+* Udelat aby se nedala pridat dvakrat stejna pisnicka do databaze - hotovo
 * Odhlasit pri odhlaseni - hotovo
 * Udelat stranku se vsemi pisnickami - hotovo
 * Udelat vyhledavani - hotovo

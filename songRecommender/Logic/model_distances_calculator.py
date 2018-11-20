@@ -18,7 +18,7 @@ def save_user_distances(added_song, cur_user, distance_type):
     for song in all_songs:
         if (song.pk != added_song.pk) and (song.pk in played_songs.values_list('song_id1_id', flat=True)):
 
-            the_song = Played_Song.objects.get(song_id1=song)
+            the_song = Played_Song.objects.get(song_id1=song, user_id_id=cur_user.profile.pk)
 
             if the_song.opinion != -1:
                 the_distance = Distance.objects.get(song_1=song, song_2=added_song,
@@ -58,7 +58,7 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
     for song in all_songs:
         if (song.pk != added_song.pk) and (song.pk in songs_from_list.values_list('song_id_id', flat=True)):
 
-            the_song = Played_Song.objects.get(song_id1=song)
+            the_song = Played_Song.objects.get(song_id1=song, user_id_id=cur_user.profile.pk)
 
             if the_song.opinion != -1:
                 the_distance = Distance.objects.get(song_1=song, song_2=added_song,
@@ -74,14 +74,12 @@ def save_list_distances(added_song, the_list, cur_user, distance_type):
         distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song.pk, list_id_id=the_list.pk,
                                                                  distance_Type=distance_type,
                                                                  defaults={'distance': list_to_song_distance / counter})
-        # distance_to_list = Distance_to_List.get(distance=list_to_song_distance / counter, distance_Type=distance_type,
-        #                                 song_id_id=added_song.pk, list_id_id=the_list.pk)
+
     else:
         distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song.pk, list_id_id=the_list.pk,
                                                                  distance_Type=distance_type,
                                                                  defaults={'distance': 0})
-        # distance_to_list = Distance_to_List(0, distance_Type=distance_type,
-        #                                     song_id_id=added_song.pk, list_id_id=the_list.pk)
+
 
     distance_to_list.save()
 

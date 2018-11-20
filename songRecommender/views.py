@@ -1,9 +1,8 @@
 from django.views import generic
 from django.shortcuts import render, redirect
 from django.http import HttpResponseRedirect, HttpResponse
-from django.urls import reverse
+from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.urls import reverse_lazy
 from django.template.loader import render_to_string
 
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
@@ -24,10 +23,8 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 
 from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
-from django.utils.encoding import force_text
-from django.utils.http import urlsafe_base64_decode
-from django.utils.encoding import force_bytes
-from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_text, force_bytes
+from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
 
 
 
@@ -195,7 +192,8 @@ def addSong(request):
         form = SongModelForm(request.POST)
         # checks if a song with the same name and artist is already in the database
         if form.is_valid():
-            song, created = Song.objects.get_or_create(song_name=form.song_name, artist=form.artist)
+            song, created = Song.objects.get_or_create(song_name=form.cleaned_data['song_name'],
+                                                       artist=form.cleaned_data['artist'])
             # if the song was not in the database, the song will be created and added
             if created:
                 song = form.save(commit=True)
