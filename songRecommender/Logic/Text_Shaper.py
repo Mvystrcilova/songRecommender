@@ -5,17 +5,16 @@ from sklearn.metrics.pairwise import cosine_similarity
 from songRecommender.models import Song, Distance
 import pandas
 
-
+import gensim
 from gensim.models.keyedvectors import KeyedVectors
-# from songRecommender.Logic.DocSim import DocSim
+from songRecommender.Logic.DocSim import DocSim
 
 
 # model_path = 'songRecommender/Logic/GoogleNews-vectors-negative300.bin'
-# w2v_model = KeyedVectors.load_word2vec_format(model_path, binary=True, limit=100000)
+# w2v_model = KeyedVectors.load_word2vec_format(model_path, binary=True, limit=200000)
+# w2v_model.save('w2v_subset')
 
-# w2v_model = pandas.read_csv('/Users/m_vys/Documents/matfyz/rocnikac/djangoApp/rocnikac/songRecommender/Logic/w2v_subset2',
-#                                       sep=';', quotechar='\"',)
-
+w2v_model = KeyedVectors.load('w2v_subset', mmap='r')
 
 def get_TFidf_distance(addedSong):
     """gets all songs from the database except the one we are dealing with,
@@ -51,13 +50,13 @@ def save_distances(distances, addedSong, dist_Type):
     return
 
 
-# def get_W2V_distance(addedSong):
-#     """gets all songs from the database except the one we are dealing with,
-#     computes the distances using W2V and saves them into a dataframe"""
-#     ds = DocSim(w2v_model)
-#     df = pandas.DataFrame(list(Song.objects.all().order_by('-id').values('text')))
-#
-#     # adds the new songs lyrics to the rest of the lyrics
-#     songs = df['text'].tolist()
-#
-#     return ds.calculate_similarity(addedSong.text, songs)
+def get_W2V_distance(addedSong):
+    """gets all songs from the database except the one we are dealing with,
+    computes the distances using W2V and saves them into a dataframe"""
+    ds = DocSim(w2v_model)
+    df = pandas.DataFrame(list(Song.objects.all().order_by('-id').values('text')))
+
+    # adds the new songs lyrics to the rest of the lyrics
+    songs = df['text'].tolist()
+
+    return ds.calculate_similarity(addedSong.text, songs)

@@ -74,10 +74,13 @@
                     <div class="col-md-6">
                         <ul class="list-group mt-3">
                             <p class="m-3">Here are songs similar to {{ l.name }} </p>
-                            {% for nearby_song in l.nearby_songs.all|slice:"0:10" %}
-                                <li class="list-group-item">
-                                    <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
-                                </li>
+                            {% for nearby_song in l.nearby_songs.all|slice:"0:20" %}
+                                {% if nearby_song in l.songs.all %}
+                                {% else %}
+                                    <li class="list-group-item">
+                                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
+                                    </li>
+                                {% endif %}
                             {% endfor %}
                             <li class="list-unstyled">
                                 <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2 mb-3" href="{% url 'list_detail' l.pk %}">Show more</a>

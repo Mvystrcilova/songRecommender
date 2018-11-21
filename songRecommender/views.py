@@ -157,7 +157,21 @@ class ListDelete(LoginRequiredMixin, DeleteView):
 
 
 class MyListsView(LoginRequiredMixin, generic.ListView):
-    """a class based view to """
+    """a class based django view, displays the current users list with songs
+    most similar to those in each list
+
+    Overridden methods
+    ------------------
+    get_queryset(self)
+        :returns not all lists but only lists created by this user
+
+    get_context_data()
+        has same attributes as base method
+        besides the list of the current user, it adds his played sons, but hides those
+        he disliked, and it also adds the songs most recommended for this user except of
+        those he already played
+
+    """
     model = List
     template_name = 'songRecommender/my_lists.html'
     context_object_name = 'moje_listy'
@@ -178,12 +192,29 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
 
 
 class AllSongsView(LoginRequiredMixin, generic.ListView):
+    """ class based django view that shows all songs stored in the database
+    in a not specified order to every user in the same way
+    the only difference is that every user can add those songs to only his own list
+
+    Overridden methods
+    ------------------
+
+    get_context_data()
+        attributes are the same as base method
+        besides all song objects it also return all lists that belong
+        to the current user
+
+    """
     model = Song
     template_name = 'songRecommender/all_songs.html'
     context_object_name = 'songs'
     paginate_by = 15
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        """attributes are the same as base method
+        besides all song objects it also return all lists that belong
+        to the current user"""
+
         context = super(AllSongsView, self).get_context_data(**kwargs)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
 
@@ -208,13 +239,15 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         played songs except of those the user disliked to be shown in this
         view
     """
+
     model = Distance_to_User
     template_name = 'songRecommender/recommended_songs.html'
     context_object_name = 'nearby_songs'
     paginate_by = 10
 
     def get_queryset(self):
-        """"""
+        """:returns only the songs recommended to the user that he did not played
+        before from the table distance_to_user"""
         played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk)
         return Distance_to_User.objects.all().filter(
             user_id=self.request.user.pk).exclude(
@@ -222,6 +255,11 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
+        """
+        :returns the songs recommended based on get_query_set and adds
+        played songs except of those the user disliked to be shown in this
+        view
+        """
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
         context['played_songs'] = Played_Song.objects.all().filter(
             user_id=self.request.user.profile.pk).exclude(opinion=-1)
@@ -231,33 +269,52 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
 
 
 def likeSong(request, pk):
+    """
+    this function based view is called when a user likes a song or unlikes a liked song
+    liking a song results into recalculating distances to the user and to
+    all lists with recalculate distances
+
+    :param request: the http request
+    :param pk: the id of the song the user liked
+    :return: redirects to the detail page of the song the user liked
+    """
     played_song = Played_Song.objects.filter(song_id1_id__exact=pk, user_id=request.user.profile).get()
+    # if song was not liked before it is liked
     if played_song.opinion != 1:
         played_song.opinion = 1
 
+    # if song was liked before it is unliked but NOT disliked
     else:
         played_song.opinion = 0
     played_song.save()
 
-    recalculate_distances(request)
-    # TO DO: distance type can be also passed here
-
+    # recalculates the distance of all songs to the user and his lists based
+    recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
 
 def dislikeSong(request, pk):
+    """
+    this function based view is called when a user dislikes a song or undisikes a liked song
+    liking a song results into recalculating distances to the user and to
+    all lists with recalculate distances
+
+    :param request: the http reques
+    :param pk: id of the song the user disliked or undisliked
+    :return: redirects to the detail page of the disliked or undisliked song
+    """
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
+    # if song was not disliked before it is now
     if played_song.opinion != -1:
         played_song.opinion = -1
-
-
+    # if song was disliked before it is now not liked neither disliked
     else:
         played_song.opinion = 0
     played_song.save()
 
-    recalculate_distances(request)
-    # TO DO: distance type can be also passed here
+    # recalculates the distances of all songs to the user and all his lists
+    recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -278,7 +335,8 @@ def addSong(request):
                                                        artist=form.cleaned_data['artist'])
             # if the song was not in the database, the song will be created and added
             if created:
-                song = form.save(commit=True)
+                song.text = form.cleaned_data['text']
+                song.link = form.cleaned_data['link']
                 new_link = change_youtube_url(song.link)
                 # changes the youtube link to an embedable format
                 if new_link:
@@ -401,6 +459,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
+        recalculate_distances(request, "TF-idf")
 
         return redirect('song_detail', pk)
 

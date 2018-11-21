@@ -15,9 +15,6 @@
             {% else %}
                 <p>This list is empty</p>
             {% endif %}
-            <li>
-                <a class="btn btn-outline-success mt-2 col-md-6  bg-light text-dark btn-outline-dark float-md-left m-2">+</a>
-            </li>
             </ul>
         </div>
         <div class="col-md-6">
@@ -25,14 +22,13 @@
             <ul class="list-group list-unstyled" style="margin-bottom: 2%">
             {% if list.nearby_songs.all %}
                 {% for nearby_song in list.nearby_songs.all %}
-                    <li class="list-group-item">
-                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
-                    </li>
+                    {%  if nearby_song in list.songs.all %}
+                    {% else %}
+                        <li class="list-group-item">
+                            <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                        </li>
+                    {% endif %}
                 {% endfor %}
-            <li>
-                <a style="margin-top: 1%" class="btn btn-outline-success mt-2 col-md-6  bg-light text-dark btn-outline-dark float-md-left m-2">...</a>
-            </li>
-
             {% else %}
                 <p>There are no songs similar to those in this list</p>
             {% endif %}

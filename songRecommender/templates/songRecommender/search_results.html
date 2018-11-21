@@ -1,8 +1,8 @@
 {% extends 'base_generic.html' %}
 
 {% block content %}
-<p>Tohle je search_resutls</p>
-<div class="row">
+    <h1>Search results:</h1>
+    <div class="row">
         {% if entries %}
             <div class="col-md-8 p-3">
                 <ul class="list-group">
@@ -25,11 +25,10 @@
                     {% endfor %}
                 </ul>
             </div>
-
         {% else %}
             <div class="col-md-8 p-3">
                 <ul class="list-group">
-                        <li class="list-group-item">
+                        <li class="list-unstyled">
                             <p class="list-group-item">No song matches your search.</p>
                         </li>
                 </ul>

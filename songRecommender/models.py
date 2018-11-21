@@ -52,10 +52,12 @@ class Profile(models.Model):
 
 
 class List(models.Model):
-    """a model representing """
+    """a model representing the list table of the database"""
     name = models.CharField(max_length=100, default='My_List')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
+    # field with all songs that are in this list
     songs = models.ManyToManyField(Song, through='Song_in_list', related_name='songs_in_list')
+    # field with songs and their distance to this list
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name='nearby_songs')
 
     def __str__(self):
@@ -73,6 +75,7 @@ class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(null=True)
+    # for debugging reasons here
     pole_co_tu_jen_oxiduje = models.CharField(max_length=200, null=True)
 
     class Meta:
@@ -92,7 +95,7 @@ class Played_Song(models.Model):
     """
     song_id1 = models.ForeignKey(Song, on_delete=models.CASCADE)
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE)
-    numOfTimesPlayed = models.PositiveIntegerField(default=1) #esi neco nebude fungovat tak je to tady
+    numOfTimesPlayed = models.PositiveIntegerField(default=1)
     OPINION_CHOICES = (
             (1, 'Like'),
             (0, 'No opinion'),

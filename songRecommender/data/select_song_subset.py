@@ -2,8 +2,11 @@ import os
 import pandas
 import string
 
+"""module selecting only a subset from all the data collected because it took too long to load
+and I did not make it at home, will not be necessary later"""
 
 def get_songs_that_have_distances(directory_in_string):
+    """returns: names and artists of songs that we have the distance data available for"""
     directory = os.fsencode(directory_in_string)
 
     songs_with_distances = []
@@ -15,6 +18,8 @@ def get_songs_that_have_distances(directory_in_string):
 
 
 def reduce_file_with_distances(filename, songs_with_distances):
+    """takes every file with all 16000 distances and only leaves 1761 left, for which we have all distances"""
+
     df = pandas.read_csv(filename, sep='\t', names=['artist', 'songTitle', 'distance', 'in_list'], engine='python', error_bad_lines=False, usecols=[0, 1, 2])
     new_filename = filename.split('/')[7] + '_subset'
     h = open(new_filename, 'a', encoding='utf-8')
