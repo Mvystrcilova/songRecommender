@@ -51,7 +51,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
-        load_distances()
+        # load_distances()
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk).exclude(opinion=-1)[:10]
         return Distance_to_User.objects.filter(user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True))

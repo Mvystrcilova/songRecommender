@@ -8,7 +8,7 @@
             <p style="margin-top: 5%">Songs for you:</p>
             {% if home_list %}
                 <ul class="list-group" style="margin-bottom: 2%">
-                    {% for song in home_list %}
+                    {% for song in home_list|slice:"0:10" %}
                         <li class="list-group-item">
                             <a href="{% url 'song_detail' song.song_id.pk %}"> {{ song }}</a>
                         </li>
@@ -36,16 +36,8 @@
         </div>
 
         <div class="col-md-6">
-            {% if home_list.count > 10 %}
-                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block">+
+                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block"><a href="{% url 'list_create' %}">Add List</a>
                 </button>
-            {% endif %}
-        </div>
-        <div class="col-md-6">
-            {% if my_lists.count > 10 %}
-                <button type="button" style="margin-top: 1%" class="btn btn-outline-secondary btn-lg btn-block"> <a href="{% url 'list_form' %}">+</a>
-                </button>
-            {% endif %}
         </div>
 
 

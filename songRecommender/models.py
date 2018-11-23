@@ -21,7 +21,7 @@ class Song(models.Model):
         return self.artist + ' - ' + self.song_name
 
     def get_distance_to_other_songs(self):
-        return self.distance_to_other_songs.order_by('song_2')
+        return self.distance_to_other_songs.order_by('song_2').exclude(id=self.id)
 
 class Profile(models.Model):
     """an one to one field to user, is created and also deleted with the user

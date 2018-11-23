@@ -17,7 +17,7 @@
                     <a class="p-3" href="{% url 'recommended_songs' %}"> Played </a>
                     {% for played_song in played_songs %}
                         <li class="list-group-item">
-                            <a href="{% url 'song_detail' played_song.pk %}">{{ played_song.song_id1 }}</a>
+                            <a href="{% url 'song_detail' played_song.song_id1.pk %}">{{ played_song.song_id1 }}</a>
                         </li>
                     {% endfor %}
                     <li class="list-unstyled">
@@ -74,7 +74,7 @@
                     <div class="col-md-6">
                         <ul class="list-group mt-3">
                             <p class="m-3">Here are songs similar to {{ l.name }} </p>
-                            {% for nearby_song in l.nearby_songs.all|slice:"0:20" %}
+                            {% for nearby_song in l.nearby_songs.all|slice:"0:10" %}
                                 {% if nearby_song in l.songs.all %}
                                 {% else %}
                                     <li class="list-group-item">
