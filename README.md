@@ -20,6 +20,10 @@ Run `pipenv install` command before developing and debugging.
 You need to have `docker` and `docker-compose` installed to deploy
 containerized application.
 
+## Developer documentation
+
+###
+
 ## Recomendation techniques
 
 Right now, there are two possible recommendation techniques that can be used in this application

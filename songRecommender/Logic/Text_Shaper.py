@@ -8,7 +8,7 @@ import pandas
 import gensim
 from gensim.models.keyedvectors import KeyedVectors
 from songRecommender.Logic.DocSim import DocSim
-
+from songRecommender.data.load_distances import load_distances
 
 # model_path = 'songRecommender/Logic/GoogleNews-vectors-negative300.bin'
 # w2v_model = KeyedVectors.load_word2vec_format(model_path, binary=True, limit=200000)

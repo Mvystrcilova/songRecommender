@@ -10,6 +10,8 @@ it would have to import something from django and configure
 settings for this directory although it doesnt have much to
 with the songRecommender app"""
 
+# sed '/https:\/\/www.youtube.com\/embed\/*/ s/$/;/' songs_with_l_and_l > output_songs
+
 def change_youtube_url(url):
     """Takes the youtube url from either the address bar
      or the one from the share option under the Youtube video
@@ -42,7 +44,7 @@ h = open('songs_for_database', 'a', encoding='utf8')
 
 for i, row in df.iterrows():
 
-    if i >= 10090:
+    if i >= 19737:
         try:
             textToSearch = row['artist'] + ' ' + row['songTitle']
             query = urllib.parse.quote(textToSearch)

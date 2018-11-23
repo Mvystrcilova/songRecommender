@@ -11,7 +11,7 @@ from songRecommender.Logic.model_distances_calculator import save_list_distances
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url, recalculate_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
-
+from songRecommender.data.load_distances import load_distances
 from .forms import SignUpForm
 from .tokens import account_activation_token
 
@@ -51,6 +51,7 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
+        load_distances()
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk).exclude(opinion=-1)[:10]
         return Distance_to_User.objects.filter(user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
@@ -93,7 +94,6 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         context['played_song'] = Played_Song.objects.filter(
             song_id1=context['object'], user_id=self.request.user.profile)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
-
         return context
 
 
@@ -186,7 +186,7 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         context['played_songs'] = played_songs.exclude(opinion=-1)[:10]
         context['nearby_songs'] = Distance_to_User.objects.all().filter(
             user_id=self.request.user.pk).exclude(
-            song_id_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
 
         return context
 
@@ -251,7 +251,7 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk)
         return Distance_to_User.objects.all().filter(
             user_id=self.request.user.pk).exclude(
-            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance')
         )
 
     def get_context_data(self, *, object_list=None, **kwargs):
@@ -289,7 +289,7 @@ def likeSong(request, pk):
     played_song.save()
 
     # recalculates the distance of all songs to the user and his lists based
-    recalculate_distances(request, "TF-idf")
+    # recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -314,7 +314,7 @@ def dislikeSong(request, pk):
     played_song.save()
 
     # recalculates the distances of all songs to the user and all his lists
-    recalculate_distances(request, "TF-idf")
+    # recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -459,7 +459,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
-        recalculate_distances(request, "TF-idf")
+        # recalculate_distances(request, "TF-idf")
 
         return redirect('song_detail', pk)
 

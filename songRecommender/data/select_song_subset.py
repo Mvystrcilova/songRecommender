@@ -7,10 +7,10 @@ and I did not make it at home, will not be necessary later"""
 
 def get_songs_that_have_distances(directory_in_string):
     """returns: names and artists of songs that we have the distance data available for"""
-    directory = os.fsencode(directory_in_string)
+    dirctr = os.fsencode(directory_in_string)
 
     songs_with_distances = []
-    for file in os.listdir(directory):
+    for file in os.listdir(dirctr):
         filename = os.fsdecode(file)
         songs_with_distances.append((filename.split('_')[1], filename.split('_')[2]))
 
@@ -38,10 +38,10 @@ def reduce_file_with_distances(filename, songs_with_distances):
     return
 
 
-directory_in_string = '/Users/m_vys/Documents/matfyz/rocnikac/soubory_s_userem'
-distances = get_songs_that_have_distances(directory_in_string)
-
-directory = os.fsencode(directory_in_string)
-for f in os.listdir(directory):
-    fname = "/Users/m_vys/Documents/matfyz/rocnikac/soubory_s_userem/" + os.fsdecode(f)
-    reduce_file_with_distances(fname, distances)
+# directory_in_string = '/Users/m_vys/Documents/matfyz/rocnikac/soubory_s_userem'
+# distances = get_songs_that_have_distances(directory_in_string)
+#
+# directory = os.fsencode(directory_in_string)
+# for f in os.listdir(directory):
+#     fname = "/Users/m_vys/Documents/matfyz/rocnikac/soubory_s_userem/" + os.fsdecode(f)
+#     reduce_file_with_distances(fname, distances)

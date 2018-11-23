@@ -14,12 +14,14 @@ class Song(models.Model):
     artist = models.CharField(max_length=100)
     text = models.TextField()
     link = models.URLField() #default max is 200
-    distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False, related_name='songs_nearby')
-    pole_co_tu_jen_oxiduje = models.CharField(null=True, max_length=1)   # for when debugging migrations
+    distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
+                                                     related_name='songs_nearby')
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
 
+    def get_distance_to_other_songs(self):
+        return self.distance_to_other_songs.order_by('song_2')
 
 class Profile(models.Model):
     """an one to one field to user, is created and also deleted with the user
@@ -50,6 +52,9 @@ class Profile(models.Model):
             Profile.objects.create(user=instance)
         instance.profile.save()
 
+    def get_nearby_songs(self):
+        return self.nearby_songs.order_by('link_to_user')
+
 
 class List(models.Model):
     """a model representing the list table of the database"""
@@ -65,6 +70,9 @@ class List(models.Model):
 
     def get_absolute_url(self):
         return reverse('list_detail', args=[str(self.id)])
+
+    def get_nearby_songs(self):
+        return self.nearby_songs.order_by('link_to_list')
 
         
 class Song_in_List(models.Model):
@@ -132,6 +140,9 @@ class Distance(models.Model):
     def __str__(self):
         return str(self.distance)
 
+    class Meta:
+        ordering = ['-distance']
+
 
 class Distance_to_List(models.Model):
     """
@@ -144,7 +155,7 @@ class Distance_to_List(models.Model):
     in save_list_distances
     """
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
-    song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True)
+    song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='link_to_list')
     distance = models.FloatField()
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
@@ -158,6 +169,9 @@ class Distance_to_List(models.Model):
 
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name
+
+    class Meta:
+        ordering = ['-distance']
     
 
 class Distance_to_User(models.Model):
@@ -171,13 +185,16 @@ class Distance_to_User(models.Model):
     in save_user_distances
     """
     user_id = models.ForeignKey(Profile, on_delete=models.CASCADE, null=True)
-    song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True)
+    song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='link_to_user')
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
             ('W2V', 'Word2Vec')
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
+
+    class Meta:
+        ordering = ['-distance']
 
     # def get_nearby_songs(userid):
     #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
