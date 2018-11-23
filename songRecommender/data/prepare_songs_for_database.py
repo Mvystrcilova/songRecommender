@@ -44,7 +44,7 @@ h = open('songs_for_database', 'a', encoding='utf8')
 
 for i, row in df.iterrows():
 
-    if i >= 19737:
+    if i >= 20152:
         try:
             textToSearch = row['artist'] + ' ' + row['songTitle']
             query = urllib.parse.quote(textToSearch)
