@@ -1,6 +1,19 @@
 
+##To Do Bakalarka
+
+* zistit informace o datasetu
+** mean songs per user
+	3.56
+** mean users per song
+	10.84	
+** number of users
+	45054
+** number of songs
+	14 800
+
+
       
-## Setup
+## Setupu
 
 Application setup is done via environment variables.
 

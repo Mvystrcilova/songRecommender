@@ -1,9 +1,13 @@
+from __future__ import unicode_literals
 import pandas
 import string
 import urllib.request
 from bs4 import BeautifulSoup
 import time
 import re
+import youtube_dl
+from rocnikac.settings import MP3FILES_DIR
+import os
 
 """the change_youtube_url method is here because otherwise
 it would have to import something from django and configure
@@ -35,16 +39,16 @@ def change_youtube_url(url):
     return youtube_regex_match
 
 
-df = pandas.read_csv('~/Documents/matfyz/rocnikac/songs_with_lyrics', sep=';', quotechar='"',
+df = pandas.read_csv('~/Documents/matfyz/rocnikac/data/songs_with_lyrics', sep=';', quotechar='"',
                      names=['artist', 'songTitle', 'lyrics'], engine='python',
                      error_bad_lines=False, usecols=[2, 3, 4])
 df = df.drop_duplicates(subset=['artist', 'songTitle'])
 
-h = open('songs_for_database', 'a', encoding='utf8')
+h = open('songs_for_database_2', 'a', encoding='utf8')
 
 for i, row in df.iterrows():
 
-    if i >= 20152:
+    if i > 1348:
         try:
             textToSearch = row['artist'] + ' ' + row['songTitle']
             query = urllib.parse.quote(textToSearch)
@@ -59,11 +63,26 @@ for i, row in df.iterrows():
             vid = soup.findAll(attrs={'class':'yt-uix-tile-link'})[0]
             l = 'https://www.youtube.com' + vid['href']
             df.at[i, 'link'] = change_youtube_url(l)
-            h.write(df.at[i, 'songTitle'] + '\t' + df.at[i, 'artist'] + '\t' + df.at[i, 'lyrics'] +
-                    '\t' + df.at[i, 'link'] + '\n')
+            name = df.at[i,'songTitle'] + '-' + df.at[i, 'artist'] + ".mp3"
+            ydl_opts = {
+                'format': 'bestaudio/best',
+                'postprocessors': [{
+                    'key': 'FFmpegExtractAudio',
+                    'preferredcodec': 'mp3',
+                    'preferredquality': '192',
+                }],
+                'o': MP3FILES_DIR + "%(title)s.%(ext)s"
+            }
+            with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+                ydl.download([l])
+                info_dict = ydl.extract_info(l, download=False)
+                df.at[i, 'link_on_disc'] = MP3FILES_DIR + info_dict.get('title', None) + '-' + info_dict.get("id", None) + ".mp3"
+            # df.at[i,'link_on_disc']
+            h.write(df.at[i, 'songTitle'] + ';' + df.at[i, 'artist'] + ';' + df.at[i, 'lyrics'] +
+                    ';' + df.at[i, 'link'] + ';' + df.at[i, 'link_on_disc'] + ";\n")
             print(l)
 
-        except:
+        except youtube_dl.utils.DownloadError:
             h.close()
             print(i)
             print(row['artist'] + ' ' + row['songTitle'])

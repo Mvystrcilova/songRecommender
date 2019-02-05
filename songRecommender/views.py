@@ -8,10 +8,11 @@ from django.template.loader import render_to_string
 from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
 # from songRecommender.Logic.Text_Shaper import get_W2V_distance
 from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
-from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url, recalculate_distances
+from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url #, recalculate_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
 from songRecommender.data.load_distances import load_distances
+from rocnikac.tasks import add, recalculate_distances
 from .forms import SignUpForm
 from .tokens import account_activation_token
 
@@ -289,7 +290,7 @@ def likeSong(request, pk):
     played_song.save()
 
     # recalculates the distance of all songs to the user and his lists based
-    # recalculate_distances(request, "TF-idf")
+    recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -304,6 +305,7 @@ def dislikeSong(request, pk):
     :param pk: id of the song the user disliked or undisliked
     :return: redirects to the detail page of the disliked or undisliked song
     """
+    add(1, 6)
     played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
     # if song was not disliked before it is now
     if played_song.opinion != -1:
@@ -314,7 +316,7 @@ def dislikeSong(request, pk):
     played_song.save()
 
     # recalculates the distances of all songs to the user and all his lists
-    # recalculate_distances(request, "TF-idf")
+    recalculate_distances(request, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -459,7 +461,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
-        # recalculate_distances(request, "TF-idf")
+        recalculate_distances(request, "TF-idf")
 
         return redirect('song_detail', pk)
 

@@ -16,6 +16,7 @@ class Song(models.Model):
     link = models.URLField() #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
+    link_on_disc = models.FilePathField(null=True)
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
