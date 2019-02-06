@@ -127,8 +127,12 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/songRecommender/index'
 
 #aby zatim fungovaly maily
+EMAIL_DISABLED = False
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+CELERY_BROKER_URL = 'amqp://localhost'
+SELECTED_DISTANCE_TYPE = "TF-idf"
 
-
-
+#VYMAZAT!!!!!!!
+CELERY_ALWAYS_EAGER = True
+CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 

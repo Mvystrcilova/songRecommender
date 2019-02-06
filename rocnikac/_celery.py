@@ -6,7 +6,7 @@ from celery import Celery
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'rocnikac.settings')
 
 app = Celery('rocnikac', broker='amqp://localhost'
-                       , backend='pyamqp://localhost'
+                       , backend='amqp://localhost'
                        , include=['rocnikac.tasks'])
 
 # Using a string here means the worker doesn't have to serialize

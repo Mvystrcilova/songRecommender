@@ -3,9 +3,7 @@ from django.contrib.auth.models import User
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from django.forms import ModelForm
-
-""""""
+from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 
 class Song(models.Model):
     """a model representing the Song table in the database,
@@ -22,7 +20,10 @@ class Song(models.Model):
         return self.artist + ' - ' + self.song_name
 
     def get_distance_to_other_songs(self):
-        return self.distance_to_other_songs.order_by('song_2').exclude(id=self.id)
+        return self.distance_to_other_songs.filter(song_2__distance_Type=SELECTED_DISTANCE_TYPE).order_by(
+            'song_2').exclude(id=self.id)
+
+
 
 class Profile(models.Model):
     """an one to one field to user, is created and also deleted with the user
@@ -30,7 +31,13 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.PROTECT)
     played_songs = models.ManyToManyField(Song, through='Played_Song', related_name='Songs_played_by_user')
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
-    email_confirmed = models.BooleanField(default=False)
+    email_confirmed = models.BooleanField(default=EMAIL_DISABLED)
+    DISTANCE_CHOICES = (
+        ('TF-idf', 'TF-idf'),
+        ('W2V', 'Word2Vec')
+    )
+    user_selected_distance_type = models.CharField(max_length=20, choices=DISTANCE_CHOICES,
+                                                   default=SELECTED_DISTANCE_TYPE)
 
     def get_object(self):
         return self.request.user
@@ -54,7 +61,8 @@ class Profile(models.Model):
         instance.profile.save()
 
     def get_nearby_songs(self):
-        return self.nearby_songs.order_by('link_to_user')
+        return self.nearby_songs.filter(
+            Distance_to_User__distance_Type=SELECTED_DISTANCE_TYPE).order_by('link_to_user')
 
 
 class List(models.Model):
@@ -75,7 +83,7 @@ class List(models.Model):
     def get_nearby_songs(self):
         return self.nearby_songs.order_by('link_to_list')
 
-        
+
 class Song_in_List(models.Model):
     """class representing song_in_list table in the database
     each has a song id and a list id which together create an unique identifier
@@ -85,7 +93,6 @@ class Song_in_List(models.Model):
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(null=True)
     # for debugging reasons here
-    pole_co_tu_jen_oxiduje = models.CharField(max_length=200, null=True)
 
     class Meta:
         ordering = ['-order']
@@ -139,7 +146,7 @@ class Distance(models.Model):
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES)
 
     def __str__(self):
-        return str(self.distance)
+        return str(self.song_1.artist) + " - " + str(self.song_1.song_name)
 
     class Meta:
         ordering = ['-distance']

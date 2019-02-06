@@ -5,14 +5,12 @@ from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
 
-from songRecommender.Logic.Text_Shaper import get_TFidf_distance, save_distances
-# from songRecommender.Logic.Text_Shaper import get_W2V_distance
-from songRecommender.Logic.model_distances_calculator import save_list_distances, save_user_distances
-from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url #, recalculate_distances
+from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 from songRecommender.forms import SongModelForm, ListModelForm
-from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance_to_List, Distance, Profile
-from songRecommender.data.load_distances import load_distances
-from rocnikac.tasks import add, recalculate_distances
+from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance
+
+from rocnikac.tasks import add, recalculate_distances, handle_added_song
+from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 from .forms import SignUpForm
 from .tokens import account_activation_token
 
@@ -53,9 +51,12 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
         # load_distances()
-        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk).exclude(opinion=-1)[:10]
-        return Distance_to_User.objects.filter(user_id=self.request.user.pk).exclude(
-            song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
+        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        # Ano Misko, takhle to de taky naprasit, ale ver mi, ze si to sliznes
+        return Distance_to_User.objects.all().filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type,
+            user_id=self.request.user.pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')
 
     def get_context_data(self, **kwargs):
         """:returns the queryset with the current users lists included"""
@@ -92,9 +93,14 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         all the lists created by the current user"""
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
+        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
         context['played_song'] = Played_Song.objects.filter(
             song_id1=context['object'], user_id=self.request.user.profile)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
+        #POZOR!!! Napraseni kod, co ale funguje, mozna potom prejmenovat, vraci se distance ale pouziva song
+        context['nearby_songs'] = Distance.objects.order_by('-distance').filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type, song_2=context['object']).exclude(
+            song_1_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
         return context
 
 
@@ -185,7 +191,9 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         context = super(MyListsView, self).get_context_data(**kwargs)
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
         context['played_songs'] = played_songs.exclude(opinion=-1)[:10]
+        #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['nearby_songs'] = Distance_to_User.objects.all().filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type,
             user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
 
@@ -251,6 +259,7 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         before from the table distance_to_user"""
         played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk)
         return Distance_to_User.objects.all().filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type,
             user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance')
         )
@@ -290,7 +299,8 @@ def likeSong(request, pk):
     played_song.save()
 
     # recalculates the distance of all songs to the user and his lists based
-    recalculate_distances(request, "TF-idf")
+    user_id = int(request.user.id)
+    recalculate_distances.delay(user_id, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -316,7 +326,8 @@ def dislikeSong(request, pk):
     played_song.save()
 
     # recalculates the distances of all songs to the user and all his lists
-    recalculate_distances(request, "TF-idf")
+    user_id = request.user.pk
+    recalculate_distances.delay(user_id, "TF-idf")
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -348,28 +359,11 @@ def addSong(request):
                     form = SongModelForm()
                     return render(request, 'songRecommender/addSong.html', {'form': form})
 
-                # calculates the distances of this song to all other songs already in the database
-                TFidf_distances = get_TFidf_distance(song)
-                # W2V_distances = get_W2V_distance(song)
-
-                # saves the distances to the database
-                save_distances(TFidf_distances, song, "TF-idf")
-                # save_distances(W2V_distances, song, "W2V")
-
                 # adds the song the user added to his played songs
                 played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
                 played_song.save()
 
-                # calculates the distance of this song to the user
-                save_user_distances(song, request.user, "TF-idf")
-                # save_user_distances(song, request.user, "W2V")
-
-                #  calculates the distance of this song to all of the lists the current
-                # user created
-                lists = List.objects.all().filter(user_id_id=request.user.id)
-                for l in lists:
-                    save_list_distances(song, l, request.user, "TF-idf")
-                    # save_list_distances(song, l, request.user, "W2V")
+                handle_added_song.delay(song.pk, request.user.pk)
 
                 # redirects the user to his recommended songs
                 return HttpResponseRedirect(reverse('recommended_songs'))
@@ -397,25 +391,27 @@ def signup(request):
     """is being called when a user wants to sign up
     creates a user instance in the database and sends him an email
     with confirmation information, does not send a real email yet"""
+
     if request.method == 'POST':
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
             # saves the user.is_active field to false, can be set to true after confirming email
-            user.is_active = False
+            user.is_active = EMAIL_DISABLED
             user.save()
-            current_site = get_current_site(request)
-            # the email
-            subject = 'Activate Your MySite Account'
-            message = render_to_string('account_activation_email.html', {
-                'user': user,
-                'domain': current_site.domain,
-                'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
-                'token': account_activation_token.make_token(user),
-            })
-            user.email_user(subject, message)
+            if not EMAIL_DISABLED:
+                current_site = get_current_site(request)
+                # the email
+                subject = 'Activate Your MySite Account'
+                message = render_to_string('account_activation_email.html', {
+                    'user': user,
+                    'domain': current_site.domain,
+                    'uid': urlsafe_base64_encode(force_bytes(user.pk)).decode(),
+                    'token': account_activation_token.make_token(user),
+                })
+                user.email_user(subject, message)
 
-            return redirect('account_activation_sent')
+                return redirect('account_activation_sent')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})
@@ -461,7 +457,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
-        recalculate_distances(request, "TF-idf")
+        recalculate_distances.delay(request.user.pk, "TF-idf")
 
         return redirect('song_detail', pk)
 

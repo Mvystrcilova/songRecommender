@@ -74,7 +74,7 @@
                     <div class="col-md-6">
                         <ul class="list-group mt-3">
                             <p class="m-3">Here are songs similar to {{ l.name }} </p>
-                            {% for nearby_song in l.nearby_songs.all|slice:"0:10" %}
+                            {% for nearby_song in nearby_songs.all|slice:"0:10" %}
                                 {% if nearby_song in l.songs.all %}
                                 {% else %}
                                     <li class="list-group-item">

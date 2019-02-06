@@ -78,10 +78,10 @@
         <div class="infinite-container col-md-4">
             <p style="margin-top: 1%">Skladby podobne teto:</p>
             <ul class="list-group" style="margin-bottom: 2%">
-                {% for nearby_song in song.get_distance_to_other_songs|slice:"0:10" %}
+                {% for nearby_song in nearby_songs|slice:"0:10" %}
                 <div class="infinite-item">
                     <li class="list-group-item">
-                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                        <a href="{% url 'song_detail' nearby_song.song_1.pk %}"> {{ nearby_song }}</a>
                     </li>
                 </div>
                 {% endfor %}
