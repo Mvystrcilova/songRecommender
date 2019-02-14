@@ -7,7 +7,7 @@ from django.template.loader import render_to_string
 
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 from songRecommender.forms import SongModelForm, ListModelForm
-from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance
+from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
 
 from rocnikac.tasks import add, recalculate_distances, handle_added_song
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
@@ -119,6 +119,17 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
 
     def get_queryset(self):
         return List.objects.filter(user_id=self.request.user)
+
+    def get_context_data(self, *, object_list=None, **kwargs):
+        context = super(ListDetailView, self).get_context_data(**kwargs)
+        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        context['songs'] = Song_in_List.objects.all().filter(list_id=context['object'].pk)
+        context['nearby_songs'] = Distance_to_List.objects.all().filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type,
+            list_id=context['object'].pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
+
+        return context
 
 
 class ListCreate(LoginRequiredMixin, CreateView):
@@ -316,7 +327,7 @@ def dislikeSong(request, pk):
     :return: redirects to the detail page of the disliked or undisliked song
     """
     add(1, 6)
-    played_song = Played_Song.objects.filter(song_id1__exact=pk).get()
+    played_song = Played_Song.objects.filter(song_id1__exact=pk, user_id=request.user.profile).get()
     # if song was not disliked before it is now
     if played_song.opinion != -1:
         played_song.opinion = -1
@@ -495,3 +506,16 @@ def search(request):
     my_lists = List.objects.all().filter(user_id=request.user)
 
     return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q, 'my_lists': my_lists})
+
+
+def change_distance(request):
+    next_page = request.GET.get('next')
+    user = request.user
+    if 'TF-idf' in request.GET:
+        user.profile.user_selected_distance_type = "TF-idf"
+    elif 'W2V' in request.GET:
+        user.profile.user_selected_distance_type = "W2V"
+
+    user.profile.save()
+
+    return HttpResponseRedirect(next_page)

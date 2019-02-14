@@ -39,6 +39,21 @@
                     <li class="nav-item">
                         <a class="nav-link" href="{% url 'all_songs' %}">All songs</a>
                     </li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button"
+                           aria-haspopup="true" aria-expanded="false">Distance type</a>
+                        <div class="dropdown-menu">
+                            <form class="form-inline my-2 my-lg-0 mr-2" type="get" action="/change_distance/">
+                                <input type="hidden" name="next" value="{{ request.path }}">{% if user.profile.user_selected_distance_type == "TF-idf" %}
+                                    <button color="bg-ligth" class="dropdown-item alert-secondary" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="W2V">W2V</button>
+                                {% elif user.profile.user_selected_distance_type == "W2V" %}
+                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item alert-secondary" type="submit" name="W2V">W2V</button>
+                                {% endif %}
+                            </form>
+                        </div>
+                    </li>
                 </ul>
                 <form class="form-inline my-2 my-lg-0 mr-2" type="get" action="/search_results/">
                     <input class="form-control mr-sm-2 bg-light text-black" type="text" id="search_box" name="q" placeholder="Search"

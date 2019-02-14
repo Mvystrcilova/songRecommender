@@ -48,7 +48,7 @@ h = open('songs_for_database_2', 'a', encoding='utf8')
 
 for i, row in df.iterrows():
 
-    if i > 15977:
+    if i > 111370:
         try:
             textToSearch = row['artist'] + ' ' + row['songTitle']
             query = urllib.parse.quote(textToSearch)
@@ -71,14 +71,14 @@ for i, row in df.iterrows():
                     'preferredcodec': 'mp3',
                     'preferredquality': '192',
                 }],
-                'o': MP3FILES_DIR + "%(title)s.%(ext)s"
+                'outtmpl': MP3FILES_DIR + "%(title)s.%(ext)s"
             }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
                 ydl.download([l])
                 info_dict = ydl.extract_info(l, download=False)
-                df.at[i, 'link_on_disc'] = MP3FILES_DIR + info_dict.get('title', None) + '-' + info_dict.get("id", None) + ".mp3"
+                df.at[i, 'link_on_disc'] = MP3FILES_DIR + info_dict.get('title', None) + ".mp3"
             # df.at[i,'link_on_disc']
-            h.write(df.at[i, 'songTitle'] + ';' + df.at[i, 'artist'] + ';' + df.at[i, 'lyrics'] +
+            h.write(df.at[i, 'songTitle'] + ';' + df.at[i, 'artist'] + ';' + "\"" + df.at[i, 'lyrics'] +"\""
                     ';' + df.at[i, 'link'] + ';' + df.at[i, 'link_on_disc'] + ";\n")
             print(l)
 

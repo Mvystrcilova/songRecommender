@@ -16,6 +16,7 @@ urlpatterns = [
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),
     path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs'),
 
+
 ]
 
 urlpatterns += [
@@ -33,5 +34,6 @@ urlpatterns += [
     url(r'^activate/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>[0-9A-Za-z]{1,13}-[0-9A-Za-z]{1,20})/$',
         views.activate, name='activate'),
     url(r'^search_results/?$', views.search, name='search_results'),
+    url(r'^change_distance/*', views.change_distance, name='change_distance'),
     # url(r'^search-form/$', views.search_form),
 ]

@@ -6,10 +6,10 @@
         <div class="col-md-6">
             <p style="margin-top: 5%">{{ list.name }}</p>
             <ul class="list-group list-unstyled" style="margin-bottom: 2%">
-            {% if list.songs.all %}
-                {% for songinlist in list.songs.all %}
+            {% if list.songs %}
+                {% for songinlist in songs %}
                     <li class="list-group-item">
-                        <a href="{% url 'song_detail' songinlist.pk %}"> {{ songinlist }}</a>
+                        <a href="{% url 'song_detail' songinlist.song_id.pk %}"> {{ songinlist.song_id }}</a>
                     </li>
                 {% endfor %}
             {% else %}
@@ -20,12 +20,12 @@
         <div class="col-md-6">
             <p style="margin-top: 5%">Skladby podobne tem v tomto listu:</p>
             <ul class="list-group list-unstyled" style="margin-bottom: 2%">
-            {% if list.nearby_songs.all %}
-                {% for nearby_song in list.nearby_songs.all %}
-                    {%  if nearby_song in list.songs.all %}
+            {% if nearby_songs.all %}
+                {% for nearby_song in nearby_songs %}
+                    {%  if nearby_song in songs %}
                     {% else %}
                         <li class="list-group-item">
-                            <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }}</a>
+                            <a href="{% url 'song_detail' nearby_song.song_id.pk %}"> {{ nearby_song.song_id }}</a>
                         </li>
                     {% endif %}
                 {% endfor %}
