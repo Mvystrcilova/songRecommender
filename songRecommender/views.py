@@ -8,7 +8,8 @@ from django.template.loader import render_to_string
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-
+from songRecommender.data.load_songs import load_songs
+from songRecommender.data.load_distances import load_distances
 from rocnikac.tasks import add, recalculate_distances, handle_added_song
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 from .forms import SignUpForm
@@ -50,8 +51,9 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
     def get_queryset(self):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
-        # load_distances()
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        # load_songs()
+        # load_distances()
         # Ano Misko, takhle to de taky naprasit, ale ver mi, ze si to sliznes
         return Distance_to_User.objects.all().filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
@@ -91,6 +93,7 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         the context provided, besides the song specified by an unique id
         is also the played song corresponding to the song from the detail view and
         all the lists created by the current user"""
+        # load_songs()
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
@@ -361,14 +364,14 @@ def addSong(request):
             if created:
                 song.text = form.cleaned_data['text']
                 song.link = form.cleaned_data['link']
-                new_link = change_youtube_url(song.link)
+                # new_link = change_youtube_url(song.link)
                 # changes the youtube link to an embedable format
-                if new_link:
-                    song.link = new_link
-                    song.save()
-                else:
-                    form = SongModelForm()
-                    return render(request, 'songRecommender/addSong.html', {'form': form})
+                # if new_link:
+                #     song.link = new_link
+                song.save()
+                # else:
+                #     form = SongModelForm()
+                #     return render(request, 'songRecommender/addSong.html', {'form': form})
 
                 # adds the song the user added to his played songs
                 played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
@@ -498,14 +501,17 @@ def search(request):
     the user can each song to a any of his lists"""
 
     vector = SearchVector('artist', 'song_name')
+    my_lists = List.objects.all().filter(user_id=request.user)
     if 'q' in request.GET and request.GET['q']:
         q = request.GET['q']
         query = SearchQuery(q)
 
-    entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank').exclude(rank=0)[:10]
-    my_lists = List.objects.all().filter(user_id=request.user)
+        entries = Song.objects.annotate(rank=SearchRank(vector, query)).order_by('-rank').exclude(rank=0)[:10]
 
-    return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q, 'my_lists': my_lists})
+
+        return render(request, 'songRecommender/search_results.html', {'entries': entries, 'query': q, 'my_lists': my_lists})
+
+    return render(request, 'songRecommender/search_results.html', {'entries': {}, 'query': {}, 'my_lists': my_lists })
 
 
 def change_distance(request):

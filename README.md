@@ -13,7 +13,7 @@
 
 
       
-## Setupu
+## Setup
 
 Application setup is done via environment variables.
 
@@ -99,8 +99,6 @@ special data
 the TF-idf is not only pre-trained already but data and similarity values are already inside the database
 and all potential users have access to them
 if there is a distance missing the songs are thought to be completely different.
-* adding data
-    * the data can be
 
 #### Word2Vec
 the W2V model used here is a pre-trained google model https://code.google.com/archive/p/word2vec/
@@ -142,11 +140,104 @@ The `model_distance_calculator` implements methods that calculate the distance o
 
 There is a need to load a lot of data into the database. The user can alter the database by adding songs, creating lists and accounts. To add data on a bigger scale for all the users there are some scrips in the `data` directory, however they are quite specific for the data I accuired and submitted to the database.
  
+ # Bakalarka
+ 
+ ## Aplikace
+ 
+ ### Neprogramovaci
+ 
+ * strojova dokumentace
+ * konfiguracni soubor - nebude potreba kvuli serveru, jinak uz jsou moznosti v settings.py
+ * napsat instalaci krok po kroku - myslim, ze nebude potreba diky serveru
+ 
+ ### Programovaci
+ 
+ * strankovani
+ * neukladat vsechny vzdalenosti 
+ * asynchroni implemetnace requestu - hotovo
+ * prepinace na zpusob pocitani podobnosti - hotovo
+ * menit user jmeno, email, atd
+ * pridat data z mp3 souboru - stahuje se
+ * pridat doporucovani podle hudby
+ * prejmenovat a reconfigurovat
+ 
+ ## Bakalarka text
+ 
+ ### Uvod
+ 
+ * introduction, popsat domenu, zajimavosti
+ * related work - posunout do textovych a audio metod ???
+ 
+ ### Data
+ 
+ * informace o datech (vlastnosti, histogram)
+ * informace co z dat dostavam
+ * ??? pridat ty informace z milion song dataset ???
+ 
+ ### Textove metody
+ 
+ * popsat Bag of words - hotovo?
+ * popsat TF-idf - hotovo?
+ * popstat Word2Vec - hotovo?
+ * popsat Doc2Vec
+ * Self organizing clustering maps 
+ * zduvodnit vyber TF-idf a Word2Vec,  a SOCM?? popsat jejich rozdily
+ 
+ ### Hudebni metody
+ 
+ * extrakce pouzivanych informaci z MP3
+ * popis 3-4 metod - navrhy
+ * PCA
+ * ALI
+ * Convolutional
+ * Recurrent networks
+ * vyber 1-2 metod a zduvodneni - navrhy
+ * PCA ( je to jendoduchy, nejaky base line, neslozity na pocitani)
+ * reccurent Networks ( je to novy a neozkouseny, unsupervised deep learning technika)
+ 
+ ### Experimenty + vysledky
+ 
+ * vysledky textovych algoritmu
+ * vysledky audio algoritmu
+ * porovnani
+ * navrhnout kombinovanou metriku (nekolika-ruky bandita nebo tak)
+ 
+ ### Dokumentace
+ 
+ * high-level uzivatelska dokumentace
+ * high-level programatorska dokumentace
+ * analyza
+ * navrh
+ * pouzite technologie
+ * instalace + konfigurace - snad teda na serveru + co se da nastavit v settings.py
+ 
+ 
+ #### Nejblizsi konkretni ukoly a napady na ukoly
+ 
+ * stahnout mp3 k tem filum co k nim mam text uz - v procesu
+ * prepsat aplikaci na to tasks - hotovo
+ * prepsat aplikaci aby se dala prepinat vzdalenost - hotovo
+ * dat optional na maily - hotovo
+ * prepsat to co mam z rocnikace do bakalarky - hotovo
+ * omezit vzdalenosti
+ * doplnit kapitoly - hotovo
+ * popsat TF-idf a Word2Vec - hotovo?
+ * mozna snad naimplementovat dalsi lyrics doporucovace - SOCM
+ * stahnout tagy od Spotify pisnicek co mam v datasetu
+ * najit navrhy na implementace hudebnich algoritmu
+    * rozhodne udelat PCA
+    * Adversarially Learned Embedding -- 1
+    * Reccurent networks
+    * Convolutional networks
+    * Deep Belief networks
+ 
+ # Rocnikac - hotovo
+ 
 ## To Do - programovaci:
-* zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk
+* zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk - hotovo
 * poresit to, kdyz uzivatel dislikne pisnicku aby ji nasel jen pri vylozene vyhledavani - hotovo
 * Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu - hotovo
-* Najit youtube linky k jednotlivym skladbam - v procesu
+* Najit youtube linky k jednotlivym skladbam - hotovo
 * Udelat aby se nedala pridat dvakrat stejna pisnicka do list - hotovo
 * Udelat aby se nedala pridat dvakrat stejna pisnicka do databaze - hotovo
 * Odhlasit pri odhlaseni - hotovo
