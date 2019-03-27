@@ -15,6 +15,15 @@ class Song(models.Model):
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
     link_on_disc = models.FilePathField(null=True)
+    tf_idf_representation = models.TextField(max_length=100000)
+    w2v_representation = models.TextField(max_length=3000)
+    spectrogram_representation = models.FilePathField()
+    mel_spectrogram_representation = models.FilePathField(null=True)
+    mfcc_represenatation = models.FilePathField(null=True)
+    pca_spec_representation = models.FilePathField(null=True)
+    pca_mel_represenantation = models.FilePathField(null=True)
+    gru_mel_representation = models.FilePathField(null=True)
+    gru_spec_representation = models.FilePathField(null=True)
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name
@@ -34,7 +43,15 @@ class Profile(models.Model):
     email_confirmed = models.BooleanField(default=EMAIL_DISABLED)
     DISTANCE_CHOICES = (
         ('TF-idf', 'TF-idf'),
-        ('W2V', 'Word2Vec')
+        ('W2V', 'Word2Vec'),
+        ('SPEC', 'Spectrograms'),
+        ('MEL_SPEC', 'Mel-spectrograms'),
+        ('MFCC', 'Mel-frequency cepstral coefficients'),
+        ('PCA_SPEC', 'PCA on spectrograms'),
+        ('MEL_SPEC', 'PCA on mel-spectrograms'),
+        ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
+        ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
+        ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
     )
     user_selected_distance_type = models.CharField(max_length=20, choices=DISTANCE_CHOICES,
                                                    default=SELECTED_DISTANCE_TYPE)
@@ -81,7 +98,7 @@ class List(models.Model):
         return reverse('list_detail', args=[str(self.id)])
 
     def get_nearby_songs(self):
-        return self.nearby_songs.order_by('link_to_list')
+        return self.nearby_songs.order_by('-link_to_list')[:10]
 
 
 class Song_in_List(models.Model):
@@ -134,14 +151,22 @@ class Distance(models.Model):
     there can be more distance types added
 
     for each distance type there is a method to calculate the distance
-    in songRecommender/Logic/Text_Shaper.py
+    in rocnikac/tasks.py
     """
     song_1 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_1')
     song_2 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_2')
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
             ('TF-idf','TF-idf'),
-            ('W2V', 'Word2Vec')
+            ('W2V', 'Word2Vec'),
+            ('SPEC', 'Spectrograms'),
+            ('MEL_SPEC', 'Mel-spectrograms'),
+            ('MFCC', 'Mel-frequency cepstral coefficients'),
+            ('PCA_SPEC', 'PCA on spectrograms'),
+            ('MEL_SPEC', 'PCA on mel-spectrograms'),
+            ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
+            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
+            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES)
 
@@ -158,8 +183,8 @@ class Distance_to_List(models.Model):
     stores distance between a song and each list for every user
 
     there can be more distance types added
-    each distance types added in the songRecommender/Logic/Text_Shaper.py
-    and then used in songRecommender/Logic/model_distance_calculator.py
+    each distance types added in the rocnikac/tasks.py
+    and then used in rocnikac/tasks.py
     in save_list_distances
     """
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
@@ -167,7 +192,15 @@ class Distance_to_List(models.Model):
     distance = models.FloatField()
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
-            ('W2V', 'Word2Vec')
+            ('W2V', 'Word2Vec'),
+            ('SPEC', 'Spectrograms'),
+            ('MEL_SPEC', 'Mel-spectrograms'),
+            ('MFCC', 'Mel-frequency cepstral coefficients'),
+            ('PCA_SPEC', 'PCA on spectrograms'),
+            ('MEL_SPEC', 'PCA on mel-spectrograms'),
+            ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
+            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
+            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
     )
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES)
 
@@ -188,7 +221,7 @@ class Distance_to_User(models.Model):
     stores distance between a song and all played songs for every user
 
     there can be more distance types added
-    each distance types added in the songRecommender/Logic/Text_Shaper.py
+    each distance types added in the rocnikac/tasks.py
     and then used in songRecommender/Logic/model_distance_calculator.py
     in save_user_distances
     """
@@ -197,7 +230,15 @@ class Distance_to_User(models.Model):
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
-            ('W2V', 'Word2Vec')
+            ('W2V', 'Word2Vec'),
+            ('SPEC', 'Spectrograms'),
+            ('MEL_SPEC', 'Mel-spectrograms'),
+            ('MFCC', 'Mel-frequency cepstral coefficients'),
+            ('PCA_SPEC', 'PCA on spectrograms'),
+            ('MEL_SPEC', 'PCA on mel-spectrograms'),
+            ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
+            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
+            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 

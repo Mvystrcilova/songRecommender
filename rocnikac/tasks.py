@@ -4,11 +4,11 @@ from celery import shared_task
 
 from songRecommender.models import Song, List, Played_Song, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
     Profile
-import pandas, time
+import pandas
 from songRecommender.Logic.DocSim import DocSim
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-from songRecommender.Logic.Text_Shaper import w2v_model
+from rocnikac.settings import W2V_model, TF_
 
 app = Celery('tasks', broker='amqp://localhost')
 
@@ -28,7 +28,6 @@ def recalculate_distances(cur_user_id, distance_type):
     songs = Song.objects.all()
     cur_user = Profile.objects.get(user_id__exact=cur_user_id)
     lists = List.objects.all().filter(user_id_id=cur_user_id)
-    #time.sleep(600)
     for song in songs:
         save_user_distances(song.pk, cur_user.user.pk, distance_type)
 
@@ -178,7 +177,7 @@ def save_distances(distances, addedSong_id, dist_Type):
 def get_W2V_distance(addedSong_id):
     """gets all songs from the database except the one we are dealing with,
     computes the distances using W2V and saves them into a dataframe"""
-    ds = DocSim(w2v_model)
+    ds = DocSim(W2V_model)
     df = pandas.DataFrame(list(Song.objects.all().order_by('-id').values('text')))
     addedSong = Song.objects.get(pk=addedSong_id)
     # adds the new songs lyrics to the rest of the lyrics

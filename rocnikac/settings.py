@@ -11,6 +11,9 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 """
 
 import os
+from keras.models import load_model
+import joblib, pickle
+from gensim.models.keyedvectors import KeyedVectors
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -132,7 +135,28 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = 'amqp://localhost'
 SELECTED_DISTANCE_TYPE = "TF-idf"
 
-#VYMAZAT!!!!!!!
+# VYMAZAT!!!!!!!
 CELERY_ALWAYS_EAGER = True
 CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
+
+
+# Distance thresholds
+TF_IDF_THRESHOLD = 0
+W2V_THRESHOLD = 0
+MEL_SPEC_THRESHOLD = 0
+PCA_SPEC_THRESHOLD = 0
+PCA_MEL_THRESHOLD = 0
+MFCC_THRESHOLD = 0
+GRU_SPEC_THRESHOLD = 0
+GRU_MEL_THRESHOLD = 0
+LSTM_MEL_THRESHOLD = 0
+
+# Loading models
+GRU_Mel_model = load_model('rocnikac/models/GRU_Mel_model.h5')
+GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
+LSTM_Spec_model = load_model('rocnikac/models/LSTM_Mel_model.h5')
+PCA_Spec_model = joblib.load('rocnikac/models/spec_pca_model')
+PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
+W2V_model = KeyedVectors.load('rocnikac/w2v_subset', mmap='r')
+TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model'), "rb")
 
