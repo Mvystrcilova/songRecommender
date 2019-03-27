@@ -76,6 +76,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rocnikac.wsgi.application'
 MP3FILES_DIR = os.path.join(BASE_DIR, 'mp3_files/')
+REPRESENTATIONS_DIR = os.path.join(BASE_DIR, 'representations/')
+
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
 
@@ -160,3 +162,8 @@ PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
 W2V_model = KeyedVectors.load('rocnikac/w2v_subset', mmap='r')
 TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model'), "rb")
 
+# Spectrogram settings !!!! DO NOT CHANGE !!!
+n_fft = 4410
+hop_length = 812
+n_mels = 320
+n_mfcc = 320

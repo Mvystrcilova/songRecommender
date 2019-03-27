@@ -8,8 +8,6 @@ from django.template.loader import render_to_string
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-from songRecommender.data.load_songs import load_songs
-from songRecommender.data.load_distances import load_distances
 from rocnikac.tasks import add, recalculate_distances, handle_added_song
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 from .forms import SignUpForm
@@ -374,8 +372,9 @@ def addSong(request):
                 #     return render(request, 'songRecommender/addSong.html', {'form': form})
 
                 # adds the song the user added to his played songs
-                played_song = Played_Song(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
-                played_song.save()
+                played_song, created = Played_Song.objects.get_or_create(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
+                if created:
+                    played_song.save()
 
                 handle_added_song.delay(song.pk, request.user.pk)
 

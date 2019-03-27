@@ -61,7 +61,7 @@ for i, row in df.iterrows():
             if ((i % 500) == 0) and (i != 0):
                 time.sleep(600)
             vid = soup.findAll(attrs={'class':'yt-uix-tile-link'})[0]
-            l = 'https://www.youtube.com' + vid['href']
+            M
             df.at[i, 'link'] = change_youtube_url(l)
             name = df.at[i,'songTitle'] + '-' + df.at[i, 'artist'] + ".mp3"
             ydl_opts = {
@@ -87,3 +87,4 @@ for i, row in df.iterrows():
             print(i)
             print(row['artist'] + ' ' + row['songTitle'])
             break
+

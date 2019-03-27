@@ -4,6 +4,7 @@ from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
+import numpy
 
 class Song(models.Model):
     """a model representing the Song table in the database,
@@ -19,11 +20,43 @@ class Song(models.Model):
     w2v_representation = models.TextField(max_length=3000)
     spectrogram_representation = models.FilePathField()
     mel_spectrogram_representation = models.FilePathField(null=True)
-    mfcc_represenatation = models.FilePathField(null=True)
+    mfcc_representation = models.FilePathField(null=True)
     pca_spec_representation = models.FilePathField(null=True)
-    pca_mel_represenantation = models.FilePathField(null=True)
+    pca_mel_representation = models.FilePathField(null=True)
     gru_mel_representation = models.FilePathField(null=True)
     gru_spec_representation = models.FilePathField(null=True)
+    lstm_mel_representation = models.FilePathField(null=True)
+
+    def get_tf_idf_representation(self):
+        pass
+
+    def get_W2V_representation(self):
+        pass
+
+    def get_spectrogram_representation(self):
+        return numpy.load(self.spectrogram_representation)
+
+    def get_mel_spectrogram_representation(self):
+        return numpy.load(self.mel_spectrogram_representation)
+
+    def get_mfcc_representation(self):
+        return numpy.load(self.mfcc_representation)
+
+    def get_pca_spec_representation(self):
+        return numpy.load(self.pca_spec_representation)
+
+    def get_pca_mel_representation(self):
+        return numpy.load(self.pca_mel_representation)
+
+    def get_gru_mel_representation(self):
+        return numpy.load(self.gru_mel_representation)
+
+    def get_gru_spec_representatio(self):
+        return numpy.load(self.gru_spec_representation)
+
+    def get_lstm_mel_representation(self):
+        return numpy.load(self.lstm_mel_representation)
+
 
     def __str__(self):
         return self.artist + ' - ' + self.song_name

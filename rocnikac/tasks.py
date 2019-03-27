@@ -188,6 +188,7 @@ def get_W2V_distance(addedSong_id):
 @shared_task()
 def handle_added_song(song_id, user_id):
     # calculates the distances of this song to all other songs already in the database
+    song = Song.objects.get(pk=song_id)
     TFidf_distances = get_TFidf_distance()
 
     W2V_distances = get_W2V_distance(song_id)
