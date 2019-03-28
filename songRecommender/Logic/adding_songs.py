@@ -1,5 +1,5 @@
 from songRecommender.models import Song
-import numpy, youtube_dl, re, urllib.request, librosa, os
+import numpy, youtube_dl, re, urllib.request, librosa, os, scipy.sparse
 from bs4 import BeautifulSoup
 from rocnikac.settings import MP3FILES_DIR, REPRESENTATIONS_DIR
 from pydub import AudioSegment
@@ -9,10 +9,12 @@ from rocnikac.settings import TF_IDF_THRESHOLD, W2V_THRESHOLD, MEL_SPEC_THRESHOL
                             PCA_SPEC_THRESHOLD, GRU_MEL_THRESHOLD, GRU_SPEC_THRESHOLD, LSTM_MEL_THRESHOLD
 from rocnikac.settings import n_fft, hop_length, n_mfcc, n_mels
 
-def save_all_representations(song_id):
+def save_all_representations_and_distances(song_id):
 
     song = Song.objects.get(pk=song_id)
     y, sr = get_audio_data(song)
+
+    ######## Saving simple audio representations ###############
 
     spectrogram = retrieve_spectrogram_representation(y, sr)
     mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
@@ -30,12 +32,91 @@ def save_all_representations(song_id):
                        + '_' + str(song.artist)
     numpy.save(mfcc_file, mfcc)
 
+    ########## saving text representations ########################
+
+    tf_idf_repr = retrieve_tf_idf_representation(song)
+    w2v_repr = retrieve_w2v_representation(song)
+
+    tf_idf_file = REPRESENTATIONS_DIR + '/tf_idf_vectors/' + str(song_id) + '_' + str(song.song_name)\
+                       + '_' + str(song.artist)
+    scipy.sparse.save_npz(tf_idf_file, tf_idf_repr)
+
+    w2v_file = REPRESENTATIONS_DIR + '/w2v_vectors/' + str(song_id) + '_' + str(song.song_name)\
+                       + '_' + str(song.artist)
+    numpy.save(w2v_file, w2v_repr)
+
+    ############## Saving more advanced audio representations #############
+
+    pca_spec_repr = PCA_Spec_model.transform(spectrogram.reshape(1, 900048))
+    pca_mel_repr = PCA_Mel_model.transform(mel_spectrogram.reshape(1, 130560))
+
+    pca_spec_file = REPRESENTATIONS_DIR + '/pca_spectrograms/' + str(song_id) + '_' + str(song.song_name)\
+                       + '_' + str(song.artist)
+
+    pca_mel_spec_file = REPRESENTATIONS_DIR + '/pca_mel_spectrograms/' + str(song_id) + '_' + str(song.song_name) \
+                    + '_' + str(song.artist)
+
+    numpy.save(pca_spec_file, pca_spec_repr)
+    numpy.save(pca_mel_spec_file, pca_mel_repr)
+
+    gru_spec_repr = GRU_Spec_model.transfrom(spectrogram)
+    gru_spec_file = REPRESENTATIONS_DIR + '/gru_spectrograms/' + str(song_id) + '_' + str(song.song_name) \
+                    + '_' + str(song.artist)
+    numpy.save(gru_spec_file, gru_spec_repr)
+
+    gru_mel_repr = GRU_Mel_model.transfrom(mel_spectrogram)
+    gru_mel_file = REPRESENTATIONS_DIR + '/gru_mel_spectrograms/' + str(song_id) + '_' + str(song.song_name) \
+                    + '_' + str(song.artist)
+    numpy.save(gru_mel_file, gru_mel_repr)
+
+    lstm_mel_repr = GRU_Spec_model.transfrom(mel_spectrogram)
+    lstm_mel_file = REPRESENTATIONS_DIR + '/lstm_mel_spectrograms/' + str(song_id) + '_' + str(song.song_name) \
+                    + '_' + str(song.artist)
+    numpy.save(lstm_mel_file, lstm_mel_repr)
+
+    ######################################################################################
+    ######################################################################################
 
 
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+def retrieve_tf_idf_representation(song):
+    lyrics = song.text.lower()
+    vector = [w.strip('.,!:?-') for w in lyrics.split(" ")]
+    tf_idf_repr = TF_idf_model.transform(vector)
+    return tf_idf_repr
+
+def retrieve_w2v_representation(song):
+    lyrics = song.text.lower()
+    words = [w.strip('.,!:?-') for w in lyrics.split(" ")]
+    word_vecs = []
+    for word in words:
+        try:
+            vec = W2V_model[word]
+            word_vecs.append(vec)
+
+        except KeyError:
+            # Ignore, if the word doesn't exist in the vocabulary
+            pass
+
+    # Assuming that document vector is the mean of all the word vectors
+    # PS: There are other & better ways to do it.
+    vector = numpy.mean(word_vecs, axis=0)
+    return vector
 
 
 def get_audio_data(song):
