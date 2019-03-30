@@ -1,9 +1,11 @@
 from django.db import models
 from django.contrib.auth.models import User
+from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
+
 import numpy
 
 class Song(models.Model):
@@ -15,17 +17,17 @@ class Song(models.Model):
     link = models.URLField() #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
-    link_on_disc = models.FilePathField(null=True)
-    tf_idf_representation = models.TextField(max_length=100000)
-    w2v_representation = models.TextField(max_length=3000)
-    spectrogram_representation = models.FilePathField()
-    mel_spectrogram_representation = models.FilePathField(null=True)
-    mfcc_representation = models.FilePathField(null=True)
-    pca_spec_representation = models.FilePathField(null=True)
-    pca_mel_representation = models.FilePathField(null=True)
-    gru_mel_representation = models.FilePathField(null=True)
-    gru_spec_representation = models.FilePathField(null=True)
-    lstm_mel_representation = models.FilePathField(null=True)
+    link_on_disc = models.FilePathField(null=True, max_length=500)
+    tf_idf_representation = ArrayField(models.FloatField(blank=True), null=True)
+    w2v_representation = ArrayField(models.FloatField(blank=True), null=True)
+    spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    mel_spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    mfcc_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    pca_spec_representation = ArrayField(models.FloatField(blank=True), null=True)
+    pca_mel_representation = ArrayField(models.FloatField(blank=True), null=True)
+    gru_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    gru_spec_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    lstm_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
 
     def get_tf_idf_representation(self):
         pass
@@ -226,11 +228,9 @@ class Distance_to_List(models.Model):
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('SPEC', 'Spectrograms'),
-            ('MEL_SPEC', 'Mel-spectrograms'),
             ('MFCC', 'Mel-frequency cepstral coefficients'),
             ('PCA_SPEC', 'PCA on spectrograms'),
-            ('MEL_SPEC', 'PCA on mel-spectrograms'),
+            ('PCA_MEL', 'PCA on mel-spectrograms'),
             ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
             ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
             ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
@@ -264,11 +264,9 @@ class Distance_to_User(models.Model):
     DISTANCE_CHOICES = (
             ('TF-idf', 'TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('SPEC', 'Spectrograms'),
-            ('MEL_SPEC', 'Mel-spectrograms'),
             ('MFCC', 'Mel-frequency cepstral coefficients'),
             ('PCA_SPEC', 'PCA on spectrograms'),
-            ('MEL_SPEC', 'PCA on mel-spectrograms'),
+            ('PCA_MEL', 'PCA on mel-spectrograms'),
             ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
             ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
             ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')

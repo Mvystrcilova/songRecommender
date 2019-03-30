@@ -155,12 +155,15 @@ LSTM_MEL_THRESHOLD = 0
 
 # Loading models
 GRU_Mel_model = load_model('rocnikac/models/GRU_Mel_model.h5')
+GRU_Mel_model.compile(optimizer='adam', loss='mse')
 GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
+GRU_Spec_model.compile(optimizer='adam', loss='mse')
 LSTM_Spec_model = load_model('rocnikac/models/LSTM_Mel_model.h5')
+LSTM_Spec_model.compile(optimizer='adam', loss='mse')
 PCA_Spec_model = joblib.load('rocnikac/models/spec_pca_model')
 PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
-W2V_model = KeyedVectors.load('rocnikac/w2v_subset', mmap='r')
-TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model'), "rb")
+W2V_model = KeyedVectors.load('w2v_subset', mmap='r')
+TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model', "rb"))
 
 # Spectrogram settings !!!! DO NOT CHANGE !!!
 n_fft = 4410
