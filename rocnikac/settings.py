@@ -12,6 +12,10 @@ https://docs.djangoproject.com/en/2.0/ref/settings/
 
 import os
 from keras.models import load_model
+from keras.models import model_from_json
+
+import tensorflow as tf
+
 import joblib, pickle
 from gensim.models.keyedvectors import KeyedVectors
 
@@ -154,12 +158,47 @@ GRU_MEL_THRESHOLD = 0
 LSTM_MEL_THRESHOLD = 0
 
 # Loading models
-GRU_Mel_model = load_model('rocnikac/models/GRU_Mel_model.h5')
-GRU_Mel_model.compile(optimizer='adam', loss='mse')
-GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
-GRU_Spec_model.compile(optimizer='adam', loss='mse')
-LSTM_Spec_model = load_model('rocnikac/models/LSTM_Mel_model.h5')
-LSTM_Spec_model.compile(optimizer='adam', loss='mse')
+# GRU_Mel_model = load_model('rocnikac/models/GRU_Mel_model.h5')
+json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+GRU_Mel_model= model_from_json(loaded_model_json)
+# load weights into new model
+GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
+GRU_Mel_graph = tf.get_default_graph()
+print("Loaded model from disk")
+# GRU_Mel_model.compile(optimizer='adam', loss='mse')
+
+# GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
+# GRU_Spec_model.compile(optimizer='adam', loss='mse')
+# json_file = open('rocnikac/models/GRU_Spec_model.json', 'r')
+# loaded_model_json = json_file.read()
+# json_file.close()
+# GRU_Spec_model= model_from_json(loaded_model_json)
+# # load weights into new model
+# GRU_Spec_model.load_weights("rocnikac/models/GRU_Spec_model.h5")
+# print("Loaded model from disk")
+
+
+# LSTM_Spec_model = load_model('rocnikac/models/LSTM_Mel_model.h5')
+# LSTM_Spec_model.compile(optimizer='adam', loss='mse')
+json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')
+loaded_model_json = json_file.read()
+json_file.close()
+LSTM_Mel_model = model_from_json(loaded_model_json)
+# load weights into new model
+LSTM_Mel_model.load_weights("rocnikac/models/LSTM_Mel_model.h5")
+LSTM_Mel_graph = tf.get_default_graph()
+print("Loaded model from disk")
+
+# json_file = open('rocnikac/models/LSTM_Spec_model.json', 'r')
+# loaded_model_json = json_file.read()
+# json_file.close()
+# LSTM_Spec_model = model_from_json(loaded_model_json)
+# # load weights into new model
+# LSTM_Spec_model.load_weights("LSTM_Spec_model.h5")
+# print("Loaded model from disk")
+
 PCA_Spec_model = joblib.load('rocnikac/models/spec_pca_model')
 PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
 W2V_model = KeyedVectors.load('w2v_subset', mmap='r')

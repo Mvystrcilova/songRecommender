@@ -10,7 +10,7 @@ from songRecommender.Logic.adding_songs import save_all_representations_and_dist
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from rocnikac.settings import W2V_model, TF_idf_model
-
+from keras.models import model_from_json
 app = Celery('tasks', broker='amqp://localhost')
 
 
@@ -134,6 +134,7 @@ def save_list_distances(added_song_id, the_list_id, cur_user_id, distance_type):
 def handle_added_song(song_id, user_id):
     # calculates the distances of this song to all other songs already in the database
     song = Song.objects.get(pk=song_id)
+
     # TFidf_distances = get_TFidf_distance()
     #
     # W2V_distances = get_W2V_distance(song_id)
@@ -141,6 +142,22 @@ def handle_added_song(song_id, user_id):
     # # saves the distances to the database
     # save_distances(TFidf_distances, song_id, "TF-idf")
     # save_distances(W2V_distances, song_id, "W2V")
+    # json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
+    # loaded_model_json = json_file.read()
+    # json_file.close()
+    # GRU_Mel_model = model_from_json(loaded_model_json)
+    # # load weights into new model
+    # GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
+    # print("Loaded model from disk")
+    #
+    # json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')
+    # loaded_model_json = json_file.read()
+    # json_file.close()
+    # LSTM_Mel_model = model_from_json(loaded_model_json)
+    # # load weights into new model
+    # LSTM_Mel_model.load_weights("rocnikac/models/LSTM_Mel_model.h5")
+    # print("Loaded model from disk")
+
     save_all_representations_and_distances(song_id)
     # calculates the distance of this song to the user
     save_user_distances(song_id, user_id, "TF-idf")
