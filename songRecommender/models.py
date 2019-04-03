@@ -26,7 +26,7 @@ class Song(models.Model):
     pca_spec_representation = ArrayField(models.FloatField(blank=True), null=True)
     pca_mel_representation = ArrayField(models.FloatField(blank=True), null=True)
     gru_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    gru_spec_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    lstm_spec_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
     lstm_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
 
     def get_tf_idf_representation(self):
@@ -53,7 +53,7 @@ class Song(models.Model):
     def get_gru_mel_representation(self):
         return numpy.load(self.gru_mel_representation)
 
-    def get_gru_spec_representatio(self):
+    def get_lstm_spec_representatio(self):
         return numpy.load(self.gru_spec_representation)
 
     def get_lstm_mel_representation(self):

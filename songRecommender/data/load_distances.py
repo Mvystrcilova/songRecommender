@@ -30,3 +30,105 @@ def load_distances(distance_matrix, distance_type, threshold):
                         print(row['songTitle'], row['artist'], 'and', row_2['songTitle'], row_2['artist'])
 
 
+def load_tf_idf_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.tf_idf_representation = representations[i]
+        song.save()
+
+
+def load_w2v_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.w2v_representation = representations[i]
+        song.save()
+
+
+def load_mfcc_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.mfcc_representation = representations[i].reshape()
+        song.save()
+
+
+def load_pca_spectrogram_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.pca_spec_representation = representations[i]
+        song.save()
+
+
+def load_pca_mel_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.pca_mel_representation = representations[i]
+        song.save()
+
+
+def load_lstm_mel_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.lstm_mel_representation = representations[i]
+        song.save()
+
+
+def load_gru_mel_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.gru_mel_representation = representations[i].reshape([1, 5712])
+        song.save()
+
+def load_lstm_spec_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.lstm_spec_representation = representations[i]
+        song.save()
+
+def load_songs_to_database():
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
+    if (df.shape[0] == 16594):
+        for i, row in df.iterrows():
+            song = Song(song_name=row['title'], artist=row['artist'], text=row['lyrics'], link=row['link'], link_on_disc=row['path'])
+            song.save()
+    else:
+        print("WTF JUST HAPPENED???")

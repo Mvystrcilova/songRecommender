@@ -76,23 +76,11 @@ def save_all_representations_and_distances(song_id):
         print('pca mel representation')
         # song.gru_spec_representation = gru_spec_repr
         # print('gru spec repr')
-        song.gru_mel_representation = gru_mel_repr
+        song.gru_mel_representation = gru_mel_repr.reshape([1, ])
         print('gru mel repr')
         song.lstm_mel_representation = lstm_mel_repr
         print('lstm mel repr')
 
-
-        # spectrogram_file = REPRESENTATIONS_DIR + '/spectrograms/' + str(song_id) + '_' + str(song.song_name)\
-        #                    + '_' + str(song.artist)
-        # numpy.save(spectrogram_file, spectrogram)
-        #
-        # mel_spectrogram_file = REPRESENTATIONS_DIR + '/mel_spectrograms/' + str(song_id) + '_' + str(song.song_name)\
-        #                    + '_' + str(song.artist)
-        # numpy.save(mel_spectrogram_file, mel_spectrogram)
-        #
-        # mfcc_file = REPRESENTATIONS_DIR + '/mfcc/' + str(song_id) + '_' + str(song.song_name)\
-        #                    + '_' + str(song.artist)
-        # numpy.save(mfcc_file, mfcc)
         mfcc_reprs = load_mfcc_representation()
         print('mfcc loaded')
         pca_mel_reprs = load_mel_pca_representations()
@@ -109,7 +97,7 @@ def save_all_representations_and_distances(song_id):
         save_distances(song, song.get_mfcc_representation(), mfcc_reprs, MFCC_THRESHOLD, "MFCC")
         save_distances(song, song.get_pca_mel_representation(), pca_mel_reprs, PCA_MEL_THRESHOLD, "PCA_MEL")
         save_distances(song, song.get_pca_spec_representation(), pca_spec_reprs, PCA_SPEC_THRESHOLD, "PCA_SPEC")
-        save_distances(song, song.get_gru_spec_representatio(), gru_spec_reprs, GRU_SPEC_THRESHOLD, "GRU_SPEC")
+        # save_distances(song, song.get_gru_spec_representatio(), gru_spec_reprs, GRU_SPEC_THRESHOLD, "GRU_SPEC")
         save_distances(song, song.get_gru_mel_representation(), gru_mel_reprs, GRU_MEL_THRESHOLD, "GRU_MEL")
         save_distances(song, song.get_lstm_mel_representation(), lstm_mel_reprs, LSTM_MEL_THRESHOLD, "LSTM_MEL")
 
@@ -153,7 +141,7 @@ def load_mfcc_representation():
 
 def load_pca_representations():
     count = Song.objects.all().count()
-    representations = numpy.empty([count, 320])
+    representations = numpy.empty([count, 1106])
     i = 0
     for song in Song.objects.all().order_by('id'):
         representations[i] = song.get_pca_spec_representation()
@@ -164,7 +152,7 @@ def load_pca_representations():
 
 def load_mel_pca_representations():
     count = Song.objects.all().count()
-    representations = numpy.empty([count, 320])
+    representations = numpy.empty([count, 5717])
     i = 0
     for song in Song.objects.all().order_by('id'):
         representations[i] = song.get_pca_mel_representation()

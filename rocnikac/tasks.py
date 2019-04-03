@@ -166,7 +166,7 @@ def handle_added_song(song_id, user_id):
     save_user_distances(song_id, user_id, "PCA_SPEC")
     save_user_distances(song_id, user_id, "PCA_MEL")
     save_user_distances(song_id, user_id, "GRU_MEL")
-    save_user_distances(song_id, user_id, "GRU_SPEC")
+    # save_user_distances(song_id, user_id, "GRU_SPEC")
     save_user_distances(song_id, user_id, "LSTM_MEL")
     #  calculates the distance of this song to all of the lists the current
     # user created
@@ -178,5 +178,5 @@ def handle_added_song(song_id, user_id):
         save_list_distances(song_id, l.pk, user_id, "PCA_SPEC")
         save_list_distances(song_id, l.pk, user_id, "PCA_MEL")
         save_list_distances(song_id, l.pk, user_id, "GRU_MEL")
-        save_list_distances(song_id, l.pk, user_id, "GRU_SPEC")
+        # save_list_distances(song_id, l.pk, user_id, "GRU_SPEC")
         save_list_distances(song_id, l.pk, user_id, "LSTM_MEL")

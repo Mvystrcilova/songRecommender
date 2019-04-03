@@ -158,7 +158,6 @@ GRU_MEL_THRESHOLD = 0
 LSTM_MEL_THRESHOLD = 0
 
 # Loading models
-# GRU_Mel_model = load_model('rocnikac/models/GRU_Mel_model.h5')
 json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
@@ -167,7 +166,6 @@ GRU_Mel_model= model_from_json(loaded_model_json)
 GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
 GRU_Mel_graph = tf.get_default_graph()
 print("Loaded model from disk")
-# GRU_Mel_model.compile(optimizer='adam', loss='mse')
 
 # GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
 # GRU_Spec_model.compile(optimizer='adam', loss='mse')
@@ -180,8 +178,6 @@ print("Loaded model from disk")
 # print("Loaded model from disk")
 
 
-# LSTM_Spec_model = load_model('rocnikac/models/LSTM_Mel_model.h5')
-# LSTM_Spec_model.compile(optimizer='adam', loss='mse')
 json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
