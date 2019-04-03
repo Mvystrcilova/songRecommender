@@ -1,7 +1,7 @@
 from songRecommender.models import Song, Distance
 import numpy, youtube_dl, re, urllib.request, librosa, os, scipy.sparse, glob, sklearn.metrics
 from bs4 import BeautifulSoup
-from rocnikac.settings import MP3FILES_DIR, REPRESENTATIONS_DIR
+from rocnikac.settings import MP3FILES_DIR
 from pydub import AudioSegment
 from rocnikac.settings import GRU_Mel_graph, LSTM_Mel_graph
 from keras.models import model_from_json

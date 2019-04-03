@@ -102,6 +102,7 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         context['nearby_songs'] = Distance.objects.order_by('-distance').filter(
             distance_Type=self.request.user.profile.user_selected_distance_type, song_2=context['object']).exclude(
             song_1_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
+        context['link'] = context['object'].link_on_disc
         return context
 
 

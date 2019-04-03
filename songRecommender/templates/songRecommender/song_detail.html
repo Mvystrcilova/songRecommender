@@ -6,9 +6,10 @@
     </div>
     <div class="row">
         <div class="col-md-8">
-            <div class="embed-responsive embed-responsive-16by9">
-                <iframe class="embed-responsive-item" src={{ song.link }}></iframe>
-            </div>
+            <audio controls>
+                <source src="{{ link }}" type="audio/mp3">
+            </audio>
+        </div>
 
             {% if played_song %}
 

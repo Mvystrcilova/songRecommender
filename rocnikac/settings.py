@@ -73,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -80,7 +81,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rocnikac.wsgi.application'
 MP3FILES_DIR = os.path.join(BASE_DIR, 'mp3_files/')
-REPRESENTATIONS_DIR = os.path.join(BASE_DIR, 'representations/')
+# MEDIA_ROOT = os.path.join(PROJECT_DIR, "mp3_files")
+# MEDIA_URL = '/mp3_files/'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
