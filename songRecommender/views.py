@@ -521,6 +521,16 @@ def change_distance(request):
         user.profile.user_selected_distance_type = "TF-idf"
     elif 'W2V' in request.GET:
         user.profile.user_selected_distance_type = "W2V"
+    elif 'PCA_SPEC' in request.GET:
+        user.profile.user_selected_distance_type = "SPEC"
+    elif 'PCA_MEL' in request.GET:
+        user.profile.user_selected_distance_type = "MEL_SPEC"
+    elif 'MFCC' in request.GET:
+        user.profile.user_selected_distance_type = "MFCC"
+    elif 'GRU_MEL' in request.GET:
+        user.profile.user_selected_distance_type = "GRU_MEL"
+    elif 'LSTM_MEL' in request.GET:
+        user.profile.user_selected_distance_type = "LSTM_MEL"
 
     user.profile.save()
 

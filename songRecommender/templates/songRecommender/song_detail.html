@@ -5,11 +5,14 @@
         <p class="col-md-8 pt-4">{{ song.artist }} - {{ song.song_name }}</p>
     </div>
     <div class="row">
-        <div class="col-md-8">
+        <div class="col-md-12">
             <audio controls>
                 <source src="{{ link }}" type="audio/mp3">
             </audio>
         </div>
+    </div>
+    <div class="row">
+        <div class="col-md-8">
 
             {% if played_song %}
 

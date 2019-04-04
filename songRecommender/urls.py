@@ -1,6 +1,6 @@
 from django.urls import path
 from songRecommender import views
-from django.conf.urls import url
+from django.conf.urls import url, include
 
 """this module contains all urls that the app contains"""
 
@@ -35,5 +35,4 @@ urlpatterns += [
         views.activate, name='activate'),
     url(r'^search_results/?$', views.search, name='search_results'),
     url(r'^change_distance/*', views.change_distance, name='change_distance'),
-    # url(r'^search-form/$', views.search_form),
 ]
