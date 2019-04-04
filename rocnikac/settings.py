@@ -65,7 +65,7 @@ PROJECT_DIR = os.path.dirname(os.path.abspath(__file__))
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': ['%s/templates/' % (PROJECT_DIR), ],
+        'DIRS': ['%s/templates/' % PROJECT_DIR, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -81,8 +81,8 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'rocnikac.wsgi.application'
 MP3FILES_DIR = os.path.join(BASE_DIR, 'mp3_files/')
-# MEDIA_ROOT = os.path.join(PROJECT_DIR, "mp3_files")
-# MEDIA_URL = '/mp3_files/'
+MEDIA_ROOT = os.path.join(BASE_DIR, "mp3_files")
+MEDIA_URL = '/mp3_files/'
 
 # Database
 # https://docs.djangoproject.com/en/2.0/ref/settings/#databases
