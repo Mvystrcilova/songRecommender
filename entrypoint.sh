@@ -1,6 +1,10 @@
 #!/bin/bash
 
-pipenv run ./manage.py migrate
+python3 ./manage.py makemigrations
 
-pipenv run ./manage.py runserver 0.0.0.0:80
+python3 ./manage.py migrate
+
+celery worker -A rocnikac -l info --pool gevent &
+
+python3 ./manage.py runserver 0.0.0.0:80
 

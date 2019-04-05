@@ -522,9 +522,9 @@ def change_distance(request):
     elif 'W2V' in request.GET:
         user.profile.user_selected_distance_type = "W2V"
     elif 'PCA_SPEC' in request.GET:
-        user.profile.user_selected_distance_type = "SPEC"
+        user.profile.user_selected_distance_type = "PCA_SPEC"
     elif 'PCA_MEL' in request.GET:
-        user.profile.user_selected_distance_type = "MEL_SPEC"
+        user.profile.user_selected_distance_type = "PCA_MEL"
     elif 'MFCC' in request.GET:
         user.profile.user_selected_distance_type = "MFCC"
     elif 'GRU_MEL' in request.GET:

@@ -29,9 +29,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '7j=lv$v61q#zzcc#46y)sfus2zlrg0487sbd9g*8%yp80&%atd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['acheron.ms.mff.cuni.cz','acheron.ms.mff.cuni.cz:42009']
 
 # Application definition
 
@@ -138,14 +138,12 @@ STATIC_URL = '/static/'
 LOGIN_REDIRECT_URL = '/songRecommender/index'
 
 #aby zatim fungovaly maily
-EMAIL_DISABLED = False
+EMAIL_DISABLED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = 'amqp://localhost'
 SELECTED_DISTANCE_TYPE = "TF-idf"
 
 # VYMAZAT!!!!!!!
-CELERY_ALWAYS_EAGER = True
-CELERY_EAGER_PROPAGATES_EXCEPTIONS = True
 
 
 # Distance thresholds
@@ -207,3 +205,4 @@ n_fft = 4410
 hop_length = 812
 n_mels = 320
 n_mfcc = 320
+

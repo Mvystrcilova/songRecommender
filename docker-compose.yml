@@ -9,6 +9,7 @@ services:
       - "80:80"
     depends_on:
       - db
+      - rmq
 
   db:
     image: postgres
@@ -21,6 +22,11 @@ services:
       - 5432
     volumes:
       - postgres_data:/var/lib/postgresql/data
+
+  rmq:
+     image: rabbitmq
+     expose:
+        - 5462
 
 volumes:
   postgres_data: ~

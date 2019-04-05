@@ -26,9 +26,7 @@ def save_all_representations_and_distances(song_id):
     if song.link_on_disc is not None:
         y, sr = get_audio_data(song)
 
-
-
-    ######## Saving simple audio representations ###############
+        ######## Saving simple audio representations ###############
 
         spectrogram = retrieve_spectrogram_representation(y, sr)
         print('got spectrogram')
@@ -56,8 +54,7 @@ def save_all_representations_and_distances(song_id):
             print(lstm_mel_repr)
         print('lstm mel representation predicted')
 
-
-        ##################### Saving paths to song ##########################################
+         ##################### Saving paths to song ##########################################
 
         song.spectrogram_representation = spectrogram
         print(spectrogram)
@@ -83,23 +80,37 @@ def save_all_representations_and_distances(song_id):
 
         mfcc_reprs = load_mfcc_representation()
         print('mfcc loaded')
+        save_distances(song, song.get_mfcc_representation(), mfcc_reprs, MFCC_THRESHOLD, "MFCC")
+        print('mfcc_distances_saved')
+        mfcc_reprs = None
+
         pca_mel_reprs = load_mel_pca_representations()
         print('mel reprs loaded')
+        save_distances(song, song.get_pca_mel_representation(), pca_mel_reprs, PCA_MEL_THRESHOLD, "PCA_MEL")
+        print('pca_mel distances saved')
+        pca_mel_reprs = None
+
         pca_spec_reprs = load_pca_representations()
         print('spec reprs loaded')
+        save_distances(song, song.get_pca_spec_representation(), pca_spec_reprs, PCA_SPEC_THRESHOLD, "PCA_SPEC")
+        print('pca spec distances save')
+        pca_spec_reprs = None
+
         gru_mel_reprs = load_gru_mel_representations()
         print('gru mel reprs loaded')
-        gru_spec_reprs = load_gru_spec_representations()
-        print('gru spec reprs loaded')
+        save_distances(song, song.get_gru_mel_representation(), gru_mel_reprs, GRU_MEL_THRESHOLD, "GRU_MEL")
+        print('gru mel distances saved')
+        gru_mel_reprs = None
+
+        # gru_spec_reprs = load_gru_spec_representations()
+        # print('gru spec reprs loaded')
+        # save_distances(song, song.get_gru_spec_representatio(), gru_spec_reprs, GRU_SPEC_THRESHOLD, "GRU_SPEC")
+
         lstm_mel_reprs = load_lstm_mel_representations()
         print('lstm mel reprs loaded')
-
-        save_distances(song, song.get_mfcc_representation(), mfcc_reprs, MFCC_THRESHOLD, "MFCC")
-        save_distances(song, song.get_pca_mel_representation(), pca_mel_reprs, PCA_MEL_THRESHOLD, "PCA_MEL")
-        save_distances(song, song.get_pca_spec_representation(), pca_spec_reprs, PCA_SPEC_THRESHOLD, "PCA_SPEC")
-        # save_distances(song, song.get_gru_spec_representatio(), gru_spec_reprs, GRU_SPEC_THRESHOLD, "GRU_SPEC")
-        save_distances(song, song.get_gru_mel_representation(), gru_mel_reprs, GRU_MEL_THRESHOLD, "GRU_MEL")
         save_distances(song, song.get_lstm_mel_representation(), lstm_mel_reprs, LSTM_MEL_THRESHOLD, "LSTM_MEL")
+        print('lstm mel distances saved')
+        lstm_mel_reprs = None
 
     ##################################### saving text representations ########################
 
@@ -109,7 +120,7 @@ def save_all_representations_and_distances(song_id):
 
     song.w2v_representation = w2v_repr
     print('w2v representation')
-    song.pca_spec_representation = pca_spec_repr
+    # song.pca_spec_representation = pca_spec_repr
 
 
 
@@ -118,14 +129,19 @@ def save_all_representations_and_distances(song_id):
     ######################################################################################
     ######################################################################################
 
-
-    # tf_idf_reprs = load_tf_idf_representations()
     w2v_reprs = load_w2v_representations()
     print('w2v loaded')
-
-
-    # save_distances(song, song.get_tf_idf_representation(), tf_idf_reprs, TF_IDF_THRESHOLD, "TF0i-df")
     save_distances(song, song.get_W2V_representation(), w2v_reprs, W2V_THRESHOLD, "W2V")
+    w2v_reprs = None
+
+    tf_idf_reprs = load_tf_idf_representations()
+    print('tf_idf loaded')
+    save_distances(song, song.get_tf_idf_representation(), tf_idf_reprs, TF_IDF_THRESHOLD, "TF0i-df")
+    tf_idf_reprs = None
+
+
+
+
 
 
 def load_mfcc_representation():
@@ -193,14 +209,16 @@ def load_lstm_mel_representations():
         i = i + 1
     return representations
 
+def load_tf_idf_representations():
+    count = Song.objects.all().count()
+    representations = numpy.empty([count, 40165])
+    i = 0
+    for song in Song.objects.all().order_by('id'):
+        representations[i] = song.get_tf_idf_representation()
+        print(i, 'tf-idf')
+        i = i + 1
+    return representations
 
-# def load_tf_idf_representations():
-#     representations = numpy.empty(Song.objects.all().count(), )
-#     i = 0
-#     for song in Song.objects.all().order_by('id'):
-#         representations[i] = song.get_lstm_mel_representation()
-#         i = i + 1
-#     return representations
 
 
 def load_w2v_representations():

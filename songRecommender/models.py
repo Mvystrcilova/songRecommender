@@ -17,7 +17,7 @@ class Song(models.Model):
     link = models.URLField() #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
-    link_on_disc = models.FileField(blank=True, max_length=500, upload_to='mp3_files/')
+    link_on_disc = models.FileField(blank=True,null=True, max_length=500, upload_to='mp3_files/')
     tf_idf_representation = ArrayField(models.FloatField(blank=True), null=True)
     w2v_representation = ArrayField(models.FloatField(blank=True), null=True)
     spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
@@ -192,8 +192,6 @@ class Distance(models.Model):
     DISTANCE_CHOICES = (
             ('TF-idf','TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('SPEC', 'Spectrograms'),
-            ('MEL_SPEC', 'Mel-spectrograms'),
             ('MFCC', 'Mel-frequency cepstral coefficients'),
             ('PCA_SPEC', 'PCA on spectrograms'),
             ('PCA_MEL', 'PCA on mel-spectrograms'),
