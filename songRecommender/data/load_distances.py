@@ -41,6 +41,7 @@ def load_tf_idf_representations_to_db(representation_matrix):
             song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
             song.tf_idf_representation = representations[i].tolist()
             song.save()
+            print(i)
         except:
             print(i, row['songTitle'], row['artist'])
 
