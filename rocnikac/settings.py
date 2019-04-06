@@ -29,9 +29,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '7j=lv$v61q#zzcc#46y)sfus2zlrg0487sbd9g*8%yp80&%atd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['acheron.ms.mff.cuni.cz','acheron.ms.mff.cuni.cz:42009']
+ALLOWED_HOSTS = ['acheron.ms.mff.cuni.cz','acheron.ms.mff.cuni.cz:42009', '127.0.0.1']
 
 # Application definition
 

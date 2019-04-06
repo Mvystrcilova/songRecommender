@@ -14,7 +14,7 @@ class Song(models.Model):
     song_name = models.CharField(max_length=100)
     artist = models.CharField(max_length=100)
     text = models.TextField()
-    link = models.URLField() #default max is 200
+    link = models.URLField(max_length=1000) #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
     link_on_disc = models.FileField(blank=True,null=True, max_length=500, upload_to='mp3_files/')

@@ -4,7 +4,9 @@ from django.http import HttpResponseRedirect
 from django.urls import reverse, reverse_lazy
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
+from django.views.generic.list import MultipleObjectMixin
 
+from songRecommender.data.load_distances import load_songs_to_database, load_tf_idf_representations_to_db
 from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
@@ -23,7 +25,7 @@ from django.contrib.postgres.search import SearchQuery, SearchRank, SearchVector
 
 from django.utils.encoding import force_text, force_bytes
 from django.utils.http import urlsafe_base64_decode, urlsafe_base64_encode
-
+from django.core.paginator import Paginator, PageNotAnInteger, EmptyPage
 """this module contains all the view in the application"""
 
 
@@ -50,7 +52,6 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
-        # load_songs()
         # load_distances()
         # Ano Misko, takhle to de taky naprasit, ale ver mi, ze si to sliznes
         return Distance_to_User.objects.all().filter(
@@ -106,7 +107,7 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         return context
 
 
-class ListDetailView(LoginRequiredMixin, generic.DetailView):
+class ListDetailView(LoginRequiredMixin, generic.DetailView, MultipleObjectMixin):
     """class generating a detail view for a particular list
 
     Overridden Methods
@@ -118,21 +119,35 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView):
     model = List
     template_name = 'songRecommender/list_detail.html'
     paginate_by = 10
+    page = 1
 
     def get_queryset(self):
         return List.objects.filter(user_id=self.request.user)
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        context = super(ListDetailView, self).get_context_data(**kwargs)
+        songs = Song_in_List.objects.all().filter(list_id=self.get_object().pk)
+        context = super(ListDetailView, self).get_context_data(object_list=songs, **kwargs)
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
-        context['songs'] = Song_in_List.objects.all().filter(list_id=context['object'].pk)
+        context['songs'] = songs
         context['nearby_songs'] = Distance_to_List.objects.all().filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
             list_id=context['object'].pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
+        context['other_start_page'] = context['page_obj'].number - 3
+        context['other_end_page'] = context['page_obj'].number + 3
+        page = self.kwargs['page']
+        paginator_2 = Paginator(context['nearby_songs'], 10)
+        try:
+            nearby_songs = paginator_2.page(page)
+        except PageNotAnInteger:
+            nearby_songs = paginator_2.page(1)
+        except EmptyPage:
+            nearby_songs = paginator_2.page(paginator_2.num_pages)
+
+        context['nearby_songs'] = nearby_songs
+
 
         return context
-
 
 class ListCreate(LoginRequiredMixin, CreateView):
     """ class representing a create view, which means a form
@@ -197,12 +212,15 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     context_object_name = 'moje_listy'
     paginate_by = 10
 
+
     def get_queryset(self):
         return List.objects.filter(user_id=self.request.user.pk).all()
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        # load_songs_to_database()
+        # load_tf_idf_representations_to_db('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/tf_idf_distances.npy')
         context['played_songs'] = played_songs.exclude(opinion=-1)[:10]
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['nearby_songs'] = Distance_to_User.objects.all().filter(
@@ -239,6 +257,8 @@ class AllSongsView(LoginRequiredMixin, generic.ListView):
 
         context = super(AllSongsView, self).get_context_data(**kwargs)
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
+        context['start_page'] = context['page_obj'].number - 3
+        context['end_page'] = context['page_obj'].number + 3
 
         return context
 
@@ -426,6 +446,8 @@ def signup(request):
                 user.email_user(subject, message)
 
                 return redirect('account_activation_sent')
+            else:
+                return redirect('index')
     else:
         form = SignUpForm()
     return render(request, 'signup.html', {'form': form})

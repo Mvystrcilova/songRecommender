@@ -37,9 +37,12 @@ def load_tf_idf_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.tf_idf_representation = representations[i]
-        song.save()
+        try:
+            song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+            song.tf_idf_representation = representations[i].tolist()
+            song.save()
+        except:
+            print(i, row['songTitle'], row['artist'])
 
 
 def load_w2v_representations_to_db(representation_matrix):
@@ -125,10 +128,14 @@ def load_lstm_spec_representations_to_db(representation_matrix):
         song.save()
 
 def load_songs_to_database():
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
     if (df.shape[0] == 16594):
         for i, row in df.iterrows():
-            song = Song(song_name=row['title'], artist=row['artist'], text=row['lyrics'], link=row['link'], link_on_disc=row['path'])
-            song.save()
+            try:
+                song = Song.objects.get(song_name=row['title'], artist=row['artist'])
+            except:
+                song = Song(song_name=row['title'], artist=row['artist'], text=row['lyrics'], link=row['link'], link_on_disc=row['path'])
+                song.save()
+            print('song', i, 'saved')
     else:
         print("WTF JUST HAPPENED???")

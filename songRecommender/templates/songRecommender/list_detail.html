@@ -7,7 +7,7 @@
             <p style="margin-top: 5%">{{ list.name }}</p>
             <ul class="list-group list-unstyled" style="margin-bottom: 2%">
             {% if list.songs %}
-                {% for songinlist in songs %}
+                {% for songinlist in object_list %}
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' songinlist.song_id.pk %}"> {{ songinlist.song_id }}</a>
                     </li>
@@ -40,4 +40,31 @@
         </div>
     </div>
 
+    <div class="text-center">
+    {% if is_paginated %}
+
+        <ul class="pagination text-center">
+            {% if page_obj.has_previous %}
+              <li><a href="?page={{ page_obj.previous_page_number }}">&laquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&laquo;</span></li>
+            {% endif %}
+            {% for i in paginator.page_range %}
+                {% if i < end_page and i > start_page %}
+                    {% if page_obj.number == i %}
+                      <li class="active"><span>{{ i }} <span class="sr-only">(current)</span></span></li>
+                    {% else %}
+                      <li><a href="?page={{ i }}">{{ i }}</a></li>
+                  {% endif %}
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+              <li><a href="?page={{ page_obj.next_page_number }}">&raquo;</a></li>
+            {% else %}
+              <li class="disabled"><span>&raquo;</span></li>
+            {% endif %}
+          </ul>
+
+    {% endif %}
+</div>
 {% endblock %}
