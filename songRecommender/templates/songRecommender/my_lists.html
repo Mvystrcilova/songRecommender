@@ -15,7 +15,7 @@
             <div class="col-md-6 p-3">
                 <ul class="list-group">
                     <a class="p-3" href="{% url 'recommended_songs' %}"> Played </a>
-                    {% for played_song in played_songs %}
+                    {% for played_song in played_songs|slice:"0:10" %}
                         <li class="list-group-item">
                             <a href="{% url 'song_detail' played_song.song_id1.pk %}">{{ played_song.song_id1 }}</a>
                         </li>
@@ -28,14 +28,12 @@
             <div class="col-md-6 p-3">
                 <ul class="list-group">
                     <p class="p-2"> Songs similar to your played songs </p>
-                    {% for nearby_song in nearby_songs %}
+                    {% for nearby_song in recommended_songs %}
                     <li class="list-group-item">
                         <a href="{% url 'song_detail' nearby_song.song_id.pk %}">{{ nearby_song.song_id }}</a>
                     </li>
                     {% endfor %}
-                    <li class="list-unstyled">
-                        <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2" href="{% url 'recommended_songs' %}">Show more</a>
-                    </li>
+
                 </ul>
             </div>
         {% else %}
@@ -61,7 +59,7 @@
                                 <a class="btn btn-outline-success col-md-1 bg-light text-dark btn-outline-dark float-center mb-2"
                                    type="submit" href="{% url 'list_delete'  l.pk %}">-</a>
                             </li>
-                            {% for song in l.songs.all %}
+                            {% for song in l.songs.all|slice:"0:10" %}
                                 <li class="list-group-item">
                                     <a href="{% url 'song_detail' song.pk %}"> {{ song }} </a>
                                 </li>
@@ -74,14 +72,12 @@
                     <div class="col-md-6">
                         <ul class="list-group mt-3">
                             <p class="m-3">Here are songs similar to {{ l.name }} </p>
-                            {% for nearby_song in l.nearby_songs.all %}
+                            {% for nearby_song in l.get_nearby_songs|slice:"0:10" %}
                                     <li class="list-group-item">
                                         <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
                                     </li>
                             {% endfor %}
-                            <li class="list-unstyled">
-                                <a  class="btn btn-outline-success col-md-6 bg-light text-dark btn-outline-dark mt-2 mb-3" href="{% url 'list_detail' l.pk %}">Show more</a>
-                            </li>
+
                         </ul>
                     </div>
                 {% else %}

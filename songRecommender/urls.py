@@ -12,7 +12,7 @@ urlpatterns = [
     path('add_song_to_list/<int:pk>/<int:pk2>', views.add_song_to_list, name='add_song_to_list'),
     path('all_songs', views.AllSongsView.as_view(), name='all_songs'),
     path('song/<int:pk>', views.SongDetailView.as_view(), name='song_detail'),
-    path('list/<int:pk>', views.ListDetailView.as_view(page=1), name='list_detail'),
+    path('list/<int:pk>', views.ListDetailView.as_view(), name='list_detail'),
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),
     path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs'),
 
@@ -35,5 +35,4 @@ urlpatterns += [
         views.activate, name='activate'),
     url(r'^search_results/?$', views.search, name='search_results'),
     url(r'^change_distance/*', views.change_distance, name='change_distance'),
-    # url(r'^list/<int:pk>/?P<slug>[a-zA-Z0-9-]+)/$'), views.ListDetailView.as_view(), name='list_detail'
 ]

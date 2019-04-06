@@ -133,20 +133,8 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView, MultipleObjectMixin
             distance_Type=self.request.user.profile.user_selected_distance_type,
             list_id=context['object'].pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
-        context['other_start_page'] = context['page_obj'].number - 3
-        context['other_end_page'] = context['page_obj'].number + 3
-        page = self.kwargs['page']
-        paginator_2 = Paginator(context['nearby_songs'], 10)
-        try:
-            nearby_songs = paginator_2.page(page)
-        except PageNotAnInteger:
-            nearby_songs = paginator_2.page(1)
-        except EmptyPage:
-            nearby_songs = paginator_2.page(paginator_2.num_pages)
-
-        context['nearby_songs'] = nearby_songs
-
-
+        context['start_page'] = context['page_obj'].number - 3
+        context['end_page'] = context['page_obj'].number + 3
         return context
 
 class ListCreate(LoginRequiredMixin, CreateView):
@@ -210,23 +198,22 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     model = List
     template_name = 'songRecommender/my_lists.html'
     context_object_name = 'moje_listy'
-    paginate_by = 10
 
 
     def get_queryset(self):
-        return List.objects.filter(user_id=self.request.user.pk).all()
+        return List.objects.filter(user_id=self.request.user.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
-        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         # load_songs_to_database()
         # load_tf_idf_representations_to_db('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/tf_idf_distances.npy')
-        context['played_songs'] = played_songs.exclude(opinion=-1)[:10]
+        context['played_songs'] = played_songs.exclude(opinion=-1)
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
-        context['nearby_songs'] = Distance_to_User.objects.all().filter(
+        context['recommended_songs'] = Distance_to_User.objects.all().filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
             user_id=self.request.user.pk).exclude(
-            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance'))[:10]
 
         return context
 
@@ -282,20 +269,15 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         view
     """
 
-    model = Distance_to_User
+    model = Played_Song
     template_name = 'songRecommender/recommended_songs.html'
-    context_object_name = 'nearby_songs'
+    context_object_name = 'played_songs'
     paginate_by = 10
 
     def get_queryset(self):
         """:returns only the songs recommended to the user that he did not played
         before from the table distance_to_user"""
-        played_songs = Played_Song.objects.all().filter(user_id_id=self.request.user.profile.pk)
-        return Distance_to_User.objects.all().filter(
-            distance_Type=self.request.user.profile.user_selected_distance_type,
-            user_id=self.request.user.pk).exclude(
-            song_id_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance')
-        )
+        return Played_Song.objects.filter(user_id_id=self.request.user.profile.pk)
 
     def get_context_data(self, *, object_list=None, **kwargs):
         """
@@ -304,9 +286,15 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         view
         """
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
-        context['played_songs'] = Played_Song.objects.all().filter(
+        played_songs = Played_Song.objects.filter(
             user_id=self.request.user.profile.pk).exclude(opinion=-1)
-        # context['nearby_songs'] = Distance_to_User.objects.filter(user_id=self.request.user.profile.pk)
+        context['nearby_songs'] = (Distance_to_User.objects.all().filter(
+            distance_Type=self.request.user.profile.user_selected_distance_type,
+            user_id=self.request.user.pk).exclude(
+            song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance'))[:10]
+
+        context['start_page'] = context['page_obj'].number - 3
+        context['end_page'] = context['page_obj'].number + 3
 
         return context
 

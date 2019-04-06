@@ -120,7 +120,7 @@ class List(models.Model):
     name = models.CharField(max_length=100, default='My_List')
     user_id = models.ForeignKey(User, on_delete=models.CASCADE)
     # field with all songs that are in this list
-    songs = models.ManyToManyField(Song, through='Song_in_list', related_name='songs_in_list')
+    songs = models.ManyToManyField(Song, through='Song_in_List', related_name='songs_in_list')
     # field with songs and their distance to this list
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_List', related_name='nearby_songs')
 
@@ -131,7 +131,14 @@ class List(models.Model):
         return reverse('list_detail', args=[str(self.id)])
 
     def get_nearby_songs(self):
-        return self.nearby_songs.order_by('-link_to_list')[:10]
+        list_user = Profile.objects.get(user_id=self.user_id)
+        played_songs = Played_Song.objects.all().filter(user_id=list_user.pk)
+
+        nearby_songs = Distance_to_List.objects.filter(distance_Type=list_user.user_selected_distance_type
+                                                       ).exclude(song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
+        return nearby_songs
+            # self.nearby_songs.exclude(Distance_to_List__song_id__in=self.songs.values_list(
+            # 'song_id_id', flat=True)).order_by('-link_to_list')[:10]
 
 
 class Song_in_List(models.Model):
@@ -174,7 +181,7 @@ class Played_Song(models.Model):
         return self.song_id1.song_name
 
     def get_absolute_url(self):
-        return reverse('song-detail', args=[str(self.song_id.id)])
+        return reverse('song-detail', args=[str(self.song_id1.id)])
 
 
 class Distance(models.Model):
