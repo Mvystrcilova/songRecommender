@@ -54,8 +54,9 @@ def load_w2v_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.w2v_representation = representations[i]
+        song.w2v_representation = representations[i].tolist()
         song.save()
+        print(i)
 
 
 def load_mfcc_representations_to_db(representation_matrix):
@@ -66,8 +67,9 @@ def load_mfcc_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.mfcc_representation = representations[i].reshape()
+        song.mfcc_representation = representations[i].tolist()
         song.save()
+        print('mfcc', i)
 
 
 def load_pca_spectrogram_representations_to_db(representation_matrix):
@@ -78,7 +80,7 @@ def load_pca_spectrogram_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.pca_spec_representation = representations[i]
+        song.pca_spec_representation = representations[i].tolist()
         song.save()
 
 
@@ -90,7 +92,7 @@ def load_pca_mel_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.pca_mel_representation = representations[i]
+        song.pca_mel_representation = representations[i].tolist()
         song.save()
 
 
@@ -102,7 +104,7 @@ def load_lstm_mel_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.lstm_mel_representation = representations[i]
+        song.lstm_mel_representation = representations[i].tolist()
         song.save()
 
 
@@ -114,7 +116,7 @@ def load_gru_mel_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.gru_mel_representation = representations[i].reshape([1, 5712])
+        song.gru_mel_representation = representations[i].tolist()
         song.save()
 
 def load_lstm_spec_representations_to_db(representation_matrix):
@@ -125,7 +127,7 @@ def load_lstm_spec_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.lstm_spec_representation = representations[i]
+        song.lstm_spec_representation = representations[i].tolist()
         song.save()
 
 def load_songs_to_database():

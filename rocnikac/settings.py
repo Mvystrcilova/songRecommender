@@ -196,9 +196,13 @@ print("Loaded model from disk")
 # print("Loaded model from disk")
 
 PCA_Spec_model = joblib.load('rocnikac/models/spec_pca_model')
+print('pca spec model loaded')
 PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
-W2V_model = KeyedVectors.load('w2v_subset', mmap='r')
+print('pca mel model loaded')
+W2V_model = KeyedVectors.load('rocnikac/models/w2v_subset', mmap='r')
+print('w2v model loaded')
 TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model', "rb"))
+print('tf_idf model loaded')
 
 # Spectrogram settings !!!! DO NOT CHANGE !!!
 n_fft = 4410

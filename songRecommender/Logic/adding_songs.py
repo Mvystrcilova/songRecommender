@@ -303,6 +303,7 @@ def download_song_from_youtube(song):
     url = song.link
     l = song.link
     response = None
+    regex = re.compile('[^A-Za-z0-9 -]')
     try:
         response = urllib.request.urlopen(url)
     except:
@@ -321,13 +322,14 @@ def download_song_from_youtube(song):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'outtmpl': MP3FILES_DIR + "%(title)s.%(ext)s"
+        'outtmpl': MP3FILES_DIR + regex.sub('', "%(title)s.%(ext)s")
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         try:
             ydl.download([l])
             info_dict = ydl.extract_info(l, download=False)
-            song.link_on_disc = MP3FILES_DIR + info_dict.get('title', None) + ".mp3"
+
+            song.link_on_disc = MP3FILES_DIR + regex.sub('', info_dict.get('title', None)) + ".mp3"
             song.save()
         except:
             song.link_on_disc = None
