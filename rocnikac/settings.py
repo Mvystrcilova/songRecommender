@@ -146,16 +146,16 @@ SELECTED_DISTANCE_TYPE = "TF-idf"
 # VYMAZAT!!!!!!!
 
 
-# Distance thresholds
-TF_IDF_THRESHOLD = 0
-W2V_THRESHOLD = 0
-MEL_SPEC_THRESHOLD = 0
-PCA_SPEC_THRESHOLD = 0
-PCA_MEL_THRESHOLD = 0
-MFCC_THRESHOLD = 0
-GRU_SPEC_THRESHOLD = 0
-GRU_MEL_THRESHOLD = 0
-LSTM_MEL_THRESHOLD = 0
+# Distance thresholds for 51x16594 distances
+TF_IDF_THRESHOLD = 0.282
+W2V_THRESHOLD = 0.9567
+PCA_SPEC_THRESHOLD = 0.337
+PCA_MEL_THRESHOLD = 0.19
+GRU_MFCC_THRESHOLD = 0
+LSTM_MFCC_THRESHOLD = 0
+LSTM_SPEC_THRESHOLD = 0
+GRU_MEL_THRESHOLD = 0.3634
+LSTM_MEL_THRESHOLD = 0.994
 
 # Loading models
 json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
@@ -167,15 +167,7 @@ GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
 GRU_Mel_graph = tf.get_default_graph()
 print("Loaded model from disk")
 
-# GRU_Spec_model = load_model('rocnikac/models/GRU_Spec_model.h5')
-# GRU_Spec_model.compile(optimizer='adam', loss='mse')
-# json_file = open('rocnikac/models/GRU_Spec_model.json', 'r')
-# loaded_model_json = json_file.read()
-# json_file.close()
-# GRU_Spec_model= model_from_json(loaded_model_json)
-# # load weights into new model
-# GRU_Spec_model.load_weights("rocnikac/models/GRU_Spec_model.h5")
-# print("Loaded model from disk")
+
 
 
 json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')

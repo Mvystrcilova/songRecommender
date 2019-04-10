@@ -3,31 +3,45 @@ import os
 import pandas
 from songRecommender.models import Distance, Song
 import numpy
+from rocnikac.settings import TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, GRU_MEL_THRESHOLD, GRU_MFCC_THRESHOLD, LSTM_MEL_THRESHOLD, LSTM_SPEC_THRESHOLD, PCA_MEL_THRESHOLD, PCA_SPEC_THRESHOLD
 
 def load_distances(distance_matrix, distance_type, threshold):
     distances = numpy.load(distance_matrix)
+    distances[distances < threshold] = 0
+    indexes = numpy.transpose(numpy.nonzero(distances))
     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
                          names=['songTitle','artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
-    for i, row in df.iterrows():
-        if i < 1000:
-            for j, row_2 in df.iterrows():
-                if j < 1000:
+    for i in indexes:
+            if i[0] != i[1]:
                     try:
-                        song_1 = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-                        song_2 = Song.objects.get(song_name=row_2['songTitle'], artist=row_2['artist'])
-                        if distances[i][j] > threshold:
+                        song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
+                        song_2 = Song.objects.get(song_name=df.iloc[i[1]]['songTitle'], artist=df.iloc[i[1]]['artist'])
+                        if distances[i[0]][i[1]] > threshold:
                             distance, created = Distance.objects.get_or_create(song_1=song_1, song_2=song_2,
-                                                                               distance=distances[i][j],
+                                                                               distance=distances[i[0]][i[1]],
                                                                                distance_Type=distance_type)
                             if created:
-                                distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i][j],
+                                distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
                                                       distance_Type=distance_type)
                                 distance_2.save()
+                                print(i[1], distances[i[0]][i[1]])
                         else:
+                            print(i[1], 'too small')
                             pass
                     except:
-                        print(row['songTitle'], row['artist'], 'and', row_2['songTitle'], row_2['artist'])
+                        print(df.iloc[i[0]]['songTitle'], df.iloc[i[0]]['artist'], ' and ', df.iloc[i[1]]['songTitle'], df.iloc[i[1]]['artist'])
+
+                    print(i[0], distance_type)
+
+def load_all_distances():
+    load_distances('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/tf_idf_distances.npy', 'TF_idf', TF_IDF_THRESHOLD)
+    load_distances('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
+    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_spec_distances_1106.npy', 'PCA_SPEC', PCA_SPEC_THRESHOLD)
+    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_mel_distances_5717.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
+    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/lstm_mel_distances_5712.npy', 'LSTM_MEL', LSTM_MEL_THRESHOLD)
+    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
+
 
 
 def load_tf_idf_representations_to_db(representation_matrix):
@@ -59,7 +73,19 @@ def load_w2v_representations_to_db(representation_matrix):
         print(i)
 
 
-def load_mfcc_representations_to_db(representation_matrix):
+# def load_mfcc_representations_to_db(representation_matrix):
+#     representations = numpy.load(representation_matrix)
+#     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+#                          names=['songTitle', 'artist'], index_col=False, header=None,
+#                          engine='python', error_bad_lines=False)
+#
+#     for i, row in df.iterrows():
+#         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+#         song.mfcc_representation = representations[i].tolist()
+#         song.save()
+#         print('mfcc', i)
+
+def load_lstm_mfcc_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
@@ -67,10 +93,21 @@ def load_mfcc_representations_to_db(representation_matrix):
 
     for i, row in df.iterrows():
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.mfcc_representation = representations[i].tolist()
-        song.save()
-        print('mfcc', i)
+        song.w2v_representation = representations[i].tolist()
+        song.save('lstm_mfcc')
+        print(i)
 
+def load_gru_mfcc_representations_to_db(representation_matrix):
+    representations = numpy.load(representation_matrix)
+    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+                         names=['songTitle', 'artist'], index_col=False, header=None,
+                         engine='python', error_bad_lines=False)
+
+    for i, row in df.iterrows():
+        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+        song.w2v_representation = representations[i].tolist()
+        song.save()
+        print(i, 'gru_mfcc')
 
 def load_pca_spectrogram_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
@@ -82,6 +119,7 @@ def load_pca_spectrogram_representations_to_db(representation_matrix):
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
         song.pca_spec_representation = representations[i].tolist()
         song.save()
+        print(i, 'pca spec')
 
 
 def load_pca_mel_representations_to_db(representation_matrix):
@@ -94,6 +132,7 @@ def load_pca_mel_representations_to_db(representation_matrix):
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
         song.pca_mel_representation = representations[i].tolist()
         song.save()
+        print(i, 'pca_mel')
 
 
 def load_lstm_mel_representations_to_db(representation_matrix):
@@ -106,6 +145,7 @@ def load_lstm_mel_representations_to_db(representation_matrix):
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
         song.lstm_mel_representation = representations[i].tolist()
         song.save()
+        print(i, 'lstm mel')
 
 
 def load_gru_mel_representations_to_db(representation_matrix):
@@ -118,6 +158,7 @@ def load_gru_mel_representations_to_db(representation_matrix):
         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
         song.gru_mel_representation = representations[i].tolist()
         song.save()
+        print('gru mel', i)
 
 def load_lstm_spec_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)

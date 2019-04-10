@@ -5,11 +5,12 @@ from rocnikac.settings import MP3FILES_DIR
 from pydub import AudioSegment
 from rocnikac.settings import GRU_Mel_graph, LSTM_Mel_graph
 from keras.models import model_from_json
+from sklearn.preprocessing import MinMaxScaler
 
 from rocnikac.settings import TF_idf_model, W2V_model, PCA_Spec_model, \
                               PCA_Mel_model, GRU_Mel_model, LSTM_Mel_model
-from rocnikac.settings import TF_IDF_THRESHOLD, W2V_THRESHOLD, MEL_SPEC_THRESHOLD, MFCC_THRESHOLD, PCA_MEL_THRESHOLD, \
-                            PCA_SPEC_THRESHOLD, GRU_MEL_THRESHOLD, GRU_SPEC_THRESHOLD, LSTM_MEL_THRESHOLD
+from rocnikac.settings import TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, GRU_MFCC_THRESHOLD, PCA_MEL_THRESHOLD, \
+                            PCA_SPEC_THRESHOLD, GRU_MEL_THRESHOLD, LSTM_SPEC_THRESHOLD, LSTM_MEL_THRESHOLD
 from rocnikac.settings import n_fft, hop_length, n_mfcc, n_mels
 
 import re
@@ -23,67 +24,79 @@ def save_all_representations_and_distances(song_id):
 
     song = Song.objects.get(pk=song_id)
     download_song_from_youtube(song)
-    if song.link_on_disc is not None:
+    scaler = MinMaxScaler()
+    if song.link_on_disc != '':
         y, sr = get_audio_data(song)
 
         ######## Saving simple audio representations ###############
 
         spectrogram = retrieve_spectrogram_representation(y, sr)
+        spectrogram = scaler.fit_transform(spectrogram.reshape([1, 900048]))
+        spectrogram = spectrogram.reshape([1, 408, 2206])
         print('got spectrogram')
         print(spectrogram.shape)
         mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
+        mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([1, 130560]))
+        mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
         print('got melspectrogram')
         print(mel_spectrogram.shape)
         mfcc = retrieve_mfcc_representation(y, sr)
+        mfcc = scaler.fit_transform(mfcc.reshape([1, 82688]))
+        mfcc = mfcc.reshape([1, 646, 128])
         print('got mfcc repr')
 
         ############################# Saving more advanced audio representations #####################
 
-        pca_spec_repr = PCA_Spec_model.transform(spectrogram.reshape(1, 900048))
+        pca_spec_repr = PCA_Spec_model.transform(scaler.fit_transform(spectrogram.reshape(1, 900048)))
         print('pca spec predicted')
         pca_mel_repr = PCA_Mel_model.transform(mel_spectrogram.reshape(1, 130560))
         print('pca mel predicted')
 
         with GRU_Mel_graph.as_default():
-            gru_mel_repr = GRU_Mel_model.predict(mel_spectrogram.reshape([1, 408, 320]))[0]
+            gru_mel_repr = GRU_Mel_model.predict(scaler.fit_transform(mel_spectrogram.reshape([1, 408, 320])))[0]
+            song.gru_mel_representation = gru_mel_repr.reshape([1, 5712]).tolist()
             print(gru_mel_repr)
 
         print('gru mel predicted')
         with LSTM_Mel_graph.as_default():
             lstm_mel_repr = LSTM_Mel_model.predict(mel_spectrogram.reshape([1, 408, 320]))[0]
+            song.lstm_mel_representation = lstm_mel_repr.reshape([1, 5712]).tolist()
             print(lstm_mel_repr)
         print('lstm mel representation predicted')
 
          ##################### Saving paths to song ##########################################
 
-        song.spectrogram_representation = spectrogram
-        print(spectrogram)
-        print('spectrogram fitted')
-        song.mel_spectrogram_representation = mel_spectrogram
-        print(mel_spectrogram)
-        print('mel_spectrogram fitted')
-        song.mfcc_representation = mfcc
-        print(mfcc)
-        print('mfcc representation fitted')
+        # song.spectrogram_representation = spectrogram
+        # print(spectrogram)
+        # print('spectrogram fitted')
+        # song.mel_spectrogram_representation = mel_spectrogram
+        # print(mel_spectrogram)
+        # print('mel_spectrogram fitted')
+        # song.mfcc_representation = mfcc
+        # print(mfcc)
+        # print('mfcc representation fitted')
         # song.tf_idf_representation = tf_idf_repr
 
         print('pca spectrogram')
-        song.pca_mel_representation = pca_mel_repr
-        print(pca_mel_repr)
-        print('pca mel representation')
+        song.pca_spec_representation = pca_spec_repr.tolist()
+        print(pca_spec_repr)
+        print('pca spec representation')
         # song.gru_spec_representation = gru_spec_repr
         # print('gru spec repr')
-        song.gru_mel_representation = gru_mel_repr.reshape([1, ])
-        print('gru mel repr')
-        song.lstm_mel_representation = lstm_mel_repr
-        print('lstm mel repr')
 
-        mfcc_reprs = load_mfcc_representation()
-        print('mfcc loaded')
-        save_distances(song, song.get_mfcc_representation(), mfcc_reprs, MFCC_THRESHOLD, "MFCC")
-        print('mfcc_distances_saved')
-        mfcc_reprs = None
 
+        # gru_mfcc_reprs = load_gru_mfcc_representation()
+        # print('gru mfcc loaded')
+        # save_distances(song, song.get_gru_mfcc_representation(), gru_mfcc_reprs, GRU_MFCC_THRESHOLD, "MFCC")
+        # print('gru mfcc_distances_saved')
+        # gru_mfcc_reprs = None
+        #
+        # lstm_mfcc_reprs = load_lstm_mfcc_representation()
+        # print('lstm mfcc loaded')
+        # save_distances(song, song.get_lsmt_mfcc_representation(), lstm_mfcc_reprs, LSTM_MFCC_THRESHOLD, "MFCC")
+        # print('lstm mfcc_distances_saved')
+        # lstm_mfcc_reprs = None
+        song.pca_mel_representation = pca_mel_repr.tolist()
         pca_mel_reprs = load_mel_pca_representations()
         print('mel reprs loaded')
         save_distances(song, song.get_pca_mel_representation(), pca_mel_reprs, PCA_MEL_THRESHOLD, "PCA_MEL")
@@ -118,13 +131,12 @@ def save_all_representations_and_distances(song_id):
     w2v_repr = retrieve_w2v_representation(song)
     print('w2v predicted')
 
-    song.w2v_representation = w2v_repr
+    song.w2v_representation = w2v_repr.tolist()
     print('w2v representation')
     # song.pca_spec_representation = pca_spec_repr
 
-
-
     song.save()
+    print('song_saved')
 
     ######################################################################################
     ######################################################################################
@@ -144,13 +156,23 @@ def save_all_representations_and_distances(song_id):
 
 
 
-def load_mfcc_representation():
+def load_gru_mfcc_representation():
     count = Song.objects.all().count()
-    representations = numpy.empty([count, 82688])
+    representations = numpy.empty([count, 5248])
     i = 0
     for song in Song.objects.all():
         representations[i] = song.get_mfcc_representation()
-        print(i, 'mfcc')
+        print(i, 'gru_mfcc')
+        i = i + 1
+    return representations
+
+def load_lstm_mfcc_representation():
+    count = Song.objects.all().count()
+    representations = numpy.empty([count, 5248])
+    i = 0
+    for song in Song.objects.all():
+        representations[i] = song.get_mfcc_representation()
+        print(i, 'lstm_mfcc')
         i = i + 1
     return representations
 
@@ -209,13 +231,16 @@ def load_lstm_mel_representations():
         i = i + 1
     return representations
 
-def load_tf_idf_representations():
+def load_tf_idf_representations(chunk_size):
     count = Song.objects.all().count()
-    representations = numpy.empty([count, 40165])
+    representations = numpy.empty([chunk_size, 40165])
     i = 0
     for song in Song.objects.all().order_by('id'):
-        representations[i] = song.get_tf_idf_representation()
-        print(i, 'tf-idf')
+        if (i % chunk_size == 0) and (i != 0):
+            representations[i] = song.get_tf_idf_representation()
+            print(i, 'tf-idf')
+        elif i > count:
+            representations = representations[:i]
         i = i + 1
     return representations
 
@@ -237,13 +262,15 @@ def save_distances(song, song_representation, representations, threshold, distan
 
     try:
         distances = sklearn.metrics.pairwise.cosine_similarity(song_representation.reshape(1,-1), representations)
-
+        i = 0
         for song_2 in Song.objects.all().order_by('id'):
-            if distances[song_2.id] > threshold and (song.id != song_2.id):
+            if distances[i] > threshold and (song.id != song_2.id):
                 dist_1 = Distance(song_1=song, song_2=song_2, distance_Type=distance_type, distance=distances[song_2.id])
                 dist_2 = Distance(song_1=song_2, song_2=song, distance_Type=distance_type, distance=distances[song_2.id])
                 dist_1.save()
                 dist_2.save()
+                print('distance', song, song_2, 'saved')
+            i = i+1
     except:
         pass
 
@@ -322,18 +349,20 @@ def download_song_from_youtube(song):
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
-        'outtmpl': MP3FILES_DIR + regex.sub('', "%(title)s.%(ext)s")
+        'outtmpl': MP3FILES_DIR + "%(title)s.%(ext)s"
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         try:
             ydl.download([l])
             info_dict = ydl.extract_info(l, download=False)
 
-            song.link_on_disc = MP3FILES_DIR + regex.sub('', info_dict.get('title', None)) + ".mp3"
+            song.link_on_disc = MP3FILES_DIR + info_dict.get('title', None) + ".mp3"
             song.save()
-        except:
-            song.link_on_disc = None
+            print('song_saved_ok', song.link_on_disc)
+        except Exception as e:
+            song.link_on_disc = ''
             song.save()
+            print('not saved ok', e)
 
 
 def retrieve_spectrogram_representation(y, sr):

@@ -23,6 +23,8 @@ class Song(models.Model):
     spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
     mel_spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
     mfcc_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    gru_mfcc_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    lsmt_mfcc_representations = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
     pca_spec_representation = ArrayField(models.FloatField(blank=True), null=True)
     pca_mel_representation = ArrayField(models.FloatField(blank=True), null=True)
     gru_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
@@ -41,8 +43,11 @@ class Song(models.Model):
     def get_mel_spectrogram_representation(self):
         return numpy.load(self.mel_spectrogram_representation)
 
-    def get_mfcc_representation(self):
-        return numpy.load(self.mfcc_representation)
+    def get_gru_mfcc_representation(self):
+        return numpy.load(self.gru_mfcc_representation)
+
+    def get_lsmt_mfcc_representation(self):
+        return numpy.load(self.lstm_mfcc_representation)
 
     def get_pca_spec_representation(self):
         return numpy.load(self.pca_spec_representation)
@@ -54,7 +59,7 @@ class Song(models.Model):
         return numpy.load(self.gru_mel_representation)
 
     def get_lstm_spec_representatio(self):
-        return numpy.load(self.gru_spec_representation)
+        return numpy.load(self.lstm_spec_representation)
 
     def get_lstm_mel_representation(self):
         return numpy.load(self.lstm_mel_representation)
@@ -81,7 +86,7 @@ class Profile(models.Model):
         ('W2V', 'Word2Vec'),
         ('MFCC', 'Mel-frequency cepstral coefficients'),
         ('PCA_SPEC', 'PCA on spectrograms'),
-        ('MEL_SPEC', 'PCA on mel-spectrograms'),
+        ('PCA_MEL', 'PCA on mel-spectrograms'),
         ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
         ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
         ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
@@ -216,7 +221,7 @@ class Distance(models.Model):
 
     class Meta:
         ordering = ['-distance']
-        unique_together = (('song_1', 'song_2'))
+        unique_together = (('song_1', 'song_2', 'distance_Type'))
 
 
 class Distance_to_List(models.Model):

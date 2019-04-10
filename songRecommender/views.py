@@ -6,11 +6,13 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
 from django.views.generic.list import MultipleObjectMixin
 
-from songRecommender.data.load_distances import load_songs_to_database, load_tf_idf_representations_to_db, load_w2v_representations_to_db, load_mfcc_representations_to_db
-from songRecommender.Logic.Recommender import check_if_in_played, change_youtube_url
+from songRecommender.data.load_distances import load_songs_to_database, load_tf_idf_representations_to_db, load_w2v_representations_to_db, load_gru_mfcc_representations_to_db
+from songRecommender.data.load_distances import load_gru_mel_representations_to_db, load_lstm_mel_representations_to_db, load_lstm_mfcc_representations_to_db
+from songRecommender.data.load_distances import load_pca_mel_representations_to_db, load_pca_spectrogram_representations_to_db, load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
 from rocnikac.tasks import add, recalculate_distances, handle_added_song
+from songRecommender.Logic.Recommender import check_if_in_played
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 from .forms import SignUpForm
 from .tokens import account_activation_token
@@ -98,9 +100,9 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
         context['played_song'] = Played_Song.objects.filter(
             song_id1=context['object'], user_id=self.request.user.profile)
-        context['my_lists'] = List.objects.filter(user_id=self.request.user)
+        context['my_lists'] = List.objects.all().filter(user_id=self.request.user)
         #POZOR!!! Napraseni kod, co ale funguje, mozna potom prejmenovat, vraci se distance ale pouziva song
-        context['nearby_songs'] = Distance.objects.order_by('-distance').filter(
+        context['nearby_songs'] = Distance.objects.all().order_by('-distance').filter(
             distance_Type=self.request.user.profile.user_selected_distance_type, song_2=context['object']).exclude(
             song_1_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
         context['link'] = context['object'].link_on_disc
@@ -209,7 +211,11 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         # load_songs_to_database()
         # load_tf_idf_representations_to_db('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/tf_idf_distances.npy')
         # load_w2v_representations_to_db('/Users/m_vys/PycharmProjects/similarity_and_evaluation/representations/w2v_representations.npy')
-        load_mfcc_representations_to_db('/Users/m_vys/PycharmProjects/similarity_and_evaluation/representations/mfcc_representations.npy')
+        # load_pca_spectrogram_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_spec_representations_1106.npy')
+        # load_pca_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_mel_representations_5717.npy')
+        # load_gru_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/gru_mel_representations_5712.npy')
+        # load_lstm_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/lstm_mel_representations_5712.npy')
+        load_all_distances()
         context['played_songs'] = played_songs.exclude(opinion=-1)
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['recommended_songs'] = Distance_to_User.objects.all().filter(
