@@ -3,7 +3,8 @@ import os
 import pandas
 from songRecommender.models import Distance, Song
 import numpy
-from rocnikac.settings import TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, GRU_MEL_THRESHOLD, GRU_MFCC_THRESHOLD, LSTM_MEL_THRESHOLD, LSTM_SPEC_THRESHOLD, PCA_MEL_THRESHOLD, PCA_SPEC_THRESHOLD
+from scipy import sparse
+from rocnikac.settings import PCA_TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, GRU_MEL_THRESHOLD, PCA_MEL_THRESHOLD
 
 def load_distances(distance_matrix, distance_type, threshold):
     distances = numpy.load(distance_matrix)
@@ -17,34 +18,33 @@ def load_distances(distance_matrix, distance_type, threshold):
                     try:
                         song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
                         song_2 = Song.objects.get(song_name=df.iloc[i[1]]['songTitle'], artist=df.iloc[i[1]]['artist'])
-                        if distances[i[0]][i[1]] > threshold:
-                            distance, created = Distance.objects.get_or_create(song_1=song_1, song_2=song_2,
-                                                                               distance=distances[i[0]][i[1]],
-                                                                               distance_Type=distance_type)
-                            if created:
-                                distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
-                                                      distance_Type=distance_type)
-                                distance_2.save()
-                                print(i[1], distances[i[0]][i[1]])
-                        else:
-                            print(i[1], 'too small')
-                            pass
-                    except:
+
+                        distance, created = Distance.objects.get_or_create(song_1=song_1, song_2=song_2,
+                                                                           distance=distances[i[0]][i[1]],
+                                                                           distance_Type=distance_type)
+                        if created:
+                            distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
+                                                  distance_Type=distance_type)
+                            distance_2.save()
+                            print(i[1], distances[i[0]][i[1]])
+
+                    except Exception as e:
+                        print(e)
                         print(df.iloc[i[0]]['songTitle'], df.iloc[i[0]]['artist'], ' and ', df.iloc[i[1]]['songTitle'], df.iloc[i[1]]['artist'])
 
-                    print(i[0], distance_type)
+                    # print(i[0], distance_type)
 
 def load_all_distances():
-    load_distances('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/tf_idf_distances.npy', 'TF_idf', TF_IDF_THRESHOLD)
+    load_distances('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
     load_distances('/Users/m_vys/PycharmProjects/similarity_and_evaluation/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
-    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_spec_distances_1106.npy', 'PCA_SPEC', PCA_SPEC_THRESHOLD)
     load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_mel_distances_5717.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
-    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/lstm_mel_distances_5712.npy', 'LSTM_MEL', LSTM_MEL_THRESHOLD)
+    load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/lstm_mel_distances_5712.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
     load_distances('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
 
 
-
-def load_tf_idf_representations_to_db(representation_matrix):
+def load_all_representations():
+    load_pca_tf_idf_representations_to_db()
+def load_pca_tf_idf_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
@@ -53,10 +53,11 @@ def load_tf_idf_representations_to_db(representation_matrix):
     for i, row in df.iterrows():
         try:
             song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-            song.tf_idf_representation = representations[i].tolist()
+            song.pca_tf_idf_representation = representations[i].tolist()
             song.save()
             print(i)
-        except:
+        except Exception as e:
+            print(str(e) + str(i) + 'pca_tf_idf')
             print(i, row['songTitle'], row['artist'])
 
 
@@ -67,10 +68,15 @@ def load_w2v_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.w2v_representation = representations[i].tolist()
-        song.save()
-        print(i)
+        try:
+            song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+            song.w2v_representation = representations[i].tolist()
+            song.save()
+            print(i)
+        except Exception as e:
+            print(str(e) + str(i) + 'w2v')
+            print(i, row['songTitle'], row['artist'])
+
 
 
 # def load_mfcc_representations_to_db(representation_matrix):
@@ -92,34 +98,13 @@ def load_lstm_mfcc_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.w2v_representation = representations[i].tolist()
-        song.save('lstm_mfcc')
-        print(i)
-
-def load_gru_mfcc_representations_to_db(representation_matrix):
-    representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
-                         names=['songTitle', 'artist'], index_col=False, header=None,
-                         engine='python', error_bad_lines=False)
-
-    for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.w2v_representation = representations[i].tolist()
-        song.save()
-        print(i, 'gru_mfcc')
-
-def load_pca_spectrogram_representations_to_db(representation_matrix):
-    representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
-                         names=['songTitle', 'artist'], index_col=False, header=None,
-                         engine='python', error_bad_lines=False)
-
-    for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.pca_spec_representation = representations[i].tolist()
-        song.save()
-        print(i, 'pca spec')
+        try:
+            song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+            song.w2v_representation = representations[i].tolist()
+            song.save()
+        except Exception as e:
+            print(str(e) + str(i) + 'lstm_mfcc')
+            print(i, row['songTitle'], row['artist'])
 
 
 def load_pca_mel_representations_to_db(representation_matrix):
@@ -129,23 +114,14 @@ def load_pca_mel_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.pca_mel_representation = representations[i].tolist()
-        song.save()
-        print(i, 'pca_mel')
+        try:
+            song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+            song.pca_mel_representation = representations[i].tolist()
+            song.save()
+        except Exception as e:
+            print(str(e) + str(i) + 'pca_mel')
+            print(i, row['songTitle'], row['artist'])
 
-
-def load_lstm_mel_representations_to_db(representation_matrix):
-    representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
-                         names=['songTitle', 'artist'], index_col=False, header=None,
-                         engine='python', error_bad_lines=False)
-
-    for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.lstm_mel_representation = representations[i].tolist()
-        song.save()
-        print(i, 'lstm mel')
 
 
 def load_gru_mel_representations_to_db(representation_matrix):
@@ -155,21 +131,15 @@ def load_gru_mel_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.gru_mel_representation = representations[i].tolist()
-        song.save()
-        print('gru mel', i)
+        try:
+            song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
+            song.gru_mel_representation = representations[i].tolist()
+            song.save()
+        except Exception as e:
+            print(str(e) + str(i) + 'gru_mel')
+            print(i, row['songTitle'], row['artist'])
 
-def load_lstm_spec_representations_to_db(representation_matrix):
-    representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
-                         names=['songTitle', 'artist'], index_col=False, header=None,
-                         engine='python', error_bad_lines=False)
 
-    for i, row in df.iterrows():
-        song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-        song.lstm_spec_representation = representations[i].tolist()
-        song.save()
 
 def load_songs_to_database():
     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])

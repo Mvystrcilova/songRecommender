@@ -17,52 +17,28 @@ class Song(models.Model):
     link = models.URLField(max_length=1000) #default max is 200
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
-    link_on_disc = models.FileField(blank=True,null=True, max_length=500, upload_to='mp3_files/')
-    tf_idf_representation = ArrayField(models.FloatField(blank=True), null=True)
-    w2v_representation = ArrayField(models.FloatField(blank=True), null=True)
-    spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    mel_spectrogram_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    mfcc_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    gru_mfcc_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    lsmt_mfcc_representations = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    pca_spec_representation = ArrayField(models.FloatField(blank=True), null=True)
-    pca_mel_representation = ArrayField(models.FloatField(blank=True), null=True)
-    gru_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    lstm_spec_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
-    lstm_mel_representation = ArrayField(ArrayField(models.FloatField(blank=True)), null=True)
+    link_on_disc = models.FileField(blank=True ,null=True, max_length=500, upload_to='mp3_files/')
+    audio = models.BooleanField(default=True)
+    pca_tf_idf_representation = ArrayField(models.FloatField(), null=True)
+    w2v_representation = ArrayField(models.FloatField(), null=True)
+    lstm_mfcc_representation = ArrayField(models.FloatField(), null=True)
+    pca_mel_representation = ArrayField(models.FloatField(), null=True)
+    gru_mel_representation = ArrayField(models.FloatField(), null=True)
 
-    def get_tf_idf_representation(self):
-        pass
+    def get_pca_tf_idf_representation(self):
+        return numpy.array(self.pca_tf_idf_representation).reshape([1, 4457])
 
     def get_W2V_representation(self):
-        pass
+        return numpy.array(self.w2v_representation, dtype=float).reshape([1,300])
 
-    def get_spectrogram_representation(self):
-        return numpy.load(self.spectrogram_representation)
-
-    def get_mel_spectrogram_representation(self):
-        return numpy.load(self.mel_spectrogram_representation)
-
-    def get_gru_mfcc_representation(self):
-        return numpy.load(self.gru_mfcc_representation)
-
-    def get_lsmt_mfcc_representation(self):
-        return numpy.load(self.lstm_mfcc_representation)
-
-    def get_pca_spec_representation(self):
-        return numpy.load(self.pca_spec_representation)
+    def get_lstm_mfcc_representation(self):
+        return numpy.array(self.lstm_mfcc_representation, dtype=float).reshape([1,5168])
 
     def get_pca_mel_representation(self):
-        return numpy.load(self.pca_mel_representation)
+        return numpy.array(self.pca_mel_representation, dtype=float).reshape([1,320])
 
     def get_gru_mel_representation(self):
-        return numpy.load(self.gru_mel_representation)
-
-    def get_lstm_spec_representatio(self):
-        return numpy.load(self.lstm_spec_representation)
-
-    def get_lstm_mel_representation(self):
-        return numpy.load(self.lstm_mel_representation)
+        return numpy.array(self.gru_mel_representation, dtype=float).reshape([1,5712])
 
 
     def __str__(self):
@@ -82,14 +58,11 @@ class Profile(models.Model):
     nearby_songs = models.ManyToManyField(Song, through='Distance_to_User',related_name='Songs_close_to_user')
     email_confirmed = models.BooleanField(default=EMAIL_DISABLED)
     DISTANCE_CHOICES = (
-        ('TF-idf', 'TF-idf'),
+        ('PCA_TF-idf', 'PCA on TF-idf'),
         ('W2V', 'Word2Vec'),
-        ('MFCC', 'Mel-frequency cepstral coefficients'),
-        ('PCA_SPEC', 'PCA on spectrograms'),
         ('PCA_MEL', 'PCA on mel-spectrograms'),
         ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
-        ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
-        ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
+        ('LSTM_MFCC', 'LSTM autoencoder with MFCC input')
     )
     user_selected_distance_type = models.CharField(max_length=20, choices=DISTANCE_CHOICES,
                                                    default=SELECTED_DISTANCE_TYPE)
@@ -205,14 +178,11 @@ class Distance(models.Model):
     song_2 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_2')
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
-            ('TF-idf','TF-idf'),
+            ('PCA_TF-idf','PCA on TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('MFCC', 'Mel-frequency cepstral coefficients'),
-            ('PCA_SPEC', 'PCA on spectrograms'),
             ('PCA_MEL', 'PCA on mel-spectrograms'),
             ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
-            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
-            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
+            ('LSTM_MFCC', 'LSTM autoencoder MFCC input')
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES)
 
@@ -238,14 +208,11 @@ class Distance_to_List(models.Model):
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='link_to_list')
     distance = models.FloatField()
     DISTANCE_CHOICES = (
-            ('TF-idf', 'TF-idf'),
+            ('PCA_TF-idf', 'PCA on TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('MFCC', 'Mel-frequency cepstral coefficients'),
-            ('PCA_SPEC', 'PCA on spectrograms'),
             ('PCA_MEL', 'PCA on mel-spectrograms'),
             ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
-            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
-            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
+            ('LSTM_MFCC', 'LSTM autoencoder with MFCC input')
     )
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES)
 
@@ -258,7 +225,7 @@ class Distance_to_List(models.Model):
 
     class Meta:
         ordering = ['-distance']
-        unique_together=(('list_id', 'song_id'))
+        unique_together=(('list_id', 'song_id', 'distance_Type'))
     
 
 class Distance_to_User(models.Model):
@@ -275,20 +242,17 @@ class Distance_to_User(models.Model):
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='link_to_user')
     distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
-            ('TF-idf', 'TF-idf'),
+            ('PCA_TF-idf', 'PCA_TF-idf'),
             ('W2V', 'Word2Vec'),
-            ('MFCC', 'Mel-frequency cepstral coefficients'),
-            ('PCA_SPEC', 'PCA on spectrograms'),
             ('PCA_MEL', 'PCA on mel-spectrograms'),
             ('GRU_MEL', 'GRU neural network with mel-spectrogram input'),
-            ('GRU_SPEC', 'GRU autoencoder with spectrogram input'),
-            ('LSTM_MEL', 'LSTM autoencoder with mel-spectrogram input')
+            ('LSTM_MFCC', 'LSTM autoencoder with mfcc input')
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 
     class Meta:
         ordering = ['-distance']
-        unique_together=(('user_id', 'song_id'))
+        unique_together=(('user_id', 'song_id', 'distance_Type'))
 
     # def get_nearby_songs(userid):
     #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]

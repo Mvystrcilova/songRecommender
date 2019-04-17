@@ -6,9 +6,9 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
 from django.views.generic.list import MultipleObjectMixin
 
-from songRecommender.data.load_distances import load_songs_to_database, load_tf_idf_representations_to_db, load_w2v_representations_to_db, load_gru_mfcc_representations_to_db
-from songRecommender.data.load_distances import load_gru_mel_representations_to_db, load_lstm_mel_representations_to_db, load_lstm_mfcc_representations_to_db
-from songRecommender.data.load_distances import load_pca_mel_representations_to_db, load_pca_spectrogram_representations_to_db, load_all_distances
+from songRecommender.data.load_distances import load_songs_to_database, load_w2v_representations_to_db
+from songRecommender.data.load_distances import load_gru_mel_representations_to_db, load_lstm_mfcc_representations_to_db
+from songRecommender.data.load_distances import load_pca_mel_representations_to_db,  load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
 from rocnikac.tasks import add, recalculate_distances, handle_added_song
@@ -215,7 +215,7 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         # load_pca_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/pca_mel_representations_5717.npy')
         # load_gru_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/gru_mel_representations_5712.npy')
         # load_lstm_mel_representations_to_db('/Volumes/LaCie/similarity_and_evaluation/similarity_and_evaluation/lstm_mel_representations_5712.npy')
-        load_all_distances()
+        # load_all_distances()
         context['played_songs'] = played_songs.exclude(opinion=-1)
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['recommended_songs'] = Distance_to_User.objects.all().filter(

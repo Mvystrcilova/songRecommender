@@ -2,15 +2,19 @@ from __future__ import absolute_import, unicode_literals
 from celery import Celery
 from celery import shared_task
 
+import math
 from songRecommender.models import Song, List, Played_Song, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
     Profile
-import pandas, sklearn
+import pandas, sklearn, numpy
 from songRecommender.Logic.DocSim import DocSim
-from songRecommender.Logic.adding_songs import save_all_representations_and_distances
+from songRecommender.Logic.adding_songs import save_all_representations
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from rocnikac.settings import W2V_model, TF_idf_model
 from keras.models import model_from_json
+
+from rocnikac.settings import PCA_TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, PCA_MEL_THRESHOLD, GRU_MEL_THRESHOLD
+
 app = Celery('tasks', broker='amqp://localhost')
 
 
@@ -135,48 +139,203 @@ def handle_added_song(song_id, user_id):
     # calculates the distances of this song to all other songs already in the database
     song = Song.objects.get(pk=song_id)
 
-    # TFidf_distances = get_TFidf_distance()
-    #
-    # W2V_distances = get_W2V_distance(song_id)
-    #
-    # # saves the distances to the database
-    # save_distances(TFidf_distances, song_id, "TF-idf")
-    # save_distances(W2V_distances, song_id, "W2V")
-    # json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
-    # loaded_model_json = json_file.read()
-    # json_file.close()
-    # GRU_Mel_model = model_from_json(loaded_model_json)
-    # # load weights into new model
-    # GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
-    # print("Loaded model from disk")
-    #
-    # json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')
-    # loaded_model_json = json_file.read()
-    # json_file.close()
-    # LSTM_Mel_model = model_from_json(loaded_model_json)
-    # # load weights into new model
-    # LSTM_Mel_model.load_weights("rocnikac/models/LSTM_Mel_model.h5")
-    # print("Loaded model from disk")
 
-    save_all_representations_and_distances(song_id)
+    save_all_representations(song_id)
+
+    load_w2v_representations(1000, song_id)
+    print('w2v loaded, distances saved')
+
+    load_pca_mel_representations(1000, song_id)
+    print('spec reprs loaded and distances saved')
+
+    load_gru_mel_representations(100, song_id)
+    print('gru mel distances saved')
+
+    load_lstm_mfcc_representations(100, song_id)
+    print('lstm mel distances saved')
+
+    load_pca_tf_idf_representations(1000, song_id)
+    print('tf_idf loaded, distances saved')
+
     # calculates the distance of this song to the user
-    save_user_distances(song_id, user_id, "TF-idf")
+    save_user_distances(song_id, user_id, "PCA_TF-idf")
     save_user_distances(song_id, user_id, "W2V")
-    # save_user_distances(song_id, user_id, "MFCC")
-    save_user_distances(song_id, user_id, "PCA_SPEC")
     save_user_distances(song_id, user_id, "PCA_MEL")
     save_user_distances(song_id, user_id, "GRU_MEL")
-    # save_user_distances(song_id, user_id, "GRU_SPEC")
-    save_user_distances(song_id, user_id, "LSTM_MEL")
+    save_user_distances(song_id, user_id, "LSTM_MFCC")
     #  calculates the distance of this song to all of the lists the current
     # user created
     lists = List.objects.all().filter(user_id_id=user_id)
     for l in lists:
-        save_list_distances(song_id, l.pk, user_id, "TF-idf")
+        save_list_distances(song_id, l.pk, user_id, "PCA_TF-idf")
         save_list_distances(song_id, l.pk, user_id, "W2V")
-        # save_list_distances(song_id, l.pk, user_id, "MFCC")
-        save_list_distances(song_id, l.pk, user_id, "PCA_SPEC")
         save_list_distances(song_id, l.pk, user_id, "PCA_MEL")
         save_list_distances(song_id, l.pk, user_id, "GRU_MEL")
-        # save_list_distances(song_id, l.pk, user_id, "GRU_SPEC")
-        save_list_distances(song_id, l.pk, user_id, "LSTM_MEL")
+        save_list_distances(song_id, l.pk, user_id, "LSTM_MFCC")
+
+
+
+
+@shared_task()
+def load_lstm_mfcc_representations(chunk_size, s_id):
+    count = Song.objects.all().exclude(audio=False).count()
+    s = Song.objects.get(pk=s_id)
+    representations = numpy.empty([count, 5168])
+    i = 0
+    j = 0
+    for song in Song.objects.all().order_by('id').exclude(audio=False):
+        if (i % chunk_size == 0) and (i != 0):
+            save_distances(s, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
+                           (j + 1) * chunk_size)
+            representations[i % chunk_size] = song.lstm_mfcc_representation()
+            j = j + 1
+        elif i > count:
+            representations = representations[:i % chunk_size]
+            save_distances(s, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
+                           i)
+            break
+        else:
+            representations[i % chunk_size] = song.get_lstm_mfcc_representation()
+            print(i, 'lstm mfcc', str(i % chunk_size))
+
+        i = i + 1
+
+
+@shared_task()
+def load_pca_mel_representations(chunk_size, s_id):
+    count = Song.objects.all().exclude(audio=False).count()
+    s = Song.objects.get(pk=s_id)
+    representations = numpy.empty([count, 320])
+    i = 0
+    j = 0
+    for song in Song.objects.all().order_by('id').exclude(audio=False):
+        if (i % chunk_size == 0) and (i != 0):
+            save_distances(s, s.mel_pca_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size,
+                           (j + 1) * chunk_size)
+            representations[i % chunk_size] = song.get_pca_mel_representation()
+            j = j + 1
+        elif i > count:
+            representations = representations[:i % chunk_size]
+            save_distances(s, s.pca_mel_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size, i)
+            break
+        else:
+            representations[i % chunk_size] = song.get_pca_mel_representation()
+            print(i, 'pca mel', str(i % chunk_size))
+
+        i = i + 1
+
+@shared_task()
+def load_gru_mel_representations(chunk_size, s_id):
+    count = Song.objects.all().exclude(audio=False).count()
+    s = Song.objects.get(pk=s_id)
+    representations = numpy.empty([count, 5712])
+    i = 0
+    j = 0
+    for song in Song.objects.all().order_by('id').exclude(audio=False):
+        if (i % chunk_size == 0) and (i != 0):
+            save_distances(s, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size,
+                           (j + 1) * chunk_size)
+            representations[i % chunk_size] = song.get_gru_mel_representation()
+            j = j + 1
+        elif i > count:
+            representations = representations[:i % chunk_size]
+            save_distances(s, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size, i)
+            break
+        else:
+            representations[i % chunk_size] = song.get_gru_mel_representation()
+            print(i, 'gru_mel')
+
+        i = i + 1
+
+
+
+@shared_task()
+def load_pca_tf_idf_representations(chunk_size, s_id):
+    count = Song.objects.all().exclude(audio=False).count()
+    s = Song.objects.get(pk=s_id)
+    representations = numpy.empty([count, 4457])
+    i = 0
+    j = 0
+    for song in Song.objects.all().order_by('id').exclude(audio=False).only('pca_tf_idf_representation'):
+        if (i % chunk_size == 0) and (i != 0):
+            save_distances(s, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size,
+                           (j + 1) * chunk_size)
+            representations[i % chunk_size] = song.get_pca_tf_idf_representation()
+            j = j + 1
+            print('distances', j, 'saved')
+        elif i > count:
+            representations = representations[:i% chunk_size]
+            save_distances(s, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size, i)
+            break
+        else:
+            representations[i % chunk_size] = song.get_pca_tf_idf_representation()
+            print(i, 'pca_tf_idf')
+
+        i = i + 1
+
+
+
+@shared_task()
+def load_w2v_representations(chunk_size, s_id):
+    print('starting with w2v represenations')
+    count = Song.objects.all().count()
+    print(count)
+    s = Song.objects.get(pk=s_id)
+    representations = numpy.empty([chunk_size, 300])
+    i = 0
+    j = 0
+    for song in Song.objects.all().order_by('id').exclude(audio=False).only('w2v_representation'):
+        if (i % chunk_size == 0) and (i != 0):
+            save_distances(s_id, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size,
+                           (j + 1) * chunk_size, chunk_size)
+            representations[i % chunk_size] = song.get_W2V_representation()
+            j = j + 1
+        elif i > count:
+            representations = representations[:i% chunk_size]
+            save_distances(s, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size, i, chunk_size)
+            break
+        else:
+            representations[i % chunk_size] = song.get_W2V_representation()
+            print(i, 'w2v')
+
+        i = i + 1
+
+@shared_task()
+def save_distances(song_id, song_representation, representations, threshold, distance_type, start_index, end_index, chunk_size):
+    song = Song.objects.get(pk=song_id)
+    print('distances', distance_type, 'to be calculated')
+    try:
+        distances = sklearn.metrics.pairwise.cosine_similarity(numpy.array(song_representation, dtype=float).reshape(1,-1), representations)
+        print(distances.dtype)
+        print(distances.shape)
+        distances = numpy.round(distances.reshape([chunk_size]),5)
+        print('distances calculated')
+        i = 0
+        print(start_index, end_index)
+        for song_2 in Song.objects.all().order_by('id').exclude(audio=False).values_list('id', flat=True)[start_index-1:end_index-1]:
+            if song_id != song_2:
+                maximum = max(distances[i], threshold)
+                print(maximum)
+                print(type(maximum))
+                print(type(threshold))
+                b = math.isclose(maximum, threshold)
+                print(b)
+                print(type(b))
+                if not b:
+                    print('got over the f***** if')
+                    s = Song.objects.get(pk=song_2)
+                    dist_1 = Distance(song_1=song, song_2=s, distance_Type=str(distance_type),
+                                      distance=distances[i].item())
+                    dist_2 = Distance(song_1=s, song_2=song, distance_Type=str(distance_type),
+                                      distance=distances[i].item())
+                    dist_1.save()
+                    dist_2.save()
+                    print('distance between' + str(song) + 'and' +  str(s) + str(distances[i]) + 'saved')
+                else:
+                    print(str(i) + 'too small')
+
+            i = i+1
+    except Exception as e:
+        print(e)
+
+    print('distances', distance_type, 'saved')

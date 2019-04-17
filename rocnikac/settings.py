@@ -143,58 +143,37 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = 'amqp://localhost'
 SELECTED_DISTANCE_TYPE = "TF-idf"
 
-# VYMAZAT!!!!!!!
-
-
 # Distance thresholds for 51x16594 distances
-TF_IDF_THRESHOLD = 0.282
+PCA_TF_IDF_THRESHOLD = 0.282
 W2V_THRESHOLD = 0.9567
-PCA_SPEC_THRESHOLD = 0.337
-PCA_MEL_THRESHOLD = 0.19
-GRU_MFCC_THRESHOLD = 0
-LSTM_MFCC_THRESHOLD = 0
-LSTM_SPEC_THRESHOLD = 0
+PCA_MEL_THRESHOLD = 0.0383 # predtim bylo 0.19 - horsi
 GRU_MEL_THRESHOLD = 0.3634
-LSTM_MEL_THRESHOLD = 0.994
+LSTM_MFCC_THRESHOLD = 0.994
 
 # Loading models
 json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')
 loaded_model_json = json_file.read()
 json_file.close()
-GRU_Mel_model= model_from_json(loaded_model_json)
+GRU_Mel_model = model_from_json(loaded_model_json)
 # load weights into new model
 GRU_Mel_model.load_weights("rocnikac/models/GRU_Mel_model.h5")
 GRU_Mel_graph = tf.get_default_graph()
-print("Loaded model from disk")
+print("gru_mel model loaded from disk")
 
-
-
-
-json_file = open('rocnikac/models/LSTM_Mel_model.json', 'r')
-loaded_model_json = json_file.read()
-json_file.close()
-LSTM_Mel_model = model_from_json(loaded_model_json)
-# load weights into new model
-LSTM_Mel_model.load_weights("rocnikac/models/LSTM_Mel_model.h5")
-LSTM_Mel_graph = tf.get_default_graph()
-print("Loaded model from disk")
-
-# json_file = open('rocnikac/models/LSTM_Spec_model.json', 'r')
-# loaded_model_json = json_file.read()
-# json_file.close()
-# LSTM_Spec_model = model_from_json(loaded_model_json)
-# # load weights into new model
-# LSTM_Spec_model.load_weights("LSTM_Spec_model.h5")
-# print("Loaded model from disk")
-
-PCA_Spec_model = joblib.load('rocnikac/models/spec_pca_model')
-print('pca spec model loaded')
-PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model')
+PCA_Mel_model = joblib.load('rocnikac/models/mel_pca_model_joblib')
 print('pca mel model loaded')
+
 W2V_model = KeyedVectors.load('rocnikac/models/w2v_subset', mmap='r')
 print('w2v model loaded')
+
 TF_idf_model = pickle.load(open('rocnikac/models/tfidf_model', "rb"))
+
+PCA_Tf_idf_model = joblib.load('rocnikac/models/pca_tf_idf_model_90_ratio')
 print('tf_idf model loaded')
+
+LSTM_MFCC_model = load_model('rocnikac/models/LSTM_MFCC_model.h5')
+LSTM_MFCC_graph = tf.get_default_graph()
+print('mfcc model loaded')
 
 # Spectrogram settings !!!! DO NOT CHANGE !!!
 n_fft = 4410

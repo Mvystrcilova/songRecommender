@@ -5,11 +5,17 @@
         <p class="col-md-8 pt-4">{{ song.artist }} - {{ song.song_name }}</p>
     </div>
     <div class="row">
+    {% if song.audio %}
         <div class="col-md-12">
             <audio controls>
-                <source src="{{ link }}" type="audio/mp3">
+                <source src="{{ link.url }}" type="audio/mp3">
             </audio>
         </div>
+    {% else %}
+        <div class="col-md-6">
+        <p>Sorry but there is no audio file for this video and it will not be recommended when using audio-based similarity metrics</p>
+        </div>
+    {% endif %}
     </div>
     <div class="row">
         <div class="col-md-8">
