@@ -44,62 +44,37 @@
                            aria-haspopup="true" aria-expanded="false">Distance type</a>
                         <div class="dropdown-menu">
                             <form class="form-inline my-2 my-lg-0 mr-2" type="get" action="/change_distance/">
-                                <input type="hidden" name="next" value="{{ request.path }}">{% if user.profile.user_selected_distance_type == "TF-idf" %}
-                                    <button color="bg-ligth" class="dropdown-item alert-secondary" type="submit" name="TF-idf">TF-idf</button>
+                                <input type="hidden" name="next" value="{{ request.path }}">{% if user.profile.user_selected_distance_type == "PCA_TF-idf" %}
+                                    <button color="bg-ligth" class="dropdown-item alert-secondary" type="submit" name="PCA_TF-idf">PCA on TF-idf</button>
                                     <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
+                                    <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
                                 {% elif user.profile.user_selected_distance_type == "W2V" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">PCA on TF-idf</button>
                                     <button class="dropdown-item alert-secondary" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
-                                {% elif user.profile.user_selected_distance_type == "MFCC" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
+                                {% elif user.profile.user_selected_distance_type == "LSTM_MFCC" %}
+                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">PCA on TF-idf</button>
                                     <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item alert-secondary" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
-                                {% elif user.profile.user_selected_distance_type == "PCA_SPEC" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
-                                    <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item  alert-secondary" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
+                                    <button class="dropdown-item alert-secondary" type="submit" name="LSTM_MFCC">MFCC</button>
                                 {% elif user.profile.user_selected_distance_type == "PCA_MEL" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">PCA on TF-idf</button>
                                     <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
                                     <button class="dropdown-item alert-secondary" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
+                                    <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
                                 {% elif user.profile.user_selected_distance_type == "GRU_MEL" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">TF-idf</button>
                                     <button class="dropdown-item" type="submit" name="W2V">W2V</button>
                                     <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item alert-secondary" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
-                                {% elif user.profile.user_selected_distance_type == "LSTM_MEL" %}
-                                    <button class="dropdown-item" type="submit" name="TF-idf">TF-idf</button>
-                                    <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_SPEC">PCA on spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
-                                    <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
-                                    <button class="dropdown-item alert-secondary" type="submit" name="LSTM_MEL">LSTM network on mel-spectrograms</button>
+                                    <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
                                 {% endif %}
                             </form>
                         </div>

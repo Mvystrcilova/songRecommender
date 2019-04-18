@@ -185,13 +185,13 @@ def load_lstm_mfcc_representations(chunk_size, s_id):
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False):
         if (i % chunk_size == 0) and (i != 0):
-            save_distances(s, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
+            save_distances(s_id, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.lstm_mfcc_representation()
             j = j + 1
-        elif i > count:
+        elif i >= (count - 1):
             representations = representations[:i % chunk_size]
-            save_distances(s, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
+            save_distances(s_id, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
                            i)
             break
         else:
@@ -210,13 +210,13 @@ def load_pca_mel_representations(chunk_size, s_id):
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False):
         if (i % chunk_size == 0) and (i != 0):
-            save_distances(s, s.mel_pca_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size,
+            save_distances(s_id, s.mel_pca_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_pca_mel_representation()
             j = j + 1
-        elif i > count:
+        elif i >= (count -1):
             representations = representations[:i % chunk_size]
-            save_distances(s, s.pca_mel_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size, i)
+            save_distances(s_id, s.pca_mel_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size, i)
             break
         else:
             representations[i % chunk_size] = song.get_pca_mel_representation()
@@ -233,13 +233,13 @@ def load_gru_mel_representations(chunk_size, s_id):
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False):
         if (i % chunk_size == 0) and (i != 0):
-            save_distances(s, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size,
+            save_distances(s_id, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_gru_mel_representation()
             j = j + 1
-        elif i > count:
+        elif i >= (count -1):
             representations = representations[:i % chunk_size]
-            save_distances(s, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size, i)
+            save_distances(s_id, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size, i)
             break
         else:
             representations[i % chunk_size] = song.get_gru_mel_representation()
@@ -258,14 +258,14 @@ def load_pca_tf_idf_representations(chunk_size, s_id):
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('pca_tf_idf_representation'):
         if (i % chunk_size == 0) and (i != 0):
-            save_distances(s, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size,
+            save_distances(s_id, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_pca_tf_idf_representation()
             j = j + 1
             print('distances', j, 'saved')
-        elif i > count:
+        elif i >= (count -1):
             representations = representations[:i% chunk_size]
-            save_distances(s, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size, i)
+            save_distances(s_id, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size, i)
             break
         else:
             representations[i % chunk_size] = song.get_pca_tf_idf_representation()
@@ -287,12 +287,12 @@ def load_w2v_representations(chunk_size, s_id):
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('w2v_representation'):
         if (i % chunk_size == 0) and (i != 0):
             save_distances(s_id, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size,
-                           (j + 1) * chunk_size, chunk_size)
+                           (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_W2V_representation()
             j = j + 1
-        elif i > count:
+        elif i >= (count -1) :
             representations = representations[:i% chunk_size]
-            save_distances(s, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size, i, chunk_size)
+            save_distances(s_id, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size, i)
             break
         else:
             representations[i % chunk_size] = song.get_W2V_representation()
@@ -301,18 +301,16 @@ def load_w2v_representations(chunk_size, s_id):
         i = i + 1
 
 @shared_task()
-def save_distances(song_id, song_representation, representations, threshold, distance_type, start_index, end_index, chunk_size):
+def save_distances(song_id, song_representation, representations, threshold, distance_type, start_index, end_index):
     song = Song.objects.get(pk=song_id)
     print('distances', distance_type, 'to be calculated')
     try:
         distances = sklearn.metrics.pairwise.cosine_similarity(numpy.array(song_representation, dtype=float).reshape(1,-1), representations)
-        print(distances.dtype)
-        print(distances.shape)
-        distances = numpy.round(distances.reshape([chunk_size]),5)
+        distances = distances.reshape([(end_index-start_index)])
         print('distances calculated')
         i = 0
         print(start_index, end_index)
-        for song_2 in Song.objects.all().order_by('id').exclude(audio=False).values_list('id', flat=True)[start_index-1:end_index-1]:
+        for song_2 in Song.objects.all().order_by('id').exclude(audio=False).values_list('id', flat=True)[(start_index):(end_index-1)]:
             if song_id != song_2:
                 if distances[i] > threshold:
                     print('got over the f***** if')

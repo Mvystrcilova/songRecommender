@@ -535,20 +535,16 @@ def search(request):
 def change_distance(request):
     next_page = request.GET.get('next')
     user = request.user
-    if 'TF-idf' in request.GET:
-        user.profile.user_selected_distance_type = "TF-idf"
+    if 'PCA_TF-idf' in request.GET:
+        user.profile.user_selected_distance_type = "PCA_TF-idf"
     elif 'W2V' in request.GET:
         user.profile.user_selected_distance_type = "W2V"
-    elif 'PCA_SPEC' in request.GET:
-        user.profile.user_selected_distance_type = "PCA_SPEC"
     elif 'PCA_MEL' in request.GET:
         user.profile.user_selected_distance_type = "PCA_MEL"
-    elif 'MFCC' in request.GET:
-        user.profile.user_selected_distance_type = "MFCC"
+    elif 'LSTM_MFCC' in request.GET:
+        user.profile.user_selected_distance_type = "LSTM_MFCC"
     elif 'GRU_MEL' in request.GET:
         user.profile.user_selected_distance_type = "GRU_MEL"
-    elif 'LSTM_MEL' in request.GET:
-        user.profile.user_selected_distance_type = "LSTM_MEL"
 
     user.profile.save()
 
