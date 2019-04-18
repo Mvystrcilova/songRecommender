@@ -314,14 +314,7 @@ def save_distances(song_id, song_representation, representations, threshold, dis
         print(start_index, end_index)
         for song_2 in Song.objects.all().order_by('id').exclude(audio=False).values_list('id', flat=True)[start_index-1:end_index-1]:
             if song_id != song_2:
-                maximum = max(distances[i], threshold)
-                print(maximum)
-                print(type(maximum))
-                print(type(threshold))
-                b = math.isclose(maximum, threshold)
-                print(b)
-                print(type(b))
-                if not b:
+                if distances[i] > threshold:
                     print('got over the f***** if')
                     s = Song.objects.get(pk=song_2)
                     dist_1 = Distance(song_1=song, song_2=s, distance_Type=str(distance_type),

@@ -9,6 +9,7 @@ app = Celery('rocnikac', broker='amqp://localhost'
                        , backend='amqp://localhost'
                        , include=['rocnikac.tasks'])
 
+
 # Using a string here means the worker doesn't have to serialize
 # the configuration object to child processes.
 # - namespace='CELERY' means all celery-related configuration keys

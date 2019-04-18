@@ -7,6 +7,7 @@ from pydub import AudioSegment
 from rocnikac.settings import GRU_Mel_graph, LSTM_MFCC_graph
 from keras.models import model_from_json
 from sklearn.preprocessing import MinMaxScaler
+from pydub.playback import play
 
 from rocnikac.settings import PCA_Tf_idf_model, W2V_model, GRU_Mel_model, PCA_Mel_model, LSTM_MFCC_model, TF_idf_model
 
@@ -22,26 +23,38 @@ def numericalSort(value):
 def save_all_representations(song_id):
 
     song = Song.objects.get(pk=song_id)
+    song_file = open('temp_songs', 'a', encoding='utf-8')
+    print(song)
     download_song_from_youtube(song)
     scaler = MinMaxScaler()
-    if song.link_on_disc != '':
+    if song.audio:
         y, sr = get_audio_data(song)
+        print(y, sr)
 
         ######## Saving simple audio representations ###############
 
         spectrogram = retrieve_spectrogram_representation(y, sr)
         spectrogram = scaler.fit_transform(spectrogram.reshape([1, 900048]))
+
         spectrogram = spectrogram.reshape([1, 408, 2206])
         print('got spectrogram')
+        numpy.set_printoptions(threshold=100)
         print(spectrogram.shape)
         mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
-        mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([1, 130560]))
+        mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([130560,1]))
+        print('the melspectrogram:')
+        print(mel_spectrogram)
+
         mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
-        print('got melspectrogram')
         print(mel_spectrogram.shape)
         mfcc = retrieve_mfcc_representation(y, sr)
-        mfcc = scaler.fit_transform(mfcc.reshape([1, 82688]))
+        mfcc = scaler.fit_transform(mfcc.reshape([82688,1]))
+        print('the mfcc:')
+        print(mfcc)
         mfcc = mfcc.reshape([1, 646, 128])
+
+
+
         print('got mfcc repr')
 
         ############################# Saving more advanced audio representations #####################
@@ -79,8 +92,10 @@ def save_all_representations(song_id):
 
     w2v_repr = retrieve_w2v_representation(song)
     print('w2v predicted')
-
-    song.w2v_representation = w2v_repr.reshape([300]).tolist()
+    if w2v_repr.size != 300:
+        song.w2v_representation = numpy.zeros([300]).tolist()
+    else:
+        song.w2v_representation = w2v_repr.reshape([300]).tolist()
     print('w2v representation')
 
     song.save()
@@ -132,6 +147,7 @@ def get_audio_data(song):
         end = sound[-15000:-10000]
 
     s = beginning + middle + end
+    # play(s)
     print(len(s))
     s.export('temp_wav_file.wav', format='wav')
     y, sr = librosa.load('temp_wav_file.wav')
