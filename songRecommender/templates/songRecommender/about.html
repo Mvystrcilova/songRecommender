@@ -1,0 +1,103 @@
+{% extends 'base_generic.html' %}
+
+{% block content %}
+    <div class="text col-md-12 pt-3">
+        <p>This application was created as a part of a Bachelor's thesis called <strong>Similarity methods for music recommender systems</strong> at MFF UK. The thesis is still in writing, there will be a link here to it's online PDF version here when it's finnished.
+        </p>
+        <p>
+        The main purpose of the thesis was to study various methods of estimating music similarity based on their internal structure (specifically lyrics and audio) and the purpose of this application is to implement the ones that performed well.
+        </p>
+        <p>
+        All the methods that were tested will be describe in the thesis. Here is just a brief description of those that were actually implemented, so you can get an idea about what the recommendations you see for different methods are based on.
+        </p>
+        <p>
+        There are five methods which you can choose from in total, two are based on lyrics similarity and three on audio similarity.
+        </p>
+
+        <h2>Lyrics-based methods</h2>
+
+        <h3>PCA on Tf-idf</h3>
+        <p>
+        This method has two parts. Let's start with the <strong>Tf-idf</strong>. Tf-idf is a way of encoding texts into vectors of numbers. It takes a set of texts and calculates how many times a word is repeated in each of them. So for example if there are two texts, one is 'I like cats and dogs and mice' and the other one is 'I only like cats' we will get the following two vectors:
+        </p>
+        <p>
+                           I,   like, cats, and,  dogs, mice, only<br>
+        fist sentence:    (1,   1,    1,    2,    1,    1,    0)<br>
+        second sentence:  (1,   1,    1,    0,    0,    0,    1)<br>
+        </p>
+        <p>
+        This is not all, the Tf-idf now multiplies each number in each vector by a weight (that is also number). The weight depends on how frequently does a word appears a text. And the more documents contain a word, the smaller the weight for that word is.
+        So for example, if we look at the word "I" we can see, that it is in both sentences. Therefore, it could get a weight of for exapmle 0.25. However if wee look at the word mice, we can see, that it is only in the first sentence and not in the second. Therefore, it could get the weight 0.75. If we do this for all our numbers, we will get the following vectors:
+        </p>
+        <p>
+        first sentence:  (0.25*1, 0.25*1, 0.25*1, 0.75*2, 0.75*1, 0.75*1, 0)<br>
+        second sentence: (0.25*1, 0.25*1, 0.25*1, 0, 0, 0, 0.75*1)<br>
+        </p>
+        <p>
+        which is
+        </p>
+        <p>
+        first sentence:   (0.25, 0.25, 0.25, 1.50, 0.75, 0.75, 0)<br>
+        second sentence:  (0.25, 0.25, 0.25, 0, 0, 0, 0.75)<br>
+        </p>
+        <p>
+        The weights give emphasis on unique words that are more informative than for exapmle the word "the" or "I".
+        </p>
+        <p>
+        The second part is the <strong>PCA</strong>. This has nothing to do with the text as it can be applied to any set of vectors. It is a mathematical prodecure that reduces the number of dimensions of a set of vectors. We want to reduce the number of dimension because it is faster to perform computations on shorter vectors and obviously, people do not want to wait for the next page to load for minutes (sometimes hours).
+        </p>
+        <p>
+        The PCA works kind of like this. Imagine you have 5 rectangles with the following heights and widths (h,w): A=(1,6), B=(1,5), C=(1,1), D=(2,4), E=(2,8). One can notice, that the difference between the biggest and smallest height is only 1 but the difference between the biggest and smalles width is 7. This means that we get much more information about a rectangle when we know it's width than when we know it's height.
+        </p>
+        <p>
+        We loose information with basically any dimensionality reduction (even here, the heights are not the same for all) but PCA helps us remove the features, with the least information. So after we find out, that height is not so important, we can map our rectangles onto a single line -- the width --instead of two lines meaning, we only need one coordinate to descibe our new rectangles that will look like this: A=(6), B=(5), C=(1), D=(4), E=(8). We can see that our rectangles retained their differences. If we used the height instead of the width, we would get that A = B = C = (1) and D = E = (2) which is much less informative.
+        This explanation very simplified, however, it mirrors the main idea behind PCA. For a more thourough explanation, I suggest going to Wikipedia or reading the thesis once it's finished.
+        </p>
+        <p>
+        So when we put it all together, we create a Tf-idf word vector for every song we have and then we give them to the PCA which keeps only very important words for us and removes unimportant ones.
+        </p>
+        <h3>Word2Vec</h3>
+        <p>
+        Our second lyrics-based method is called Word2Vec. It was developed by Tomas Mikolov (a Czech quy, just saying) and his team. The W2V is a neural network, that is trained to encode a word into a vector of numbers based on the context it is typically found in. How it is done is above the scope of this explanation however, the point is, that once the words are encoded in vectors, they somehow keep their meaning. This can be seen for example when doing simple arithmetics with the vectors. If you take the vector for word "King" and add the vector for the word "Queen" and subract the vector for "man" the result will be the vector for "women". More fun examples like this can be found here: https://blog.acolyer.org/2016/04/21/the-amazing-power-of-word-vectors/.
+        </p>
+
+        <h2>Audio-based methods</h2>
+        <h3>PCA on mel-spectrograms</h3>
+        <p>
+        This is our first audio method. We are already familiar with PCA. This time, it is applied to mel-spectrograms instead of Tf-idf vectors. So what are mel-spectrograms?
+        </p>
+        <p>
+        Mel-spectrograms are created from the sound of the song. Sound is as vibration that spread through gas, liquid or solid as a wave of pressure. The most basic representation of sound in a computer-acceptable format is a waveform. It captures the variation of pressure over time. This waveform shows strong regularities in it's oscilations and so to compress the amount of data, we can represent the audio signal also as the strenght of oscillations at different frequencies over time. This transformation is achieved with computing the Short-Time Fourier Transform. The STFT gives us a spectrogram.
+        </p>
+        <p>
+        To make a mel-spectrogram out of the spectrogram, we use a bit of biology and a lot of math. Humans have a non-linear perception of pitch. They can distinguish lower frequencies better than higher even when on the Hertz scale, the pitch difference is the same. With knowing this, we can convert the frequency from Hz to Mel which is the unit that follows the human ear. It is done by applying special filters onto the spectrogram which creates a mel-spectrogram.
+        </p>
+        <p>
+        The mel-spectrogram is a big matrix (table of numbers). Again, very difficult to do calculations with fast. Luckily, we have our PCA that only select the "important" numbers from our matrices and reduces the dimensions.
+        </p>
+        <h3>GRU on mel-spectrograms</h3>
+        <p>
+        Now we know what mel-spectrograms are. But what about GRU? GRU which is an abbreviation for Gated Recurent Unit is a kind of Reccurrent neural network layer. Sounds complicated, I know. We will not go into the depth of neural networks. But I will at least describe how the "GRU" neural network is trained.
+        </p>
+        <p>
+        This neural network has the form of an autoencoder. It has two parts, the encoder and the decoder. It is trained to do the same thing as the PCA - to reduce dimensions. How it works is, it takes the mel-spectrogram and then using it's encoder part, it shirnks it from or example 30 numbers to 15 numbers. Then with the decoder part, which does not know, how the mel-spectrogram looked before it was encoded, it decodes it into what it thinks it looked like before it was encoded. Then it compares the input mel-spectrogram and the decoded one. The more similar they are the better. If the neural network does this many times, it usually becomes better at the decoding meaning, the encoded mel-spectrograms are a good representation of the full mel-spectrograms.
+        </p>
+        <p>
+        When you add a song into this application, it creates the mel-spectrogram and gives it to our "GRU" network. The "GRU" network now only uses only the encoder to reduce the amount of numbers there are in the mel-spectrogram and that is it. It does not need the decoder part anymore. So with this method, the song is represented as a reduced mel-spectrogram.
+        </p>
+        <h3>LSTM on MFCCs</h3>
+        <p>
+        This is our last method. I know, the name does not say much so here is the explanation. <strong>LSTM</strong> stands for Long-short term memory and it is also a kind of Reccurrent neural network layer a bit more complicated than GRU. We will not go into explaining how it works. And this time not even how it is trained because that is the same as for the "GRU" network except for being given MFCCs as input.
+        </p>
+        <p>
+        We will however explain what MFCCs are. The long name is <strong>Mel-frequency cepstral coefficients</strong> Remember how we got the mel-spectrograms. We first applied the Short-time Fourier transform to the waveform and then applied our special "mel-filters". Well now we take the mel-spectrograms and apply another transformation. This time it is the Discrete cosine transformation. We get a new matrix from the mel-spectrogram matrix. The numbers inside it are our coefficients and they represent the amplitudes of the resulting spectrum. These new matrix is then fed as input to our "LSTM" network which reduces it's dimension and voilá, we have our last song representation.
+        </p>
+        <h2>Similarity</h2>
+        <p>
+        If you noticed, all of the methods described above only took the songs lyrics or audio and turned it into a vector (numbers). But we need to know, how similar these vectors are. For this, we used the same measure with all methods -- the <strong>cosine similarity</strong>. Cosine similarity measures the cosine angle between any two vectors (of the same length). The smaller the angle the bigger the similarity.
+        </p>
+
+    </div>
+
+
+{% endblock %}

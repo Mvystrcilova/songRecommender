@@ -28,55 +28,58 @@ def save_all_representations(song_id):
     download_song_from_youtube(song)
     scaler = MinMaxScaler()
     if song.audio:
-        y, sr = get_audio_data(song)
-        print(y, sr)
+        try:
+            y, sr = get_audio_data(song)
+            print(y, sr)
 
-        ######## Saving simple audio representations ###############
+            ######## Saving simple audio representations ###############
 
-        spectrogram = retrieve_spectrogram_representation(y, sr)
-        spectrogram = scaler.fit_transform(spectrogram.reshape([1, 900048]))
+            spectrogram = retrieve_spectrogram_representation(y, sr)
+            spectrogram = scaler.fit_transform(spectrogram.reshape([1, 900048]))
 
-        spectrogram = spectrogram.reshape([1, 408, 2206])
-        print('got spectrogram')
-        numpy.set_printoptions(threshold=100)
-        print(spectrogram.shape)
-        mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
-        mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([130560,1]))
-        print('the melspectrogram:')
-        print(mel_spectrogram)
+            spectrogram = spectrogram.reshape([1, 408, 2206])
+            print('got spectrogram')
+            numpy.set_printoptions(threshold=100)
+            print(spectrogram.shape)
+            mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
+            mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([130560,1]))
+            print('the melspectrogram:')
+            print(mel_spectrogram)
 
-        mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
-        print(mel_spectrogram.shape)
-        mfcc = retrieve_mfcc_representation(y, sr)
-        mfcc = scaler.fit_transform(mfcc.reshape([82688,1]))
-        print('the mfcc:')
-        print(mfcc)
-        mfcc = mfcc.reshape([1, 646, 128])
-
-
-
-        print('got mfcc repr')
-
-        ############################# Saving more advanced audio representations #####################
-
-        with GRU_Mel_graph.as_default():
-            gru_mel_repr = GRU_Mel_model.predict(mel_spectrogram.reshape([1, 408, 320]))[0]
-            song.gru_mel_representation = gru_mel_repr.reshape([5712]).tolist()
-            print(gru_mel_repr)
-
-        print('gru mel predicted')
-
-        with LSTM_MFCC_graph.as_default():
-            lstm_mfcc_repr = LSTM_MFCC_model.predict(mfcc.reshape([1, 646, 128]))[0]
-            song.lstm_mfcc_representation = lstm_mfcc_repr.reshape([5168]).tolist()
+            mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
+            print(mel_spectrogram.shape)
+            mfcc = retrieve_mfcc_representation(y, sr)
+            mfcc = scaler.fit_transform(mfcc.reshape([82688,1]))
+            print('the mfcc:')
+            print(mfcc)
+            mfcc = mfcc.reshape([1, 646, 128])
 
 
-         ##################### Saving paths to song ##########################################
 
-        pca_mel_repr = PCA_Mel_model.transform(mel_spectrogram.reshape(1, 130560))
-        print('pca mel predicted')
-        song.pca_mel_representation = pca_mel_repr.reshape([320]).tolist()
-        print('pca mel loaded')
+            print('got mfcc repr')
+
+            ############################# Saving more advanced audio representations #####################
+
+            with GRU_Mel_graph.as_default():
+                gru_mel_repr = GRU_Mel_model.predict(mel_spectrogram.reshape([1, 408, 320]))[0]
+                song.gru_mel_representation = gru_mel_repr.reshape([5712]).tolist()
+                print(gru_mel_repr)
+
+            print('gru mel predicted')
+
+            with LSTM_MFCC_graph.as_default():
+                lstm_mfcc_repr = LSTM_MFCC_model.predict(mfcc.reshape([1, 646, 128]))[0]
+                song.lstm_mfcc_representation = lstm_mfcc_repr.reshape([5168]).tolist()
+
+
+             ##################### Saving paths to song ##########################################
+
+            pca_mel_repr = PCA_Mel_model.transform(mel_spectrogram.reshape(1, 130560))
+            print('pca mel predicted')
+            song.pca_mel_representation = pca_mel_repr.reshape([320]).tolist()
+            print('pca mel loaded')
+        except:
+            song.audio = False
 
 
 
@@ -84,19 +87,22 @@ def save_all_representations(song_id):
 
     ##################################### saving text representations ########################
 
-    tf_idf_repr = retrieve_tf_idf_representation(song)
-    print(tf_idf_repr.shape)
-    pca_tf_idf_repr = PCA_Tf_idf_model.transform(tf_idf_repr.reshape(1,-1))
-    song.pca_tf_idf_representation = pca_tf_idf_repr.reshape([4457]).tolist()
-    print('pca tf_idf_represented')
+    try:
+        tf_idf_repr = retrieve_tf_idf_representation(song)
+        print(tf_idf_repr.shape)
+        pca_tf_idf_repr = PCA_Tf_idf_model.transform(tf_idf_repr.reshape(1,-1))
+        song.pca_tf_idf_representation = pca_tf_idf_repr.reshape([4457]).tolist()
+        print('pca tf_idf_represented')
 
-    w2v_repr = retrieve_w2v_representation(song)
-    print('w2v predicted')
-    if w2v_repr.size != 300:
-        song.w2v_representation = numpy.zeros([300]).tolist()
-    else:
-        song.w2v_representation = w2v_repr.reshape([300]).tolist()
-    print('w2v representation')
+        w2v_repr = retrieve_w2v_representation(song)
+        print('w2v predicted')
+        if w2v_repr.size != 300:
+            song.w2v_representation = numpy.zeros([300]).tolist()
+        else:
+            song.w2v_representation = w2v_repr.reshape([300]).tolist()
+        print('w2v representation')
+    except:
+        song.lyrics = False
 
     song.save()
     print('song_saved')

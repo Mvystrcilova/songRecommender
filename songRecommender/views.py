@@ -6,12 +6,12 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.template.loader import render_to_string
 from django.views.generic.list import MultipleObjectMixin
 
-from songRecommender.data.load_distances import load_songs_to_database, load_w2v_representations_to_db
+from songRecommender.data.load_distances import load_songs_to_database, load_all_representations, load_w2v_representations_to_db
 from songRecommender.data.load_distances import load_gru_mel_representations_to_db, load_lstm_mfcc_representations_to_db
 from songRecommender.data.load_distances import load_pca_mel_representations_to_db,  load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-from rocnikac.tasks import add, recalculate_distances, handle_added_song
+from rocnikac.tasks import handle_added_song, recalculate_all_distances
 from songRecommender.Logic.Recommender import check_if_in_played
 from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 from .forms import SignUpForm
@@ -94,7 +94,10 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         the context provided, besides the song specified by an unique id
         is also the played song corresponding to the song from the detail view and
         all the lists created by the current user"""
-        # load_songs()
+        # load_songs_to_database()
+        # load_all_representations()
+        # load_w2v_representations_to_db('rocnikac/representations/w2v_representations.npy')
+        # load_lstm_mfcc_representations_to_db('rocnikac/representations/lstm_mfcc_representations.npy')
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
@@ -301,8 +304,8 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
             user_id=self.request.user.pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance'))[:10]
 
-        context['start_page'] = context['page_obj'].number - 3
-        context['end_page'] = context['page_obj'].number + 3
+        context['start_page'] = context['page_obj'].number - 4
+        context['end_page'] = context['page_obj'].number + 4
 
         return context
 
@@ -329,7 +332,7 @@ def likeSong(request, pk):
 
     # recalculates the distance of all songs to the user and his lists based
     user_id = int(request.user.id)
-    recalculate_distances.delay(user_id, "TF-idf")
+    recalculate_all_distances(user_id)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -344,7 +347,6 @@ def dislikeSong(request, pk):
     :param pk: id of the song the user disliked or undisliked
     :return: redirects to the detail page of the disliked or undisliked song
     """
-    add(1, 6)
     played_song = Played_Song.objects.filter(song_id1__exact=pk, user_id=request.user.profile).get()
     # if song was not disliked before it is now
     if played_song.opinion != -1:
@@ -356,7 +358,7 @@ def dislikeSong(request, pk):
 
     # recalculates the distances of all songs to the user and all his lists
     user_id = request.user.pk
-    recalculate_distances.delay(user_id, "TF-idf")
+    recalculate_all_distances(user_id)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -489,7 +491,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
-        recalculate_distances.delay(request.user.pk, "TF-idf")
+        recalculate_all_distances(request.user.pk)
 
         return redirect('song_detail', pk)
 
@@ -549,3 +551,17 @@ def change_distance(request):
     user.profile.save()
 
     return HttpResponseRedirect(next_page)
+
+
+def delete_account(request):
+    user = request.user
+    user.profile.delete()
+    user.delete()
+
+    return render(request, 'registration/logged_out.html')
+
+
+def get_about(request):
+
+    return render(request, 'songRecommender/about.html')
+

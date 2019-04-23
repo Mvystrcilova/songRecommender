@@ -69,9 +69,8 @@
                                     <button class="dropdown-item" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
                                 {% elif user.profile.user_selected_distance_type == "GRU_MEL" %}
-                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">TF-idf</button>
+                                    <button class="dropdown-item" type="submit" name="PCA_TF-idf">PCA on TF-idf</button>
                                     <button class="dropdown-item" type="submit" name="W2V">W2V</button>
-                                    <button class="dropdown-item" type="submit" name="MFCC">MFCC</button>
                                     <button class="dropdown-item" type="submit" name="PCA_MEL">PCA on mel-spectrograms</button>
                                     <button class="dropdown-item alert-secondary" type="submit" name="GRU_MEL">GRU network on mel-spectrograms</button>
                                     <button class="dropdown-item" type="submit" name="LSTM_MFCC">LSTM network on MFCCs</button>
@@ -94,6 +93,9 @@
                            aria-haspopup="true" aria-expanded="false">{{ user.get_username }}</a>
                         <div class="dropdown-menu">
                             <a class="dropdown-item" href="{% url 'logout' %}?next={{request.path}}">Log out</a>
+                            <a class="dropdown-item" href="{% url 'delete_account' %}">Delete account</a></a>
+                            <a class="dropdown-item" href="{% url 'get_about' %}">About this application</a></a>
+
                         </div>
                     </li>
                     {% else %}

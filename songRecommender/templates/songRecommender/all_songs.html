@@ -9,7 +9,7 @@
                 <ul class="list-group">
                     {% for song in songs %}
                         <li class="list-group-item">
-                            <a class="list-item col-md-8"  href="{% url 'song_detail' song.pk %}">{{ song.song_name }} {{song.artist }}</a>
+                            <a class="list-item col-md-8"  href="{% url 'song_detail' song.pk %}">{{song.artist }} - {{ song.song_name }} </a>
                             <button class="btn btn-outline-dark col-md-2 bg-light text-dark btn-outline-dark dropdown-toggle" style="float: right" type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Add to list</button>
                             <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">

@@ -19,6 +19,7 @@ class Song(models.Model):
                                                      related_name='songs_nearby')
     link_on_disc = models.FileField(blank=True ,null=True, max_length=500, upload_to='mp3_files/')
     audio = models.BooleanField(default=True)
+    lyrics = models.BooleanField(default=True)
     pca_tf_idf_representation = ArrayField(models.FloatField(), null=True)
     w2v_representation = ArrayField(models.FloatField(), null=True)
     lstm_mfcc_representation = ArrayField(models.FloatField(), null=True)

@@ -144,11 +144,11 @@ CELERY_BROKER_URL = 'amqp://localhost'
 SELECTED_DISTANCE_TYPE = "TF-idf"
 
 # Distance thresholds for 51x16594 distances
-PCA_TF_IDF_THRESHOLD = 0.282
+PCA_TF_IDF_THRESHOLD = 0.1899
 W2V_THRESHOLD = 0.9567
-PCA_MEL_THRESHOLD = 0.0383 # predtim bylo 0.19 - horsi
-GRU_MEL_THRESHOLD = 0.3634
-LSTM_MFCC_THRESHOLD = 0.994
+PCA_MEL_THRESHOLD = 0.383 # predtim bylo 0.19 - horsi
+GRU_MEL_THRESHOLD = 0.363459
+LSTM_MFCC_THRESHOLD = 0.99786
 
 # Loading models
 json_file = open('rocnikac/models/GRU_Mel_model.json', 'r')

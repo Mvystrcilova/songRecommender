@@ -15,6 +15,7 @@ urlpatterns = [
     path('list/<int:pk>', views.ListDetailView.as_view(), name='list_detail'),
     path('mylists/', views.MyListsView.as_view(), name='my_lists'),
     path('recommended_songs/', views.RecommendedSongsView.as_view(), name='recommended_songs'),
+    path('delete_account/', views.delete_account, name='delete_account')
 
 
 ]
@@ -25,6 +26,7 @@ urlpatterns += [
     path('list/<int:pk>/delete/', views.ListDelete.as_view(), name='list_delete'),
     path('add_to_list_failed/<int:pk>/<int:pk2>', views.add_to_list_failed, name='add_to_list_failed'),
     path('add_song_failed/<int:pk>', views.add_song_failed, name='add_song_failed'),
+    path('about/', views.get_about, name='get_about')
 
 ]
 
