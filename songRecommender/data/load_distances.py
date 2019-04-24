@@ -145,11 +145,12 @@ def load_songs_to_database():
     df = pandas.read_csv("rocnikac/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
     if df.shape[0] == 16594:
         for i, row in df.iterrows():
-            try:
-                song = Song.objects.get(song_name=row['title'], artist=row['artist'])
-            except:
-                song = Song(song_name=row['title'], artist=row['artist'], text=row['lyrics'], link=row['link'], link_on_disc=row['path'])
-                song.save()
+            # try:
+            #     song = Song.objects.get(song_name=row['title'], artist=row['artist'])
+            # except:
+            song = Song(song_name=row['title'], artist=row['artist'], text=row['lyrics'], link=row['link'],
+                        link_on_disc=row['path'])
+            song.save()
             print('song', i, 'saved')
     else:
         print("WTF JUST HAPPENED???")
