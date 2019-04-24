@@ -207,7 +207,7 @@ class Distance_to_List(models.Model):
     """
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='link_to_list')
-    distance = models.FloatField()
+    distance = models.FloatField(default=0)
     DISTANCE_CHOICES = (
             ('PCA_TF-idf', 'PCA on TF-idf'),
             ('W2V', 'Word2Vec'),

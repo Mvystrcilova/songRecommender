@@ -34,22 +34,15 @@ def save_all_representations(song_id):
 
             ######## Saving simple audio representations ###############
 
-            spectrogram = retrieve_spectrogram_representation(y, sr)
-            spectrogram = scaler.fit_transform(spectrogram.reshape([1, 900048]))
-
-            spectrogram = spectrogram.reshape([1, 408, 2206])
-            print('got spectrogram')
-            numpy.set_printoptions(threshold=100)
-            print(spectrogram.shape)
-            mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr)
-            mel_spectrogram = scaler.fit_transform(mel_spectrogram.reshape([130560,1]))
+            mel_spectrogram = retrieve_mel_spectrogram_representation(y, sr).reshape([1, 130560])
+            mel_spectrogram = numpy.interp(mel_spectrogram, (mel_spectrogram.min(), mel_spectrogram.max()), (0, 1))
             print('the melspectrogram:')
             print(mel_spectrogram)
 
             mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
             print(mel_spectrogram.shape)
-            mfcc = retrieve_mfcc_representation(y, sr)
-            mfcc = scaler.fit_transform(mfcc.reshape([82688,1]))
+            mfcc = retrieve_mfcc_representation(y, sr).reshape([1, 82688])
+            mfcc = numpy.interp(mfcc, (mfcc.min(), mfcc.max()), (0, 1))
             print('the mfcc:')
             print(mfcc)
             mfcc = mfcc.reshape([1, 646, 128])

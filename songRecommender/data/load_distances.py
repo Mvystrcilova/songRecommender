@@ -155,7 +155,7 @@ def load_gru_mel_representations_to_db(representation_matrix):
 
 def load_songs_to_database():
     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
-    if (df.shape[0] == 16594):
+    if df.shape[0] == 16594:
         for i, row in df.iterrows():
             try:
                 song = Song.objects.get(song_name=row['title'], artist=row['artist'])

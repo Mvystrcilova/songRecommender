@@ -24,185 +24,110 @@ def add(x, y):
     print(x+y)
     return x + y
 
+def calculate_distance_of_added_song_to_lists(song_id, user_id, distance_Type):
+    relevant_songs = Distance.objects.filter(song_1_id=song_id, song_2__song_in_list__list_id__user_id=user_id, distance_Type=distance_Type).values('id')
+    relevant_lists = List.objects.filter(user_id_id=user_id, song_in_list__song_id_id__in=relevant_songs)
+
+    for list in relevant_lists:
+        songs_in_list = Song_in_List.objects.filter(list_id=list, song_id_id__in=relevant_songs)
+        distance = Distance.objects.filter(song_2__song_in_list__in=songs_in_list, song_1_id=song_id, distance_Type=distance_Type).aggregate(total=Avg('distance'))['total']
+        list_distance = Distance_to_List.objects.create(song_id_id=song_id, list_id=list, distance_Type=distance_Type, distance=distance)
+        list_distance.save()
+
 
 @shared_task
-def recalculate_distances(cur_user_id, distance_type):
+def recalculate_distances_for_relevant_lists(song_id, user_id):
+    relevant_lists = List.objects.filter(user_id_id=user_id, song_in_list_id=song_id).only('id')
+    for list in relevant_lists:
+        recalculate_all_distances_to_list(song_id_id=song_id, list_id_id=list)
+
+@shared_task
+def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
     """for every song in the database it recalculates
     the distance to every user and the distance to every list
     the current user has created"""
 
+    relevant_song_ids = Distance.objects.filter(song_1_id=song_id, distance_Type=distance_type).values('song_2_id', 'distance')
 
-    songs = Song.objects.all().only('id')
-    cur_user = Profile.objects.get(user_id__exact=cur_user_id)
-    lists = List.objects.all().filter(user_id_id=cur_user_id)
-    for song in songs:
-        save_user_distances(song.pk, cur_user.user.pk, distance_type)
-
-        for l in lists:
-            save_list_distances(song.pk, l.pk, cur_user.user.pk, distance_type)
-
-@shared_task
-def recalculate_all_distances(cur_user_id):
-    # recalculate_distances(cur_user_id, 'PCA_Tf-idf')
-    recalculate_distances(cur_user_id, 'W2V')
-    recalculate_distances(cur_user_id, 'PCA_MEL')
-    recalculate_distances(cur_user_id, 'GRU_MEL')
-    recalculate_distances(cur_user_id, 'LSTM_MFCC')
-@shared_task
-def save_user_distances(added_song_id, cur_user_id, distance_type):
-    """calculates the distance of the given song to every user in database
-    if the distance already exists it updates it otherwise it creates it
-    the user it gets is an instance of user and NOT profile"""
-
-    cur_user = Profile.objects.get(user_id=cur_user_id)
-    played_songs = Played_Song.objects.all().filter(user_id_id=cur_user.pk).exclude(opinion=-1)
-    added_song = Song.objects.get(pk=added_song_id)
-
-    # counter = 0
-    # user_to_song_distance = 0
-    distances = Distance.objects.filter(song_1_id=added_song_id, song_2_id__in=played_songs.values_list('song_id1', flat=True), distance_Type=distance_type
-                                              ).aggregate(total=Avg('distance'))['total']
-    liked_distances = Distance.objects.filter(song_1_id=added_song_id, song_2_id__in=played_songs.exclude(opinion=0).values_list('song_id1', flat=True), distance_Type=distance_type
-                                                    ).aggregate(total=Avg('distance'))['total']
-    if (distances is not None) and (liked_distances is not None):
-        final_distance = distances + liked_distances
-        distance_to_user, created = Distance_to_User.objects.update_or_create(song_id_id=added_song.pk,
-                                                                              user_id_id=cur_user.pk,
-                                                                              distance_Type=distance_type,
-                                                                              defaults={'distance': final_distance})
-        distance_to_user.save()
-    elif distances is not None:
-        distance_to_user, created = Distance_to_User.objects.update_or_create(song_id_id=added_song.pk,
-                                                                              user_id_id=cur_user.pk,
-                                                                              distance_Type=distance_type,
-                                                                              defaults={'distance': distances})
-        distance_to_user.save()
+    num_of_played_songs = Played_Song.objects.filter(user_id_id=cur_user_id).count()
+    for s in relevant_song_ids:
+        user_distance, created = Distance_to_User.objects.get_or_create(user_id_id=cur_user_id, song_id_id=s['song_2_id'], distance_Type=distance_type)
+        if created:
+            user_distance.distance = s['distance']
+        else:
+            user_distance.distance = (num_of_played_songs*user_distance.distance + s['distance'])/(num_of_played_songs+1)
+        user_distance.save()
 
 
-    # for every song in the database if it is not the added song and the user played the song, it adds the distance
-    # the higher the distance the closer is the song
-    # for song in played_songs:
-    #
-    #     if song.song_id1.pk != added_song.pk:
-    #
-    #         if song.opinion != -1:
-    #             try:
-    #                 the_distance = Distance.objects.get(song_1=song.song_id1, song_2=added_song,
-    #                                                 distance_Type=distance_type).distance
-    #             except:
-    #                 the_distance = 0
-    #
-    #             num_of_times_played = song.numOfTimesPlayed
-    #
-    #             # the distance is multiplied by the number of times the user played the song
-    #             # also if the user likes the song, one more distance is added, if he does not the second part is 0
-    #             user_to_song_distance += the_distance * num_of_times_played + the_distance * song.opinion
-    #             counter += 1
-    #
-    # if counter != 0:
-    #     distance_to_user, created = Distance_to_User.objects.update_or_create(song_id_id=added_song.pk, user_id_id=cur_user.pk,
-    #                                                                           distance_Type=distance_type,
-    #                                                                           defaults={'distance': user_to_song_distance / counter})
-    # else:
+def recalculate_distances_to_list(song_id, list_id, distance_type):
+    relevant_song_ids = Distance.objects.filter(song_1_id=song_id, distance_Type=distance_type).values('song_2_id', 'distance')
+    num_of_songs_in_list = Song_in_List.objects.filter(list_id_id = list_id).count()
+
+    for s in relevant_song_ids:
+        list_distance, created = Distance_to_List.objects.get_or_create(list_id_id=list_id, song_id_id=s['song_2_id'],
+                                                                        distance_Type=distance_type)
+        if created:
+            list_distance.distance = s['distance']
+        else:
+            list_distance.distance = (num_of_songs_in_list* list_distance.distance + s['distance']) / (num_of_songs_in_list + 1)
+        list_distance.save()
 
 
-    return
-
+def calculate_all_distance_of_added_song_to_lists(song_id, user_id):
+    calculate_distance_of_added_song_to_lists(song_id, user_id, 'PCA_TF-idf')
+    calculate_distance_of_added_song_to_lists(song_id, user_id, 'W2V')
+    calculate_distance_of_added_song_to_lists(song_id, user_id, 'PCA_MEL')
+    calculate_distance_of_added_song_to_lists(song_id,user_id, 'GRU_MEL')
+    calculate_distance_of_added_song_to_lists(song_id, user_id, 'LSTM_MFCC')
 
 @shared_task
-def save_list_distances(added_song_id, the_list_id, cur_user_id, distance_type):
-    """saves the distance of given song to the given list into the database
-    the cur_user it gets is and instance of user and NOT Profile"""
+def recalculate_all_distances_to_user(song_id, cur_user_id):
+    recalculate_distances_to_user(song_id, cur_user_id, 'PCA_Tf-idf')
+    recalculate_distances_to_user(song_id, cur_user_id, 'W2V')
+    recalculate_distances_to_user(song_id, cur_user_id, 'PCA_MEL')
+    recalculate_distances_to_user(song_id, cur_user_id, 'GRU_MEL')
+    recalculate_distances_to_user(song_id, cur_user_id, 'LSTM_MFCC')
 
-    cur_user = Profile.objects.get(user_id=cur_user_id)
-    the_list = List.objects.get(pk=the_list_id)
-    songs_from_list = Song_in_List.objects.filter(list_id=the_list)
-    added_song = Song.objects.get(pk=added_song_id)
+@shared_task
+def recalculate_all_distances_to_list(song_id, list_id):
+    recalculate_distances_to_list(song_id, list_id, 'PCA_Tf-idf')
+    recalculate_distances_to_list(song_id, list_id, 'W2V')
+    recalculate_distances_to_list(song_id, list_id, 'PCA_MEL')
+    recalculate_distances_to_list(song_id, list_id, 'GRU_MEL')
+    recalculate_distances_to_list(song_id, list_id, 'LSTM_MFCC')
 
-    counter = 0
-    list_to_song_distance = 0
-
-    distances = Distance.objects.all().filter(song_1_id=added_song_id,
-                                              song_2_id__in=songs_from_list.values_list('song_id_id', flat=True),
-                                              distance_Type=distance_type).aggregate(total=Avg('distance'))['total']
-
-
-
-    # for every song in the database if it is not the added song and the list contains the song, it adds the distance
-    # the higher the distance the closer is the song
-    # for song in songs_from_list:
-    #     if song.song_id.pk != added_song.pk:
-    #
-    #         the_song = Played_Song.objects.get(song_id1=song.song_id, user_id_id=cur_user.pk)
-    #
-    #         if the_song.opinion != -1:
-    #             try:
-    #                 the_distance = Distance.objects.get(song_1=song.song_id, song_2=added_song,
-    #                                                     distance_Type=distance_type).distance
-    #             except:
-    #                 the_distance = 0
-    #             num_of_times_played = the_song.numOfTimesPlayed
-    #
-    #             # the distance is multiplied by the number of times the user played the song
-    #             # also if the user likes the song, one more distance is added, if he does not the second part is 0
-    #             list_to_song_distance += the_distance * num_of_times_played + the_distance * the_song.opinion
-    #             counter += 1
-    #
-    # if counter != 0:
-    #     distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song.pk,
-    #                                                                           list_id_id=the_list.pk,
-    #                                                                           distance_Type=distance_type,
-    #                                                              defaults={'distance': list_to_song_distance / counter})
-    #
-    # else:
-    if distances is not None:
-        distance_to_list, created = Distance_to_List.objects.update_or_create(song_id_id=added_song.pk,
-                                                                              list_id_id=the_list.pk,
-                                                                              distance_Type=distance_type,
-                                                                              defaults={'distance': distances})
-
-        distance_to_list.save()
-
-    return
 
 @shared_task()
 def handle_added_song(song_id, user_id):
     # calculates the distances of this song to all other songs already in the database
-    song = Song.objects.get(pk=song_id)
-
 
     save_all_representations(song_id)
 
-    load_w2v_representations(1000, song_id)
+    load_w2v_representations(5000, song_id)
     print('w2v loaded, distances saved')
 
-    load_pca_mel_representations(1000, song_id)
-    print('spec reprs loaded and distances saved')
+    if Song.objects.get(id=song_id).audio:
+        load_pca_mel_representations(5000, song_id)
+        print('spec reprs loaded and distances saved')
 
-    load_gru_mel_representations(500, song_id)
-    print('gru mel distances saved')
+        load_gru_mel_representations(3000, song_id)
+        print('gru mel distances saved')
 
-    load_lstm_mfcc_representations(500, song_id)
-    print('lstm mel distances saved')
+        load_lstm_mfcc_representations(3000, song_id)
+        print('lstm mel distances saved')
 
-    load_pca_tf_idf_representations(1000, song_id)
+    load_pca_tf_idf_representations(5000, song_id)
     print('tf_idf loaded, distances saved')
 
     # calculates the distance of this song to the user
-    save_user_distances(song_id, user_id, "PCA_TF-idf")
-    save_user_distances(song_id, user_id, "W2V")
-    save_user_distances(song_id, user_id, "PCA_MEL")
-    save_user_distances(song_id, user_id, "GRU_MEL")
-    save_user_distances(song_id, user_id, "LSTM_MFCC")
+    recalculate_all_distances_to_user(song_id, user_id)
+
     #  calculates the distance of this song to all of the lists the current
     # user created
-    lists = List.objects.all().filter(user_id_id=user_id)
-    for l in lists:
-        save_list_distances(song_id, l.pk, user_id, "PCA_TF-idf")
-        save_list_distances(song_id, l.pk, user_id, "W2V")
-        save_list_distances(song_id, l.pk, user_id, "PCA_MEL")
-        save_list_distances(song_id, l.pk, user_id, "GRU_MEL")
-        save_list_distances(song_id, l.pk, user_id, "LSTM_MFCC")
+    calculate_all_distance_of_added_song_to_lists(song_id, user_id)
+    # lists = List.objects.all().filter(user_id_id=user_id)
+    # for l in lists:
+    #     recalculate_all_distances_to_list(song_id, l.pk)
 
 
 

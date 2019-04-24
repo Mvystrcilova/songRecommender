@@ -11,9 +11,9 @@ from songRecommender.data.load_distances import load_gru_mel_representations_to_
 from songRecommender.data.load_distances import load_pca_mel_representations_to_db,  load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-from rocnikac.tasks import handle_added_song, recalculate_all_distances
+from rocnikac.tasks import handle_added_song, recalculate_all_distances_to_user, recalculate_all_distances_to_list, recalculate_distances_for_relevant_lists
 from songRecommender.Logic.Recommender import check_if_in_played
-from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
+from rocnikac.settings import EMAIL_DISABLED
 from .forms import SignUpForm
 from .tokens import account_activation_token
 
@@ -100,14 +100,14 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         # load_lstm_mfcc_representations_to_db('rocnikac/representations/lstm_mfcc_representations.npy')
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
-        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         context['played_song'] = Played_Song.objects.filter(
             song_id1=context['object'], user_id=self.request.user.profile)
-        context['my_lists'] = List.objects.all().filter(user_id=self.request.user)
+        context['my_lists'] = List.objects.filter(user_id=self.request.user)
         #POZOR!!! Napraseni kod, co ale funguje, mozna potom prejmenovat, vraci se distance ale pouziva song
-        context['nearby_songs'] = Distance.objects.all().order_by('-distance').filter(
+        context['nearby_songs'] = Distance.objects.filter(
             distance_Type=self.request.user.profile.user_selected_distance_type, song_2=context['object']).exclude(
-            song_1_id__in=played_songs.values_list('song_id1_id', flat=True))[:10]
+            song_1_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance'))[:10]
         context['link'] = context['object'].link_on_disc
         return context
 
@@ -130,11 +130,11 @@ class ListDetailView(LoginRequiredMixin, generic.DetailView, MultipleObjectMixin
         return List.objects.filter(user_id=self.request.user)
 
     def get_context_data(self, *, object_list=None, **kwargs):
-        songs = Song_in_List.objects.all().filter(list_id=self.get_object().pk)
+        songs = Song_in_List.objects.filter(list_id=self.get_object().pk)
         context = super(ListDetailView, self).get_context_data(object_list=songs, **kwargs)
-        played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
+        played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         context['songs'] = songs
-        context['nearby_songs'] = Distance_to_List.objects.all().filter(
+        context['nearby_songs'] = Distance_to_List.objects.filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
             list_id=context['object'].pk).exclude(
             song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).order_by('-distance')[:10]
@@ -332,7 +332,8 @@ def likeSong(request, pk):
 
     # recalculates the distance of all songs to the user and his lists based
     user_id = int(request.user.id)
-    recalculate_all_distances(user_id)
+    recalculate_all_distances_to_user.delay(pk, user_id)
+    recalculate_distances_for_relevant_lists.delay(pk, user_id)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -358,7 +359,7 @@ def dislikeSong(request, pk):
 
     # recalculates the distances of all songs to the user and all his lists
     user_id = request.user.pk
-    recalculate_all_distances(user_id)
+    recalculate_all_distances_to_user.delay(pk, user_id)
 
     return redirect('song_detail', request.path.split('/')[2])
 
@@ -395,7 +396,7 @@ def addSong(request):
                 if created:
                     played_song.save()
 
-                handle_added_song(song.pk, request.user.pk)
+                handle_added_song.delay(song.pk, request.user.pk)
 
                 # redirects the user to his recommended songs
                 return HttpResponseRedirect(reverse('recommended_songs'))
@@ -491,7 +492,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list.save()
 
         check_if_in_played(pk, request.user, is_being_played=False)
-        recalculate_all_distances(request.user.pk)
+        recalculate_all_distances_to_list.delay(pk, pk2)
 
         return redirect('song_detail', pk)
 

@@ -1,5 +1,6 @@
 from songRecommender.models import Song, List, Distance, User, Distance_to_User, Distance_to_List, Played_Song
 # from songRecommender.Logic.model_distances_calculator import save_user_distances, save_list_distances
+from rocnikac.tasks import recalculate_all_distances_to_user
 import re
 
 
@@ -18,6 +19,7 @@ def check_if_in_played(song_id, cur_user, is_being_played):
     else:
         played_song = Played_Song(user_id=cur_user.profile, song_id1=song, opinion=0, numOfTimesPlayed=1)
         played_song.save()
+        recalculate_all_distances_to_user(song_id, cur_user.pk)
 
     return
 
