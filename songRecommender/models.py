@@ -163,8 +163,8 @@ class Played_Song(models.Model):
     def get_absolute_url(self):
         return reverse('song-detail', args=[str(self.song_id1.id)])
 
-    class Meta:
-        unique_together = (('song_id1', 'user_id'))
+    # class Meta:
+    #     unique_together = (('song_id1', 'user_id'))
 
 class Distance(models.Model):
     """
@@ -190,9 +190,9 @@ class Distance(models.Model):
     def __str__(self):
         return str(self.song_1.artist) + " - " + str(self.song_1.song_name)
 
-    class Meta:
-        ordering = ['-distance']
-        unique_together = (('song_1', 'song_2', 'distance_Type'))
+    # class Meta:
+    #     ordering = ['-distance']
+    #     unique_together = (('song_1', 'song_2', 'distance_Type'))
 
 
 class Distance_to_List(models.Model):
@@ -224,9 +224,9 @@ class Distance_to_List(models.Model):
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name
 
-    class Meta:
-        ordering = ['-distance']
-        unique_together=(('list_id', 'song_id', 'distance_Type'))
+    # class Meta:
+    #     ordering = ['-distance']
+    #     unique_together=(('list_id', 'song_id', 'distance_Type'))
     
 
 class Distance_to_User(models.Model):
@@ -251,9 +251,9 @@ class Distance_to_User(models.Model):
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 
-    class Meta:
-        ordering = ['-distance']
-        unique_together=(('user_id', 'song_id', 'distance_Type'))
+    # class Meta:
+    #     ordering = ['-distance']
+    #     unique_together=(('user_id', 'song_id', 'distance_Type'))
 
     # def get_nearby_songs(userid):
     #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
