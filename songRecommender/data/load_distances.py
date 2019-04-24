@@ -14,7 +14,6 @@ def load_distances(distance_matrix, distance_type, threshold):
                          names=['songTitle','artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
     for i in indexes:
-        if (i[0] >= 15570):
             if i[0] > i[1]:
                     try:
                         song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
@@ -47,8 +46,8 @@ def load_all_distances():
 
 
 def load_all_representations():
-    # load_pca_tf_idf_representations_to_db('rocnikac/representations/pca_tf_idf_representations.npy')
-    # load_w2v_representations_to_db('rocnikac/representations/w2v_representations.npy')
+    load_pca_tf_idf_representations_to_db('rocnikac/representations/pca_tf_idf_representations.npy')
+    load_w2v_representations_to_db('rocnikac/representations/w2v_representations.npy')
     load_pca_mel_representations_to_db('rocnikac/representations/pca_mel_representations.npy')
     load_gru_mel_representations_to_db('rocnikac/representations/GRU_mel_representations_5712.npy')
     load_lstm_mfcc_representations_to_db('rocnikac/representations/lstm_mfcc_representations.npy')
