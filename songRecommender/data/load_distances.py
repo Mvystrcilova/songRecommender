@@ -47,8 +47,8 @@ def load_all_distances():
 
 
 def load_all_representations():
-    load_pca_tf_idf_representations_to_db('rocnikac/representations/pca_tf_idf_representations.npy')
-    load_w2v_representations_to_db('rocnikac/representations/w2v_representations.npy')
+    # load_pca_tf_idf_representations_to_db('rocnikac/representations/pca_tf_idf_representations.npy')
+    # load_w2v_representations_to_db('rocnikac/representations/w2v_representations.npy')
     load_pca_mel_representations_to_db('rocnikac/representations/pca_mel_representations.npy')
     load_gru_mel_representations_to_db('rocnikac/representations/GRU_mel_representations_5712.npy')
     load_lstm_mfcc_representations_to_db('rocnikac/representations/lstm_mfcc_representations.npy')
@@ -96,7 +96,6 @@ def load_lstm_mfcc_representations_to_db(representation_matrix):
                          engine='python', error_bad_lines=False)
 
     for i, row in df.iterrows():
-        if i < 14608:
             try:
                 song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
                 song.lstm_mfcc_representation = representations[i].tolist()
@@ -118,6 +117,7 @@ def load_pca_mel_representations_to_db(representation_matrix):
             song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
             song.pca_mel_representation = representations[i].tolist()
             song.save()
+            print(i, 'pca_mel')
         except Exception as e:
             print(str(e) + str(i) + 'pca_mel')
             print(i, row['songTitle'], row['artist'])
@@ -135,6 +135,7 @@ def load_gru_mel_representations_to_db(representation_matrix):
             song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
             song.gru_mel_representation = representations[i].tolist()
             song.save()
+            print(i, 'gru_mel')
         except Exception as e:
             print(str(e) + str(i) + 'gru_mel')
             print(i, row['songTitle'], row['artist'])

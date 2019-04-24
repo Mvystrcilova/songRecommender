@@ -204,7 +204,7 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
         played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
-        load_songs_to_database()
+        # load_songs_to_database()
         load_all_representations()
         load_all_distances()
         context['played_songs'] = played_songs.exclude(opinion=-1)
