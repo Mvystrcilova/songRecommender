@@ -18,8 +18,8 @@ class Song(models.Model):
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
     link_on_disc = models.FileField(blank=True ,null=True, max_length=500, upload_to='mp3_files/')
-    audio = models.BooleanField(default=True)
-    lyrics = models.BooleanField(default=True)
+    audio = models.BooleanField(default=False)
+    lyrics = models.BooleanField(default=False)
     pca_tf_idf_representation = ArrayField(models.FloatField(), null=True)
     w2v_representation = ArrayField(models.FloatField(), null=True)
     lstm_mfcc_representation = ArrayField(models.FloatField(), null=True)
