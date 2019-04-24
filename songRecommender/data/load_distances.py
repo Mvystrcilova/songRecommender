@@ -10,7 +10,7 @@ def load_distances(distance_matrix, distance_type, threshold):
     distances[distances < threshold] = 0
     indexes = numpy.transpose(numpy.nonzero(distances))
     print(distance_type, 'has shape', indexes.shape)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle','artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
     for i in indexes:
@@ -39,10 +39,10 @@ def load_distances_faster():
     pass
 
 def load_all_distances():
-    # load_distances('rocnikac/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
-    # load_distances('rocnikac/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
-    # load_distances('rocnikac/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
-    # load_distances('rocnikac/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
+    load_distances('rocnikac/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
+    load_distances('rocnikac/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
+    load_distances('rocnikac/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
+    load_distances('rocnikac/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
     load_distances('rocnikac/distances/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
 
 
@@ -56,7 +56,7 @@ def load_all_representations():
 
 def load_pca_tf_idf_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
 
@@ -73,7 +73,7 @@ def load_pca_tf_idf_representations_to_db(representation_matrix):
 
 def load_w2v_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
 
@@ -89,21 +89,9 @@ def load_w2v_representations_to_db(representation_matrix):
 
 
 
-# def load_mfcc_representations_to_db(representation_matrix):
-#     representations = numpy.load(representation_matrix)
-#     df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
-#                          names=['songTitle', 'artist'], index_col=False, header=None,
-#                          engine='python', error_bad_lines=False)
-#
-#     for i, row in df.iterrows():
-#         song = Song.objects.get(song_name=row['songTitle'], artist=row['artist'])
-#         song.mfcc_representation = representations[i].tolist()
-#         song.save()
-#         print('mfcc', i)
-
 def load_lstm_mfcc_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
 
@@ -121,7 +109,7 @@ def load_lstm_mfcc_representations_to_db(representation_matrix):
 
 def load_pca_mel_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
 
@@ -138,7 +126,7 @@ def load_pca_mel_representations_to_db(representation_matrix):
 
 def load_gru_mel_representations_to_db(representation_matrix):
     representations = numpy.load(representation_matrix)
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/useful_songs", sep=';',
+    df = pandas.read_csv("rocnikac/useful_songs", sep=';',
                          names=['songTitle', 'artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
 
@@ -154,7 +142,7 @@ def load_gru_mel_representations_to_db(representation_matrix):
 
 
 def load_songs_to_database():
-    df = pandas.read_csv("/Users/m_vys/PycharmProjects/similarity_and_evaluation/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
+    df = pandas.read_csv("rocnikac/not_empty_songs_relative_path.txt", sep=';', header=None, index_col=False, names=['artist', 'title', 'lyrics', 'link', 'path'])
     if df.shape[0] == 16594:
         for i, row in df.iterrows():
             try:
