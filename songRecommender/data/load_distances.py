@@ -4,7 +4,6 @@ import pandas
 from songRecommender.models import Distance, Song
 import numpy
 from rocnikac.settings import PCA_TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, GRU_MEL_THRESHOLD, PCA_MEL_THRESHOLD
-
 def load_distances(distance_matrix, distance_type, threshold):
     distances = numpy.load(distance_matrix)
     distances[distances < threshold] = 0
@@ -14,25 +13,28 @@ def load_distances(distance_matrix, distance_type, threshold):
                          names=['songTitle','artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
     for i in indexes:
+        if i[0] >= 15000:
             if i[0] > i[1]:
-                    try:
-                        song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
-                        song_2 = Song.objects.get(song_name=df.iloc[i[1]]['songTitle'], artist=df.iloc[i[1]]['artist'])
+                try:
+                    song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
+                    song_2 = Song.objects.get(song_name=df.iloc[i[1]]['songTitle'], artist=df.iloc[i[1]]['artist'])
 
-                        distance, created = Distance.objects.get_or_create(song_1=song_1, song_2=song_2,
-                                                                           distance=distances[i[0]][i[1]],
-                                                                           distance_Type=distance_type)
-                        if created:
-                            distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
-                                                  distance_Type=distance_type)
-                            distance_2.save()
-                            print(i[1], distances[i[0]][i[1]])
+                    distance, created = Distance.objects.get_or_create(song_1=song_1, song_2=song_2,
+                                                                       distance=distances[i[0]][i[1]],
+                                                                       distance_Type=distance_type)
+                    if created:
+                        distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
+                                              distance_Type=distance_type)
+                        distance_2.save()
+                        print(i[1], distances[i[0]][i[1]])
 
-                    except Exception as e:
-                        print(e)
-                        print(df.iloc[i[0]]['songTitle'], df.iloc[i[0]]['artist'], ' and ', df.iloc[i[1]]['songTitle'], df.iloc[i[1]]['artist'])
+                except Exception as e:
+                    print(e)
+                    print(df.iloc[i[0]]['songTitle'], df.iloc[i[0]]['artist'], ' and ', df.iloc[i[1]]['songTitle'], df.iloc[i[1]]['artist'])
 
-                    print(i[0], distance_type)
+                # print(i[0], distance_type)
+    print(distance_type, 'saved')
+
 def load_distances_faster():
 
     pass
