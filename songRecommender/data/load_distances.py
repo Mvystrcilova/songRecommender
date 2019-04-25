@@ -13,7 +13,6 @@ def load_distances(distance_matrix, distance_type, threshold):
                          names=['songTitle','artist'], index_col=False, header=None,
                          engine='python', error_bad_lines=False)
     for i in indexes:
-        if i[0] >= 15000:
             if i[0] > i[1]:
                 try:
                     song_1 = Song.objects.get(song_name=df.iloc[i[0]]['songTitle'], artist=df.iloc[i[0]]['artist'])
@@ -42,7 +41,7 @@ def load_distances_faster():
 def load_all_distances():
     # load_distances('rocnikac/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
     # load_distances('rocnikac/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
-    load_distances('rocnikac/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
+    # load_distances('rocnikac/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
     load_distances('rocnikac/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
     load_distances('rocnikac/distances/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
 
