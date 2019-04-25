@@ -26,7 +26,7 @@ def load_distances(distance_matrix, distance_type, threshold):
                         distance_2 = Distance(song_1=song_2, song_2=song_1, distance=distances[i[0]][i[1]],
                                               distance_Type=distance_type)
                         distance_2.save()
-                        print(i[1], distances[i[0]][i[1]])
+                        print(i[0], i[1],  distances[i[0]][i[1]])
 
                 except Exception as e:
                     print(e)
