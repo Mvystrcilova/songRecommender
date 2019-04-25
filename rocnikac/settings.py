@@ -141,7 +141,7 @@ LOGIN_REDIRECT_URL = '/songRecommender/index'
 EMAIL_DISABLED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = 'amqp://localhost'
-SELECTED_DISTANCE_TYPE = "TF-idf"
+SELECTED_DISTANCE_TYPE = "PCA_TF-idf"
 
 # Distance thresholds for 51x16594 distances
 PCA_TF_IDF_THRESHOLD = 0.1899
