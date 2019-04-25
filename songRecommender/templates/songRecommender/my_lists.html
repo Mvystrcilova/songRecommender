@@ -74,7 +74,7 @@
                             <p class="m-3">Here are songs similar to {{ l.name }} </p>
                             {% for nearby_song in l.get_nearby_songs|slice:"0:10" %}
                                     <li class="list-group-item">
-                                        <a href="{% url 'song_detail' nearby_song.pk %}"> {{ nearby_song }} </a>
+                                        <a href="{% url 'song_detail' nearby_song.song.pk %}"> {{ nearby_song }} </a>
                                     </li>
                             {% endfor %}
 
