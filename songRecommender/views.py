@@ -479,7 +479,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
         song_in_list.save()
 
-        check_if_in_played(pk, request.user, is_being_played=False)
+        check_if_in_played(pk, request.user.pk, is_being_played=False)
         recalculate_all_distances_to_list.delay(pk, pk2)
 
         return redirect('song_detail', pk)
