@@ -120,11 +120,12 @@ def handle_added_song(song_id, user_id):
     print('tf_idf loaded, distances saved')
 
     # calculates the distance of this song to the user
-    recalculate_all_distances_to_user(song_id, user_id)
+    for user_id in Profile.objects.all().values_list('user_id'):
+        recalculate_all_distances_to_user(song_id, user_id)
 
     #  calculates the distance of this song to all of the lists the current
     # user created
-    calculate_all_distance_of_added_song_to_lists(song_id, user_id)
+        calculate_all_distance_of_added_song_to_lists(song_id, user_id)
     # lists = List.objects.all().filter(user_id_id=user_id)
     # for l in lists:
     #     recalculate_all_distances_to_list(song_id, l.pk)

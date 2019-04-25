@@ -206,7 +206,7 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
         played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         # load_songs_to_database()
         # load_all_representations()
-        load_all_distances()
+        # load_all_distances()
         context['played_songs'] = played_songs.exclude(opinion=-1)
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['recommended_songs'] = Distance_to_User.objects.all().filter(
