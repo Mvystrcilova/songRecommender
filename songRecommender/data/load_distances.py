@@ -40,8 +40,8 @@ def load_distances_faster():
     pass
 
 def load_all_distances():
-    load_distances('rocnikac/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
-    load_distances('rocnikac/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
+    # load_distances('rocnikac/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
+    # load_distances('rocnikac/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
     load_distances('rocnikac/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
     load_distances('rocnikac/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
     load_distances('rocnikac/distances/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
