@@ -19,7 +19,7 @@ def check_if_in_played(song_id, cur_user, is_being_played):
     else:
         played_song = Played_Song(user_id=cur_user.profile, song_id1=song, opinion=0, numOfTimesPlayed=1)
         played_song.save()
-        recalculate_all_distances_to_user(song_id, cur_user.pk)
+        recalculate_all_distances_to_user.delay(song_id, cur_user.pk)
 
     return
 
