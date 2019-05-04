@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 import time
 import re
 import youtube_dl
-from rocnikac.settings import MP3FILES_DIR
+from songRecommender_project.settings import MP3FILES_DIR
 import os
 
 """the change_youtube_url method is here because otherwise
@@ -39,7 +39,7 @@ def change_youtube_url(url):
     return youtube_regex_match
 
 
-df = pandas.read_csv('~/Documents/matfyz/rocnikac/data/songs_with_lyrics', sep=';', quotechar='"',
+df = pandas.read_csv('~/Documents/matfyz/songRecommender_project/data/songs_with_lyrics', sep=';', quotechar='"',
                      names=['artist', 'songTitle', 'lyrics'], engine='python',
                      error_bad_lines=False, usecols=[2, 3, 4])
 df = df.drop_duplicates(subset=['artist', 'songTitle'])

@@ -1,6 +1,6 @@
 from songRecommender.models import Song, List, Distance, User, Distance_to_User, Distance_to_List, Played_Song
 # from songRecommender.Logic.model_distances_calculator import save_user_distances, save_list_distances
-from rocnikac.tasks import recalculate_all_distances_to_user
+from songRecommender_project.tasks import recalculate_all_distances_to_user
 import re
 
 

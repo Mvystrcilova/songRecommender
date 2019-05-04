@@ -9,9 +9,9 @@ from django.views.generic.list import MultipleObjectMixin
 from songRecommender.data.load_distances import load_songs_to_database, load_all_representations, load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-from rocnikac.tasks import handle_added_song, recalculate_all_distances_to_user, recalculate_all_distances_to_list, recalculate_distances_for_relevant_lists
+from songRecommender_project.tasks import handle_added_song, recalculate_all_distances_to_user, recalculate_all_distances_to_list, recalculate_distances_for_relevant_lists
 from songRecommender.Logic.Recommender import check_if_in_played
-from rocnikac.settings import EMAIL_DISABLED
+from songRecommender_project.settings import EMAIL_DISABLED
 from .forms import SignUpForm
 from .tokens import account_activation_token
 
@@ -286,7 +286,7 @@ class RecommendedSongsView(LoginRequiredMixin, generic.ListView):
         """
         context = super(RecommendedSongsView, self).get_context_data(**kwargs)
         played_songs = Played_Song.objects.filter(
-            user_id=self.request.user.profile.pk).exclude(opinion=-1)
+            user_id=self.request.user.profile.pk)
         context['nearby_songs'] = (Distance_to_User.objects.all().filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
             user_id=self.request.user.pk).exclude(
@@ -479,7 +479,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
         song_in_list.save()
 
-        check_if_in_played(pk, request.user.pk, is_being_played=False)
+        check_if_in_played(pk, request.user, is_being_played=False)
         recalculate_all_distances_to_list.delay(pk, pk2)
 
         return redirect('song_detail', pk)

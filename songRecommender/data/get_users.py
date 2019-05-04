@@ -2,7 +2,7 @@ import string
 import pandas
 import numpy as np
 
-df = pandas.read_csv('~/Documents/matfyz/rocnikac/songs_with_lyrics', sep=';', quotechar='"', names=['userID', 'songId', 'artist', 'songTitle', 'lyrics'], engine='python', error_bad_lines=False)
+df = pandas.read_csv('~/Documents/matfyz/songRecommender_project/songs_with_lyrics', sep=';', quotechar='"', names=['userID', 'songId', 'artist', 'songTitle', 'lyrics'], engine='python', error_bad_lines=False)
 
 users = df.drop_duplicates(subset=['userID'])
 print("The number of unique users is: " + str(users.shape[0]))

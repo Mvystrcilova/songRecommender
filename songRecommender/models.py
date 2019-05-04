@@ -4,7 +4,7 @@ from django.contrib.postgres.fields import ArrayField
 from django.urls import reverse
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from rocnikac.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
+from songRecommender_project.settings import EMAIL_DISABLED, SELECTED_DISTANCE_TYPE
 
 import numpy
 
@@ -114,8 +114,8 @@ class List(models.Model):
         list_user = Profile.objects.get(user_id=self.user_id)
         played_songs = Played_Song.objects.all().filter(user_id=list_user.pk)
 
-        nearby_songs = Distance_to_List.objects.filter(distance_Type=list_user.user_selected_distance_type
-                                                       ).exclude(song_id_id__in=played_songs.values_list('song_id1_id', flat=True))
+        nearby_songs = Distance_to_List.objects.filter(list_id=self.pk, distance_Type=list_user.user_selected_distance_type
+                                                       ).exclude(song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).exclude()
         return nearby_songs
             # self.nearby_songs.exclude(Distance_to_List__song_id__in=self.songs.values_list(
             # 'song_id_id', flat=True)).order_by('-link_to_list')[:10]
@@ -163,8 +163,8 @@ class Played_Song(models.Model):
     def get_absolute_url(self):
         return reverse('song-detail', args=[str(self.song_id1.id)])
 
-    # class Meta:
-    #     unique_together = (('song_id1', 'user_id'))
+    class Meta:
+        unique_together = (('song_id1', 'user_id'))
 
 class Distance(models.Model):
     """
@@ -173,7 +173,7 @@ class Distance(models.Model):
     there can be more distance types added
 
     for each distance type there is a method to calculate the distance
-    in rocnikac/tasks.py
+    in songRecommender_project/tasks.py
     """
     song_1 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_1')
     song_2 = models.ForeignKey(Song, on_delete=models.CASCADE, null=True, related_name='song_2')
@@ -190,9 +190,9 @@ class Distance(models.Model):
     def __str__(self):
         return str(self.song_1.artist) + " - " + str(self.song_1.song_name)
 
-    # class Meta:
-    #     ordering = ['-distance']
-    #     unique_together = (('song_1', 'song_2', 'distance_Type'))
+    class Meta:
+        ordering = ['-distance']
+        unique_together = (('song_1', 'song_2', 'distance_Type'))
 
 
 class Distance_to_List(models.Model):
@@ -201,8 +201,8 @@ class Distance_to_List(models.Model):
     stores distance between a song and each list for every user
 
     there can be more distance types added
-    each distance types added in the rocnikac/tasks.py
-    and then used in rocnikac/tasks.py
+    each distance types added in the songRecommender_project/tasks.py
+    and then used in songRecommender_project/tasks.py
     in save_list_distances
     """
     list_id = models.ForeignKey(List, on_delete=models.CASCADE, null=True)
@@ -224,9 +224,9 @@ class Distance_to_List(models.Model):
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name
 
-    # class Meta:
-    #     ordering = ['-distance']
-    #     unique_together=(('list_id', 'song_id', 'distance_Type'))
+    class Meta:
+        ordering = ['-distance']
+        unique_together=(('list_id', 'song_id', 'distance_Type'))
     
 
 class Distance_to_User(models.Model):
@@ -235,7 +235,7 @@ class Distance_to_User(models.Model):
     stores distance between a song and all played songs for every user
 
     there can be more distance types added
-    each distance types added in the rocnikac/tasks.py
+    each distance types added in the songRecommender_project/tasks.py
     and then used in songRecommender/Logic/model_distance_calculator.py
     in save_user_distances
     """
@@ -251,9 +251,9 @@ class Distance_to_User(models.Model):
     )
     distance_Type = models.CharField(max_length=20, choices=DISTANCE_CHOICES, default='TF-idf')
 
-    # class Meta:
-    #     ordering = ['-distance']
-    #     unique_together=(('user_id', 'song_id', 'distance_Type'))
+    class Meta:
+        ordering = ['-distance']
+        unique_together=(('user_id', 'song_id', 'distance_Type'))
 
     # def get_nearby_songs(userid):
     #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]

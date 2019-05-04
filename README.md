@@ -218,7 +218,7 @@ There is a need to load a lot of data into the database. The user can alter the 
  * prepsat aplikaci na to tasks - hotovo
  * prepsat aplikaci aby se dala prepinat vzdalenost - hotovo
  * dat optional na maily - hotovo
- * prepsat to co mam z rocnikace do bakalarky - hotovo
+ * prepsat to co mam z songRecommender_projecte do bakalarky - hotovo
  * omezit vzdalenosti
  * doplnit kapitoly - hotovo
  * popsat TF-idf a Word2Vec - hotovo?
@@ -231,7 +231,7 @@ There is a need to load a lot of data into the database. The user can alter the 
     * Convolutional networks
     * Deep Belief networks
  
- # Rocnikac - hotovo
+ # songRecommender_project - hotovo
  
 ## To Do - programovaci:
 * zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk - hotovo

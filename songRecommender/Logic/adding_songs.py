@@ -2,16 +2,16 @@ from songRecommender.models import Song, Distance
 import numpy, youtube_dl, re, urllib.request, librosa, os, scipy.sparse, glob, sklearn.metrics
 import urllib.parse
 from bs4 import BeautifulSoup
-from rocnikac.settings import MP3FILES_DIR
+from songRecommender_project.settings import MP3FILES_DIR
 from pydub import AudioSegment
-from rocnikac.settings import GRU_Mel_graph, LSTM_MFCC_graph
+from songRecommender_project.settings import GRU_Mel_graph, LSTM_MFCC_graph
 from keras.models import model_from_json
 from sklearn.preprocessing import MinMaxScaler
 from pydub.playback import play
 
-from rocnikac.settings import PCA_Tf_idf_model, W2V_model, GRU_Mel_model, PCA_Mel_model, LSTM_MFCC_model, TF_idf_model
+from songRecommender_project.settings import PCA_Tf_idf_model, W2V_model, GRU_Mel_model, PCA_Mel_model, LSTM_MFCC_model, TF_idf_model
 
-from rocnikac.settings import n_fft, hop_length, n_mfcc, n_mels
+from songRecommender_project.settings import n_fft, hop_length, n_mfcc, n_mels
 
 import re
 numbers = re.compile(r'(\d+)')
@@ -184,7 +184,7 @@ def download_song_from_youtube(song):
             ydl.download([l])
             info_dict = ydl.extract_info(l, download=False)
 
-            song.link_on_disc = info_dict.get('title', None) + ".mp3"
+            song.link_on_disc =  info_dict.get('title', None) + ".mp3"
             song.save()
             print('song_saved_ok', song.link_on_disc)
         except Exception as e:
