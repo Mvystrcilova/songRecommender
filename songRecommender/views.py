@@ -93,6 +93,7 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         all the lists created by the current user"""
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
+        load_all_distances()
         played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         context['played_song'] = Played_Song.objects.filter(
             song_id1=context['object'], user_id=self.request.user.profile)
