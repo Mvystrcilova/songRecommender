@@ -146,11 +146,12 @@ LOGIN_REDIRECT_URL = '/songRecommender/index'
 EMAIL_DISABLED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 CELERY_BROKER_URL = 'amqp://localhost'
+BROKER_POOL_LIMIT = None
 SELECTED_DISTANCE_TYPE = "GRU_MEL"
 
 # Distance thresholds for 51x16594 distances
-PCA_TF_IDF_THRESHOLD = 0.1899
-W2V_THRESHOLD = 0.9567
+PCA_TF_IDF_THRESHOLD = 0.1799
+W2V_THRESHOLD = 0.9467
 PCA_MEL_THRESHOLD = 0.383 # predtim bylo 0.19 - horsi
 GRU_MEL_THRESHOLD = 0.363459
 LSTM_MFCC_THRESHOLD = 0.99786

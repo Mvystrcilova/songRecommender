@@ -103,20 +103,20 @@ def handle_added_song(song_id, user_id):
 
     save_all_representations(song_id)
 
-    load_w2v_representations(5000, song_id)
+    load_w2v_representations(10000, song_id)
     print('w2v loaded, distances saved')
 
     if Song.objects.get(id=song_id).audio:
-        load_pca_mel_representations(5000, song_id)
+        load_pca_mel_representations(10000, song_id)
         print('spec reprs loaded and distances saved')
 
-        load_gru_mel_representations(3000, song_id)
+        load_gru_mel_representations(5000, song_id)
         print('gru mel distances saved')
 
-        load_lstm_mfcc_representations(3000, song_id)
+        load_lstm_mfcc_representations(5000, song_id)
         print('lstm mel distances saved')
 
-    load_pca_tf_idf_representations(5000, song_id)
+    load_pca_tf_idf_representations(7000, song_id)
     print('tf_idf loaded, distances saved')
 
     # calculates the distance of this song to the user
