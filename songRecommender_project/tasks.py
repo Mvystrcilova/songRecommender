@@ -119,10 +119,6 @@ def handle_added_song(song_id, user_id):
     load_pca_tf_idf_representations(7000, song_id)
     print('tf_idf loaded, distances saved')
 
-    # calculates the distance of this song to the user
-    for user_id in Profile.objects.all().values_list('user_id', flat=True):
-        recalculate_all_distances_to_user.delay(song_id, user_id)
-        calculate_all_distance_of_added_song_to_lists.delay(song_id, user_id)
 
 
 
