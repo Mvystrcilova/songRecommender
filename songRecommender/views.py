@@ -9,7 +9,7 @@ from django.views.generic.list import MultipleObjectMixin
 from songRecommender.data.load_distances import load_songs_to_database, load_all_representations, load_all_distances
 from songRecommender.forms import SongModelForm, ListModelForm
 from songRecommender.models import Song, List, Song_in_List, Played_Song, Distance_to_User, Distance, Distance_to_List
-from songRecommender_project.tasks import handle_added_song, recalculate_all_distances_to_user, recalculate_all_distances_to_list, recalculate_distances_for_relevant_lists
+from songRecommender_project.tasks import handle_added_song, recalculate_distanced_when_new_song_added, recalculate_all_distances_to_user, recalculate_all_distances_to_list, recalculate_distances_for_relevant_lists
 from songRecommender.Logic.Recommender import check_if_in_played
 from songRecommender_project.settings import EMAIL_DISABLED
 from .forms import SignUpForm
@@ -385,6 +385,8 @@ def addSong(request):
                     played_song.save()
 
                 handle_added_song.delay(song.pk, request.user.pk)
+                recalculate_distanced_when_new_song_added.delay(song.pk, request.user.pk)
+
 
                 # redirects the user to his recommended songs
                 return HttpResponseRedirect(reverse('recommended_songs'))

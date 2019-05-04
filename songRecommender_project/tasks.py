@@ -72,7 +72,7 @@ def recalculate_distances_to_list(song_id, list_id, distance_type):
             list_distance.distance = (list_distance.distance + s['distance'])
         list_distance.save()
 
-
+@shared_task
 def calculate_all_distance_of_added_song_to_lists(song_id, user_id):
     calculate_distance_of_added_song_to_lists(song_id, user_id, 'PCA_TF-idf')
     calculate_distance_of_added_song_to_lists(song_id, user_id, 'W2V')
@@ -121,18 +121,17 @@ def handle_added_song(song_id, user_id):
 
     # calculates the distance of this song to the user
     for user_id in Profile.objects.all().values_list('user_id', flat=True):
-        recalculate_all_distances_to_user(song_id, user_id)
-
-    #  calculates the distance of this song to all of the lists the current
-    # user created
-        calculate_all_distance_of_added_song_to_lists(song_id, user_id)
-    # lists = List.objects.all().filter(user_id_id=user_id)
-    # for l in lists:
-    #     recalculate_all_distances_to_list(song_id, l.pk)
+        recalculate_all_distances_to_user.delay(song_id, user_id)
+        calculate_all_distance_of_added_song_to_lists.delay(song_id, user_id)
 
 
 
 
+@shared_task
+def recalculate_distanced_when_new_song_added(song_id, user_id):
+    for user_id in Profile.objects.all().values_list('user_id', flat=True):
+        recalculate_all_distances_to_user.delay(song_id, user_id)
+        calculate_all_distance_of_added_song_to_lists.delay(song_id, user_id)
 @shared_task()
 def load_lstm_mfcc_representations(chunk_size, s_id):
     count = Song.objects.all().exclude(audio=False).count()
