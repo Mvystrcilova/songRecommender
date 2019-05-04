@@ -9,4 +9,6 @@ songRecommender/migrations
 songRecommender/data/song_*
 Logic/TF-idf/*
 ../mp3_files/*
-
+*/distances/*
+*/models/*
+*/representations/*
