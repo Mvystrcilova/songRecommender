@@ -399,8 +399,8 @@ def addSong(request):
                 if created:
                     played_song.save()
 
-                handle_added_song.delay(song.pk, request.user.pk)
-                recalculate_distanced_when_new_song_added.delay(song.pk, request.user.pk)
+                handle_added_song.delay(song.pk)
+                recalculate_distanced_when_new_song_added.delay(song.pk)
 
 
                 # redirects the user to his recommended songs
