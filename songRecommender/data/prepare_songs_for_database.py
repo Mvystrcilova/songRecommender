@@ -17,10 +17,12 @@ with the songRecommender app"""
 # sed '/https:\/\/www.youtube.com\/embed\/*/ s/$/;/' songs_with_l_and_l > output_songs
 
 def change_youtube_url(url):
-    """Takes the youtube url from either the address bar
+    """
+    Takes the youtube url from either the address bar
      or the one from the share option under the Youtube video
      and changes it to an embedable one.
 
+     is not used in the application anywhere
      Parameters
      ---------
      url : str
@@ -38,6 +40,7 @@ def change_youtube_url(url):
 
     return youtube_regex_match
 
+######## From here on it is a script that was used to get the .mp3 files of the songs in the database
 
 df = pandas.read_csv('~/Documents/matfyz/songRecommender_project/data/songs_with_lyrics', sep=';', quotechar='"',
                      names=['artist', 'songTitle', 'lyrics'], engine='python',

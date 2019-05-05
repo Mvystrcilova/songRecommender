@@ -90,9 +90,23 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
 
         the context provided, besides the song specified by an unique id
         is also the played song corresponding to the song from the detail view and
-        all the lists created by the current user"""
+        all the lists created by the current user
+
+        There is the possibility to store data inside the database when uncommenting the designated lines inside
+        of this function
+        """
+        #### section to be run when loaded data into the database #####
+
+        # NOTE!!! It is necessary to have the songs loaded inside the dabase using "load_songs_to_database()" BEFORE
+        # loading the representations and distances
+
+        # For loading uncomment the next three lines:
+        # load_songs_to_database()
+        # load_all_representations()
+        # load_all_distances()
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
+
         load_all_distances()
         played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
         context['played_song'] = Played_Song.objects.filter(
@@ -527,6 +541,11 @@ def search(request):
 
 
 def change_distance(request):
+    """
+    Changes the distance based on which the recommendations are calculated
+    :param request: the HTML request
+    :return: Redirects to the same page
+    """
     next_page = request.GET.get('next')
     user = request.user
     if 'PCA_TF-idf' in request.GET:
