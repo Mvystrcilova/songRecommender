@@ -18,14 +18,18 @@ class Song(models.Model):
     distance_to_other_songs = models.ManyToManyField("self", through='Distance', symmetrical=False,
                                                      related_name='songs_nearby')
     link_on_disc = models.FileField(blank=True ,null=True, max_length=500, upload_to='mp3_files/')
-    audio = models.BooleanField(default=True)
+
+    audio = models.BooleanField(default=False)
     lyrics = models.BooleanField(default=True)
+
+    # representations of the implemented methods for each song
     pca_tf_idf_representation = ArrayField(models.FloatField(), null=True)
     w2v_representation = ArrayField(models.FloatField(), null=True)
     lstm_mfcc_representation = ArrayField(models.FloatField(), null=True)
     pca_mel_representation = ArrayField(models.FloatField(), null=True)
     gru_mel_representation = ArrayField(models.FloatField(), null=True)
 
+    ### loading representations from the database
     def get_pca_tf_idf_representation(self):
         return numpy.array(self.pca_tf_idf_representation).reshape([1, 4457])
 
@@ -46,6 +50,9 @@ class Song(models.Model):
         return self.artist + ' - ' + self.song_name
 
     def get_distance_to_other_songs(self):
+        """
+        :returns: the distance to of other song to this song
+        """
         return self.distance_to_other_songs.filter(song_2__distance_Type=SELECTED_DISTANCE_TYPE).order_by(
             'song_2').exclude(id=self.id)
 

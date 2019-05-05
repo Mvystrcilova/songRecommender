@@ -16,17 +16,26 @@ from songRecommender_project.settings import n_fft, hop_length, n_mfcc, n_mels
 import re
 numbers = re.compile(r'(\d+)')
 def numericalSort(value):
+    """
+    sorts values numericaly
+    :param value:
+    :return: sorted values
+    """
     parts = numbers.split(value)
     parts[1::2] = map(int, parts[1::2])
     return parts
 
 def save_all_representations(song_id):
+    """
+    When a new song is added, this function collects a representation of it for each of the implemented methods
+    if the download of the audio fails, only lyrics based methods are represented
+    :param song_id: the id of the newly added song
+    :return: None
+    """
 
     song = Song.objects.get(pk=song_id)
-    song_file = open('temp_songs', 'a', encoding='utf-8')
-    print(song)
     download_song_from_youtube(song)
-    scaler = MinMaxScaler()
+
     if song.audio:
         try:
             y, sr = get_audio_data(song)
@@ -64,8 +73,6 @@ def save_all_representations(song_id):
                 lstm_mfcc_repr = LSTM_MFCC_model.predict(mfcc.reshape([1, 646, 128]))[0]
                 song.lstm_mfcc_representation = lstm_mfcc_repr.reshape([5168]).tolist()
 
-
-             ##################### Saving paths to song ##########################################
 
             pca_mel_repr = PCA_Mel_model.transform(mel_spectrogram.reshape(1, 130560))
             print('pca mel predicted')
@@ -105,6 +112,11 @@ def save_all_representations(song_id):
 
 
 def retrieve_tf_idf_representation(song):
+    """
+    turns the song lyrics into a Tf-idf vector
+    :param song: the song from the database whose lyrics are processed
+    :return: Tf-idf vector representation of the newly added song
+    """
     lyrics = song.text.lower()
     vector = [w.strip('.,!:?-') for w in lyrics.split(" ")]
     tf_idf_repr = TF_idf_model.transform(vector)
@@ -112,6 +124,11 @@ def retrieve_tf_idf_representation(song):
 
 
 def retrieve_w2v_representation(song):
+    """
+        turns the song lyrics into a W2V vector
+        :param song: the song from the database whose lyrics are processed
+        :return: W2V vector representation of the newly added song
+        """
     lyrics = song.text.lower()
     words = [w.strip('.,!:?-') for w in lyrics.split(" ")]
     word_vecs = []
@@ -125,12 +142,16 @@ def retrieve_w2v_representation(song):
             pass
 
     # Assuming that document vector is the mean of all the word vectors
-    # PS: There are other & better ways to do it.
     vector = numpy.mean(word_vecs, axis=0)
     return vector
 
 
 def get_audio_data(song):
+    """
+    gets a mp3 audio file and converts it into the 15 second audio excerpt
+    :param song: the song of which the 15 second audio is created
+    :return: returns the waveform information about the 15 second audio.
+    """
     sound = AudioSegment.from_mp3(song.link_on_disc)
 
     if len(sound) < 65000:
@@ -142,7 +163,7 @@ def get_audio_data(song):
     else:
         sound = sound.set_channels(1)
         beginning = sound[20000:25000]
-        middle = sound[60000:65000]
+        middle = sound[int(len(sound)/2):(len(sound)/2 + 5000)]
         end = sound[-15000:-10000]
 
     s = beginning + middle + end
@@ -155,6 +176,11 @@ def get_audio_data(song):
 
 
 def download_song_from_youtube(song):
+    """
+    downloads the YouTube song into the mp3 file based on the song link from the database.
+    :param song: the song whose mp3 file is being downloaded
+    :return: None
+    """
     url = song.link
     l = song.link
     response = None
@@ -185,8 +211,8 @@ def download_song_from_youtube(song):
             info_dict = ydl.extract_info(l, download=False)
 
             song.link_on_disc =  info_dict.get('title', None) + ".mp3"
+            song.audio = True
             song.save()
-            print('song_saved_ok', song.link_on_disc)
         except Exception as e:
             song.link_on_disc = ''
             song.audio = False
@@ -195,15 +221,33 @@ def download_song_from_youtube(song):
 
 
 def retrieve_spectrogram_representation(y, sr):
+    """
+    transforms the audio time series into a spectrogram
+    :param y: audio time series of a particular song
+    :param sr: the sampling rate
+    :return: a spectrogram from the audio time series
+    """
     spectrogram = numpy.abs(librosa.core.stft(y, n_fft=n_fft, hop_length=hop_length))
     return spectrogram
 
 
 def retrieve_mel_spectrogram_representation(y, sr):
+    """
+    transforms the audio time series into a mel-spectrogram
+    :param y: audio time series of a particular song
+    :param sr: the sampling rate
+    :return: a mel-spectrogram from the audio time series
+    """
     mel_spectrogram = librosa.feature.melspectrogram(y=y, sr=sr, n_mels=320, n_fft=4410, hop_length=812)
     return mel_spectrogram
 
 
 def retrieve_mfcc_representation(y, sr):
+    """
+   transforms the audio time series into mfccs
+   :param y: audio time series of a particular song
+   :param sr: the sampling rate
+   :return: mfcc from the audio time series
+   """
     mfcc = librosa.feature.mfcc(y, sr, n_mfcc=n_mfcc)
     return mfcc

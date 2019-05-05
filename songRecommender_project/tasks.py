@@ -2,17 +2,11 @@ from __future__ import absolute_import, unicode_literals
 from celery import Celery
 from celery import shared_task
 
-import math
 from songRecommender.models import Song, List, Played_Song, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
     Profile
-import pandas, sklearn, numpy
-from django.db.models import Sum, Count, Avg
-from songRecommender.Logic.DocSim import DocSim
+import sklearn, numpy
+from django.db.models import Avg
 from songRecommender.Logic.adding_songs import save_all_representations
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from songRecommender_project.settings import W2V_model, TF_idf_model
-from keras.models import model_from_json
 
 from songRecommender_project.settings import PCA_TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, PCA_MEL_THRESHOLD, GRU_MEL_THRESHOLD
 
@@ -49,7 +43,6 @@ def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
 
     relevant_song_ids = Distance.objects.filter(song_1_id=song_id, distance_Type=distance_type).values('song_2_id', 'distance')
 
-    num_of_played_songs = Played_Song.objects.filter(user_id_id=cur_user_id).count()
     for s in relevant_song_ids:
         user_distance, created = Distance_to_User.objects.get_or_create(user_id_id=cur_user_id, song_id_id=s['song_2_id'], distance_Type=distance_type)
         if created:
@@ -61,7 +54,6 @@ def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
 
 def recalculate_distances_to_list(song_id, list_id, distance_type):
     relevant_song_ids = Distance.objects.filter(song_1_id=song_id, distance_Type=distance_type).values('song_2_id', 'distance')
-    num_of_songs_in_list = Song_in_List.objects.filter(list_id_id = list_id).count()
 
     for s in relevant_song_ids:
         list_distance, created = Distance_to_List.objects.get_or_create(list_id_id=list_id, song_id_id=s['song_2_id'],
@@ -128,6 +120,7 @@ def recalculate_distanced_when_new_song_added(song_id, user_id):
     for user_id in Profile.objects.all().values_list('user_id', flat=True):
         recalculate_all_distances_to_user.delay(song_id, user_id)
         calculate_all_distance_of_added_song_to_lists.delay(song_id, user_id)
+
 @shared_task()
 def load_lstm_mfcc_representations(chunk_size, s_id):
     count = Song.objects.all().exclude(audio=False).count()

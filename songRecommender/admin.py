@@ -3,9 +3,6 @@ from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
 from django.contrib.auth.models import User
 # Register your models here
 
-# uzivatelsky jmeno: m_vys
-# heslo: centropen
-
 from .models import Song, List, Song_in_List, Played_Song, Distance_to_List, Distance_to_User, Distance, Profile
 
 

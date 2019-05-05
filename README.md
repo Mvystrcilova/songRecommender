@@ -1,257 +1,192 @@
+## Introduction
 
-##To Do Bakalarka
+This application is a part of a Bachelor Thesis from MFF UK by Michaela Vystrcilova.
 
-* zistit informace o datasetu
-** mean songs per user
-	3.56
-** mean users per song
-	10.84	
-** number of users
-	45054
-** number of songs
-	14 800
+## Instalation
 
-
-      
-## Setup
-
-Application setup is done via environment variables.
-
-* `DB_USER` - database user (default: `postgres`)
-* `DB_NAME` - database name (default: `postgres`)
-* `DB_PASSWORD` - database password (default: `password`)
-* `DB_HOST` - database host (default: `127.0.0.1`)
-
-## Develop
-
-Run `pipenv install` command before developing and debugging.
-
-## Deploy
+This installation is for a computer with a Linux operating system
 
 ### pre-requisities
 
-You need to have `docker` and `docker-compose` installed to deploy
-containerized application.
+* Linux operating system
+* Python 3.5 or newer
+* pip
+* RabbitMQ
+* postgreSQL database
+* postresql-contrib
+* libpq-dev
+* see requirements.txt for the necessary Python packages
+
+### Getting the application
+
+Select a repository and clone the project using:
+
+ `git clone git@github.com:Mvystrcilova/songRecommender.git`
+ 
+### Set up the database
+If you do not have postgres installed, run apt to get the packages you need:
+
+`sudo apt-get update` 
+
+`sudo apt-get install python-pip python-dev libpq-dev postgresql postgresql-contrib`
+
+Next create the database and the database user: 
+
+`sudo su - postgres`
+
+you should be in a shell session for the user `postgres`, run a Postgres session with typing `psql` into the command line
+
+Now you need to create the database. The following database and user names and password are 
+already specified in `songRecommender_projects.settings.py`
+if you wish to change the names, you also need to change it in `songRecommender_projects.settings.py`.
+
+create the database with typing the following command inside the Postgres session:
+
+`CREATE DATABASE postgres;`
+
+then create a user which will be interacting with the database
+
+`CREATE USER postgres WITH PASSWORD 'password';`
+
+change the encoding to UTF-8 which is expected by Django
+
+`ALTER ROLE myprojectuser SET client_encoding TO 'utf8';`
+
+now, grant all access rights to the database user:
+
+`GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;`
+
+Exit the Postgres session using `\q` then exit the postgrew user's shell session with `exit`.
+
+### Setup the application
+
+#### Important notes
+After setting up the application as described in "Running the application", it will not be 
+functional because the models, 
+distances and representation are not a part of the Git project because of their size.
+They do not fit into SIS either but they can be sent via email. The models are expected to
+be in the `songRecommender_project/models` directory, the representations in 
+`songRecommender_project/representations` directory and the distances in the 
+`songRecommender/distances` directory. The directories locations are desribed as the relative path from the 
+root of the project.
+ 
+ To load the songs representations and distances to the database, please uncomment 
+`songRecommender.views.py` lines 104-106.
+
+The mp3 files are also not a part of the Git project which means, that only songs added via the application 
+after its ran will be playable. They are expected to be in the `mp3_files/mp3_files` directory.
+
+
+
+It is not necessary to load the models, they will be loaded when starting the server
+but need to be in the correct directory.
+ 
+ #### Running the application
+Before starting the application, it is necessary to apply migrations to the database
+with the following two commands in the projects root directory (the one where the `manage.py`
+file is):
+
+`python manage.py makemigrations`
+
+`python manage.py migrate` 
+
+Afterwards, you can run the application using:
+
+`python manage.py runserver `
+
+This will run the application on localhost and it can be viewed under `127.0.0.1:8000/index/`
+
+To run also the `celery` task queue type the following into the terminal, also from the
+projects root directory:
+
+`celery worker -A songRecommender_project -l info --pool gevent`
+
+Now everything if the models are present everything should be up and running. The representations and distances
+are not necessary in order to run the application but 
+the application will be empty without any songs upfront. Also, do not uncomment lines 104-106 if
+representations and distances are not present.
 
 ## Developer documentation
 
-The application consists of two main parts. The first part is the application,
-views, models and html pages.
+For implementation details and high-level developer information, please see the thesis Chapter 5.
 
-The second part are recommendation techniques used. This part has potential to be extended and many different techniques can be implemented and used
+### Directory and module contents
 
-### Application details
-
-In this application all calculations are made on the server side. The client only sees HTML5 pages with some CSS for graphical design. The server side is written in the Django framework using Python 3.7. and the database POSTGRESQL is being handled by Docker. It can only be installed on a computer with `docker` and `docker-compose` because of the lack of a server where it could run.
-
-### Application details
-
-#### Client
-
-The client has access to multiple html pages, all except of sign-up upon login. The html pages `add_song_failed.html`, `add_to_list_failed.html`, `addSong.html`, `all_songs.html`, `index.html`, `list_confirm_delete.html`, `list_detail.html'`, `list_form.html`, `my_lists.html`, `recommended_songs.html`, `search_results.html`, `song_detail.html` these handle most of the interaction with the user and in-application functionalities.
-There are also special pages handling the user login and account `logged_out.html`, `login.html`, `password_reset_complete.html`, `password_reset_confirm.html`, `password_reset_done.html`,`password_reset_email.html`, `password_reset_form.html`, `account_activation_email.html`, `account_activation_sent.html`, `signup.html`.
-
-The page `base_generic.html` is a base for all the html pages to keep the design consistent.
-
-### The server
-
-The server takes care of all the computation. Now the server does all computation on request of the user as he runs in one infinite loop waiting for a request. For future improvement when the ammont of data rises, it will be neccessary to do the caclulations in a new thread and let the user continue. This should not be a big of a problem since the database can be altered by users any time and it would not result in unconsistency of other data, the calculations and new entries wouldjust appear after a different request.
-
-### Models
-
-For every table in the database, there is a model in the module `models.py` specifying their features. There is a class for `song`, `list`, `profile` which is an extension of the build-in `user` class to enable specifiying the distance of songs to the user and also checking if the user has confirmed his email.
-
-The class `Song in list` keeps track of lists and songs that belong together, the model `played song` specifies a user and all the songs he has played. One cannot unplay a song but it can be disliked so it would not appear anymore.
-
-There are three different distance classes. First basic `distance` is the only class that actualy stores distance based on a calculation of a machine-learning algorithm. The classes `distance_to_user` and `distance_to_list` then calculate their distance data based on what they find in the `distance` table using an algorithm from the module `text_shaper.py`.
-
-### Views
-
-Views are the controller part of this application. They manage most of the data collection and send them to the html pages. 
-
-There is one view for basicaly every html page plus some extra for some build in features for example liking and disliking songs.
-
-The `HomePageView`, `MyListsView`, `AllSongsView`and `RecommendedSongsView` are build in Django list views with special features displaying querysets from the database. As the names suggest they dislay the homepage, all songs, songs recommended to the logged in user, and lists created by the logged in user.
-
-The `ListDetailView` and `SongDetailView` are also Django build in views, for displaying detail pages of models from the database. They take care of displaying the detail page of a song and a list.
-
-For the list, the creation, updating and deletion is also beign handled by build in views `ListUpdate`, `ListCreate` and `ListDelete`.
-
-The rest is function based views corresponding each to some feature of the web application. The `like` and `dislike` views manage liking and disliking songs. Although there is a possibility to re-calculate everything when the user does this, it is not currently possible because of the speed and will need to be resolved in a different thread.
-
-The add song view handles addding songs to the database. This can be done by any logged in user and it resulst into calculation all distances between the added song and all in the database and can take up tens of seconds.
-
-The views `add_song_failed` handels if the user is trying to add a song that is probably already in the database.
-
-The `signup, activate, account_activation_sent` and `logout` view hande user creation and authentification.
-
-The last two are `add_sojng_to_list` and `add_to_list_failed` which handle adding songs to lists.
-
-## Logic
-
-### Recomendation techniques
-
-Right now, there are two possible recommendation techniques that can be used in this application
-that have pre-trained models in place and can be used without the need of training or supplying
-special data
-
-#### TF-idf
-the TF-idf is not only pre-trained already but data and similarity values are already inside the database
-and all potential users have access to them
-if there is a distance missing the songs are thought to be completely different.
-
-#### Word2Vec
-the W2V model used here is a pre-trained google model https://code.google.com/archive/p/word2vec/
-but only the 200 000 most used words.
-This can be changed by de-commenting this code
-```python
-from gensim.models.keyedvectors import KeyedVectors
-
-model_path = 'songRecommender/Logic/GoogleNews-vectors-negative300.bin'
-w2v_model = KeyedVectors.load_word2vec_format(model_path, binary=True, limit=200000)
-w2v_model.save('w2v_subset')
-```
-changing or deleting the limit parameter
-then comment the code again and load the new model with the following command:
-```python
-from gensim.models.keyedvectors import KeyedVectors
-
-w2v_model = KeyedVectors.load('w2v_subset', mmap='r')
-
-``` 
-
-the model will always be loaded when server is starting
-
-
-right now, there is no data defining similarity between songs based on the W2V model but if all
-TF-idf distances are disabled, the W2V will work calculating distances
-
-The distance for W2V is calculated in the `DocSim.py` module.
-
-#### Distance calculation
-
-all methods to calculate distance between songs are in the `text_shaper.py` module. More can be added and all can be saved to the database using the `save_distance` method.
-
-The module `Recommender.py` contains method that check and alter data in the database, also do collective recalculations that take a lot of time.
-
-The `model_distance_calculator` implements methods that calculate the distance of a song to a particular user or list. These are also not dependent on the distance type they receive as a parameter and therefore can be used for any machine-learining algorithm. The idea is also that they should be used as that would keep the consinstency in results and make it easier for the algorithms to be compared and assesed.
-
-## Data
-
-There is a need to load a lot of data into the database. The user can alter the database by adding songs, creating lists and accounts. To add data on a bigger scale for all the users there are some scrips in the `data` directory, however they are quite specific for the data I accuired and submitted to the database.
+#### Root 
+The root of the project songRecommender_project contains:
  
- # Bakalarka
+ * songRecommender directory -- modules desribed in more detail below
+ * songRecommender_project directory -- modules described in more detail below
+ * `manage.py` from which the application is being run
+ * `requirements.txt` describing the Python packages to run this application
+ * `README.md` containing the application setup and installation
+ * `docker-compose, Dockerfile` and `entrypoint.sh` which were used to handle the database and 
+ provide the portability of the application without a server. Now they are not necessary as the application
+ is running on a server
  
- ## Aplikace
+ It should also contain byt is not included in the Git project:
+  * mp3_files with all the downloaded mp3 files for songs in the application
+
  
- ### Neprogramovaci
- 
- * strojova dokumentace
- * konfiguracni soubor - nebude potreba kvuli serveru, jinak uz jsou moznosti v settings.py
- * napsat instalaci krok po kroku - myslim, ze nebude potreba diky serveru
- 
- ### Programovaci
- 
- * strankovani
- * neukladat vsechny vzdalenosti 
- * asynchroni implemetnace requestu - hotovo
- * prepinace na zpusob pocitani podobnosti - hotovo
- * menit user jmeno, email, atd
- * pridat data z mp3 souboru - stahuje se
- * pridat doporucovani podle hudby
- * prejmenovat a reconfigurovat
- 
- ## Bakalarka text
- 
- ### Uvod
- 
- * introduction, popsat domenu, zajimavosti
- * related work - posunout do textovych a audio metod ???
- 
- ### Data
- 
- * informace o datech (vlastnosti, histogram)
- * informace co z dat dostavam
- * ??? pridat ty informace z milion song dataset ???
- 
- ### Textove metody
- 
- * popsat Bag of words - hotovo?
- * popsat TF-idf - hotovo?
- * popstat Word2Vec - hotovo?
- * popsat Doc2Vec
- * Self organizing clustering maps 
- * zduvodnit vyber TF-idf a Word2Vec,  a SOCM?? popsat jejich rozdily
- 
- ### Hudebni metody
- 
- * extrakce pouzivanych informaci z MP3
- * popis 3-4 metod - navrhy
- * PCA
- * ALI
- * Convolutional
- * Recurrent networks
- * vyber 1-2 metod a zduvodneni - navrhy
- * PCA ( je to jendoduchy, nejaky base line, neslozity na pocitani)
- * reccurent Networks ( je to novy a neozkouseny, unsupervised deep learning technika)
- 
- ### Experimenty + vysledky
- 
- * vysledky textovych algoritmu
- * vysledky audio algoritmu
- * porovnani
- * navrhnout kombinovanou metriku (nekolika-ruky bandita nebo tak)
- 
- ### Dokumentace
- 
- * high-level uzivatelska dokumentace
- * high-level programatorska dokumentace
- * analyza
- * navrh
- * pouzite technologie
- * instalace + konfigurace - snad teda na serveru + co se da nastavit v settings.py
- 
- 
- #### Nejblizsi konkretni ukoly a napady na ukoly
- 
- * stahnout mp3 k tem filum co k nim mam text uz - v procesu
- * prepsat aplikaci na to tasks - hotovo
- * prepsat aplikaci aby se dala prepinat vzdalenost - hotovo
- * dat optional na maily - hotovo
- * prepsat to co mam z songRecommender_projecte do bakalarky - hotovo
- * omezit vzdalenosti
- * doplnit kapitoly - hotovo
- * popsat TF-idf a Word2Vec - hotovo?
- * mozna snad naimplementovat dalsi lyrics doporucovace - SOCM
- * stahnout tagy od Spotify pisnicek co mam v datasetu
- * najit navrhy na implementace hudebnich algoritmu
-    * rozhodne udelat PCA
-    * Adversarially Learned Embedding -- 1
-    * Reccurent networks
-    * Convolutional networks
-    * Deep Belief networks
- 
- # songRecommender_project - hotovo
- 
-## To Do - programovaci:
-* zkontrolovat jestli u vsech played songs je to profile.pk a ne user.pk - hotovo
-* poresit to, kdyz uzivatel dislikne pisnicku aby ji nasel jen pri vylozene vyhledavani - hotovo
-* Nedoporucovat pisnicky, ktere uz uzivatel prehral nebo ma v danem listu - hotovo
-* Najit youtube linky k jednotlivym skladbam - hotovo
-* Udelat aby se nedala pridat dvakrat stejna pisnicka do list - hotovo
-* Udelat aby se nedala pridat dvakrat stejna pisnicka do databaze - hotovo
-* Odhlasit pri odhlaseni - hotovo
-* Udelat stranku se vsemi pisnickami - hotovo
-* Udelat vyhledavani - hotovo
-* Regexovat youtube linky - hotovo
-* Delat si ucty + maily - hotovo
-* Dat moznost aby se pisnicka libila - hotovo
-* dat moznost pridat pisnicku do listu -  hotovo
-* prepocitat vzdalenost pri pridani pisnicky - hotovo
-* Urcit koeficienty pro podobnost a skladat jednotlive vzdalenosti - hotovo
- 
-## TO DO - neprogramovaci:
-* Okomentovat kod - hotovo'
-* Vytvorit dokumentaci strojovou 
-* vytvorit dokumentaci programatorskou
-* udelat balicek - hotovo
+#### songRecommeder_project
+The `songRecommender_project` directory contains:
+
+* `__init.py__ ` in which the `celery` is imported
+* `_celery` which contains `Celery` configurations 
+* `not_empty_songs_relative_path.txt` in which the artist, 
+title, lyrics, youtube link and the relative path to the mp3 file
+for each of the base 16594 songs is included
+* `settings.py` which includes the overall settings of the Django application
+including the database, static file locations, templates, password handler, email handler,
+the similarity method threshold, method models etc.
+* `tasks.py` in which the method that are or can be called asynchronously by `celery` 
+implemented. It includes most of the application's logic
+* `urls.py` module configures the urls used for the songRecommender_project
+* `useful_songs` which is a text file containing the titles and artists of the 16594 base songs
+* the wsgi.py which exposes the WSGI
+
+
+It also should contain but is not included in the Git project:
+
+* `representations` directory in which the representations of songs in the implemented methods are stored
+* `models` directory in which the models for the implemented methods are stored
+* `distances` directory in which the distance matrices for the implemented methods are stored
+
+#### songRecommender
+
+The songRecommender directory contains:
+
+* the `data` directory in which
+   * the `load_distances.py` module contains methods used to load the
+   16594 base songs, their representations and the distances between them into the database
+   * the `prepare_songs_for_database` is a module that was used to get an mp3 file
+   for each songs and also its path and is not useful in this version of the application
+* the `Logic` directory in which
+   * the `adding_songs.py` module contains key methods to handle the addition of a new song
+   * the `Recommender.py` module contains one method that is no longer in use to change the url of a
+   song added by a user into the application and a method that checks if a song was
+   played by a user and recalculated distances accordingly
+   * the `migrations` directory which contains auto-generated Django migration files
+   * the `static` directory which contains static files used by the application
+* the `templates` directory which contains the templates of all HTML pages
+    * the templates that are in this directory or in the `registration` directory
+       are used to handle sign up, log in and log out views
+    * the templates in the `songRecommender` directory handle all the other pages
+       of the web application
+* `__init__.py` module which is empty and is auto generated by Django
+* `admin.py` module where all database models are registered
+* `apps.py` module which includes the names of the applications inside the `songRecommender_project`
+project
+* `forms.py` where all the forms for the applications are located
+* `models.py` module in which the models corresponding to the database tables
+are defined and their features and properties set
+* `tests.py` is meant to contain tests but there are non for this application
+* `tokens.py` module which generates the tokens for email authentication
+* `urls.py` module which configures the urls for the songRecommender application
+* `views.py` module that contains the implementation of all the views of this application 
+
+### Additional remarks
+In this state, it is difficult to implement a new method into the application and extensive
+changes or better to say additions to the source code would have placed in order to do so. 
+Therefore a path to go in the future might be to ease this process and allow for easier new method
+implementation.
