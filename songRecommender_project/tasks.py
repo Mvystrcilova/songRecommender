@@ -351,8 +351,8 @@ def save_distances(song_id, song_representation, representations, threshold, dis
     :param song_id: (int) the id of the song toward which all the similarities will be calculated
     :param song_representation: (numpy array) a numpy array with the representation of the song specified by song_id. The representation
     type corresponds to the distance_type.
-    :param representations: (numpu array) the representations of all the other songs whose similarity to the song specified
-    by song_id is beign calculated
+    :param representations: (numpy array) the representations of all the other songs whose similarity to the song specified
+    by song_id is being calculated
     :param threshold: (float32) the threshold for the particular distance type
     :param distance_type: (string) a string specifying the distance type of the method whose similarities are computed
     :param start_index: (int) the start index of the list of songs in the database which is the first in the representation numpy matrix

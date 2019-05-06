@@ -57,11 +57,11 @@ def load_all_distances():
 
     :return: None
     """
-    # load_distances('songRecommender_project/distances/pca_tf_idf_distances.npy', 'PCA_TF_idf', PCA_TF_IDF_THRESHOLD)
+    load_distances('songRecommender_project/distances/pca_tf_idf_distances.npy', 'PCA_TF-idf', PCA_TF_IDF_THRESHOLD)
     load_distances('songRecommender_project/distances/w2v_distances.npy', 'W2V', W2V_THRESHOLD)
-    # load_distances('songRecommender_project/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
-    # load_distances('songRecommender_project/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
-    # load_distances('songRecommender_project/distances/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
+    load_distances('songRecommender_project/distances/pca_melspectrogram_distances.npy', 'PCA_MEL', PCA_MEL_THRESHOLD)
+    load_distances('songRecommender_project/distances/lstm_mfcc_distances.npy', 'LSTM_MFCC', LSTM_MFCC_THRESHOLD)
+    load_distances('songRecommender_project/distances/gru_mel_distances_5712.npy', 'GRU_MEL', GRU_MEL_THRESHOLD)
 
 
 def load_all_representations():
