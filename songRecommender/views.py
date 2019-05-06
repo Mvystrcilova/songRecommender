@@ -52,7 +52,6 @@ class HomePageView(LoginRequiredMixin, generic.ListView):
         """:returns all songs the user has not played yet but with respect
         to their distance to the user """
         played_songs = Played_Song.objects.all().filter(user_id=self.request.user.profile.pk)
-        # Ano Misko, takhle to de taky naprasit, ale ver mi, ze si to sliznes
         return Distance_to_User.objects.all().filter(
             distance_Type=self.request.user.profile.user_selected_distance_type,
             user_id=self.request.user.pk).exclude(
@@ -219,9 +218,6 @@ class MyListsView(LoginRequiredMixin, generic.ListView):
     def get_context_data(self, *, object_list=None, **kwargs):
         context = super(MyListsView, self).get_context_data(**kwargs)
         played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
-        # load_songs_to_database()
-        # load_all_representations()
-        # load_all_distances()
         context['played_songs'] = played_songs.exclude(opinion=-1)
         #!!! POZOR napraseny kod, vracime Distance to user ale pouziva se song
         context['recommended_songs'] = Distance_to_User.objects.all().filter(

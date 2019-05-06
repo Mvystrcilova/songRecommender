@@ -2,7 +2,7 @@ from __future__ import absolute_import, unicode_literals
 from celery import Celery
 from celery import shared_task
 
-from songRecommender.models import Song, List, Played_Song, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
+from songRecommender.models import Song, List, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
     Profile
 import sklearn, numpy
 from django.db.models import Avg
