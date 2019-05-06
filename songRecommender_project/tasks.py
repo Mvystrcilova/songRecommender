@@ -126,7 +126,7 @@ def recalculate_all_distances_to_list(song_id, list_id):
     :param list_id: the id of the list to which the song similarity is recalculated
     :return: None
     """
-    recalculate_distances_to_list(song_id, list_id, 'PCA_Tf-idf')
+    recalculate_distances_to_list(song_id, list_id, 'PCA_TF-idf')
     recalculate_distances_to_list(song_id, list_id, 'W2V')
     recalculate_distances_to_list(song_id, list_id, 'PCA_MEL')
     recalculate_distances_to_list(song_id, list_id, 'GRU_MEL')
