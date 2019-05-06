@@ -111,7 +111,7 @@ def recalculate_all_distances_to_user(song_id, cur_user_id):
     :param user_id: the id of the user to whom the song similarity is calculated
     :return: None
     """
-    recalculate_distances_to_user(song_id, cur_user_id, 'PCA_Tf-idf')
+    recalculate_distances_to_user(song_id, cur_user_id, 'PCA_TF-idf')
     recalculate_distances_to_user(song_id, cur_user_id, 'W2V')
     recalculate_distances_to_user(song_id, cur_user_id, 'PCA_MEL')
     recalculate_distances_to_user(song_id, cur_user_id, 'GRU_MEL')
