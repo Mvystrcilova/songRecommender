@@ -3,9 +3,9 @@ from celery import Celery
 from celery import shared_task
 
 from songRecommender.models import Song, List, Distance, Distance_to_List, Distance_to_User, Song_in_List,\
-    Profile
+    Profile, Played_Song
 import sklearn, numpy
-from django.db.models import Avg
+from django.db.models import Sum
 from songRecommender.Logic.adding_songs import save_all_representations
 
 from songRecommender_project.settings import PCA_TF_IDF_THRESHOLD, W2V_THRESHOLD, LSTM_MFCC_THRESHOLD, PCA_MEL_THRESHOLD, GRU_MEL_THRESHOLD
@@ -32,7 +32,7 @@ def calculate_distance_of_added_song_to_lists(song_id, user_id, distance_Type):
 
     for list in relevant_lists:
         songs_in_list = Song_in_List.objects.filter(list_id=list, song_id_id__in=relevant_songs)
-        distance = Distance.objects.filter(song_2__song_in_list__in=songs_in_list, song_1_id=song_id, distance_Type=distance_Type).aggregate(total=Avg('distance'))['total']
+        distance = Distance.objects.filter(song_2__song_in_list__in=songs_in_list, song_1_id=song_id, distance_Type=distance_Type).aggregate(total=Sum('distance'))['total']
         list_distance = Distance_to_List.objects.create(song_id_id=song_id, list_id=list, distance_Type=distance_Type, distance=distance)
         list_distance.save()
 
@@ -60,10 +60,11 @@ def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
 
     for s in relevant_song_ids:
         user_distance, created = Distance_to_User.objects.get_or_create(user_id_id=cur_user_id, song_id_id=s['song_2_id'], distance_Type=distance_type)
+        played_song = Played_Song.objects.get(song_id=s)
         if created:
-            user_distance.distance = s['distance']
+            user_distance.distance = (played_song.opinion+1)*s['distance']
         else:
-            user_distance.distance = user_distance.distance + s['distance']
+            user_distance.distance = user_distance.distance + (played_song.opinion+1)*s['distance']
         user_distance.save()
 
 
@@ -81,10 +82,11 @@ def recalculate_distances_to_list(song_id, list_id, distance_type):
     for s in relevant_song_ids:
         list_distance, created = Distance_to_List.objects.get_or_create(list_id_id=list_id, song_id_id=s['song_2_id'],
                                                                         distance_Type=distance_type)
+        played_song = Played_Song.objects.get(song_id=s)
         if created:
-            list_distance.distance = s['distance']
+            list_distance.distance = (played_song.opinion+1)*s['distance']
         else:
-            list_distance.distance = (list_distance.distance + s['distance'])
+            list_distance.distance = (list_distance.distance + (played_song.opinion+1)*s['distance'])
         list_distance.save()
 
 @shared_task
