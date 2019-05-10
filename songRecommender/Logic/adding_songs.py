@@ -50,7 +50,8 @@ def save_all_representations(song_id):
 
             mel_spectrogram = mel_spectrogram.reshape([1, 408, 320])
             print(mel_spectrogram.shape)
-            mfcc = retrieve_mfcc_representation(y, sr).reshape([1, 82688])
+            mfcc = retrieve_mfcc_representation(y, sr)
+            mfcc = mfcc.reshape([1, 82688])
             mfcc = numpy.interp(mfcc, (mfcc.min(), mfcc.max()), (0, 1))
             print('the mfcc:')
             print(mfcc)
@@ -78,7 +79,8 @@ def save_all_representations(song_id):
             print('pca mel predicted')
             song.pca_mel_representation = pca_mel_repr.reshape([320]).tolist()
             print('pca mel loaded')
-        except:
+        except Exception as e:
+            print(e)
             song.audio = False
 
 
@@ -163,7 +165,7 @@ def get_audio_data(song):
     else:
         sound = sound.set_channels(1)
         beginning = sound[20000:25000]
-        middle = sound[int(len(sound)/2):(len(sound)/2 + 5000)]
+        middle = sound[int(len(sound)/2):(int(len(sound)/2) + 5000)]
         end = sound[-15000:-10000]
 
     s = beginning + middle + end

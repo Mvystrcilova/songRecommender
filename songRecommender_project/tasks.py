@@ -149,6 +149,7 @@ def handle_added_song(song_id):
     load_w2v_representations(10000, song_id)
     print('w2v loaded, distances saved')
 
+    print(Song.objects.get(id=song_id).audio)
     if Song.objects.get(id=song_id).audio:
         load_pca_mel_representations(10000, song_id)
         print('spec reprs loaded and distances saved')
