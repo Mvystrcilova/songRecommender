@@ -394,7 +394,7 @@ def addSong(request):
                 if created:
                     played_song.save()
 
-                handle_added_song.delay(song.pk)
+                handle_added_song(song.pk)
                 recalculate_distanced_when_new_song_added.delay(song.pk)
 
 

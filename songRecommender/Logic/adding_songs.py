@@ -208,7 +208,7 @@ def download_song_from_youtube(song):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         try:
             ydl.download([l])
-            try :
+            try:
                 info_dict = ydl.extract_info(l, download=False)
             except:
                 pass
