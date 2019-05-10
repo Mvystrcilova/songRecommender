@@ -208,7 +208,10 @@ def download_song_from_youtube(song):
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         try:
             ydl.download([l])
-            info_dict = ydl.extract_info(l, download=False)
+            try :
+                info_dict = ydl.extract_info(l, download=False)
+            except:
+                pass
 
             song.link_on_disc =  info_dict.get('title', None) + ".mp3"
             song.audio = True

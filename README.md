@@ -62,12 +62,13 @@ Exit the Postgres session using `\q` then exit the postgrew user's shell session
 
 #### Important notes
 After setting up the application as described in "Running the application", it will not be 
-functional because the models, 
-distances and representation are not a part of the Git project because of their size.
-They do not fit into SIS either but they can be sent via email. The models are expected to
+functional without the models. 
+The models, distances and representation are not a part of the Git project because of their size.
+They do not fit into SIS either but we saved the models to the Google disc drive and they can be found under this link [a link]
+(https://drive.google.com/drive/folders/1Ejvj7_M3Dfi0a_qo8iHYu2LvaVf6Timx?usp=sharing). The models are expected to
 be in the `songRecommender_project/models` directory, the representations in 
 `songRecommender_project/representations` directory and the distances in the 
-`songRecommender/distances` directory. The directories locations are desribed as the relative path from the 
+`songRecommender/distances` directory. The directories locations are described as the relative path from the 
 root of the project.
  
  To load the songs representations and distances to the database, please uncomment 
@@ -77,8 +78,8 @@ The mp3 files are also not a part of the Git project which means, that only song
 after its ran will be playable. They are expected to be in the `mp3_files/mp3_files` directory.
 
 
-
-It is not necessary to load the models, they will be loaded when starting the server
+It is not necessary to download the models and place them into the correct directory in order for the application to run,
+ they will be loaded into memory when starting the server
 but need to be in the correct directory.
  
  #### Running the application
