@@ -18,27 +18,27 @@
 
         <h3>PCA on Tf-idf</h3>
         <p>
-        This method has two parts. Let's start with the <strong>Tf-idf</strong>. Tf-idf is a way of encoding texts into vectors of numbers. It takes a set of texts and calculates how many times a word is repeated in each of them. So for example if there are two texts, one is 'I like cats and dogs and mice' and the other one is 'I only like cats' we will get the following two vectors:
+        This method has two parts. Let's start with the <strong>Tf-idf</strong>. Tf-idf is a way of encoding texts into vectors of numbers. It takes a set of texts and calculates how many times a word is repeated in each of them and then divides it by the total number of words in that document. So for example if there are two texts, one is 'I like cats and dogs and mice' and the other one is 'I only like cats' we will get the following two vectors:
         </p>
         <p>
                            I,   like, cats, and,  dogs, mice, only<br>
-        fist sentence:    (1,   1,    1,    2,    1,    1,    0)<br>
-        second sentence:  (1,   1,    1,    0,    0,    0,    1)<br>
+        fist sentence:    (1/7,   1/7,    1/7,    2/7,    1/7,    1/7,    0/7)<br>
+        second sentence:  (1/4,   1/4,    1/4,    0,    0,    0,    1/4)<br>
         </p>
         <p>
         This is not all, the Tf-idf now multiplies each number in each vector by a weight (that is also number). The weight depends on how frequently does a word appears a text. And the more documents contain a word, the smaller the weight for that word is.
         So for example, if we look at the word "I" we can see, that it is in both sentences. Therefore, it could get a weight of for exapmle 0.25. However if wee look at the word mice, we can see, that it is only in the first sentence and not in the second. Therefore, it could get the weight 0.75. If we do this for all our numbers, we will get the following vectors:
         </p>
         <p>
-        first sentence:  (0.25*1, 0.25*1, 0.25*1, 0.75*2, 0.75*1, 0.75*1, 0)<br>
-        second sentence: (0.25*1, 0.25*1, 0.25*1, 0, 0, 0, 0.75*1)<br>
+        first sentence:  (0.25*(1/7), 0.25*(1/7), 0.25*(1/7), 0.75*(2/7), 0.75*(1/7), 0.75*(1/7), 0)<br>
+        second sentence: (0.25*(1/4), 0.25*(1/4), 0.25*(1/4), 0, 0, 0, 0.75*(1/4))<br>
         </p>
         <p>
         which is
         </p>
         <p>
-        first sentence:   (0.25, 0.25, 0.25, 1.50, 0.75, 0.75, 0)<br>
-        second sentence:  (0.25, 0.25, 0.25, 0, 0, 0, 0.75)<br>
+        first sentence:   (0.0357, 0.0357, 0.0357, 0.214, 0.107 0.107, 0)<br>
+        second sentence:  (0.0625, 0.0625, 0.0625, 0, 0, 0, 0.1875)<br>
         </p>
         <p>
         The weights give emphasis on unique words that are more informative than for exapmle the word "the" or "I".
