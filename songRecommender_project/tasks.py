@@ -164,8 +164,8 @@ def handle_added_song(song_id):
 
     save_all_representations(song_id)
 
-    load_w2v_representations(10000, song_id)
-    print('w2v loaded, distances saved')
+    # load_w2v_representations(10000, song_id)
+    # print('w2v loaded, distances saved')
 
     print(Song.objects.get(id=song_id).audio)
     if Song.objects.get(id=song_id).audio:
@@ -208,7 +208,7 @@ def load_lstm_mfcc_representations(chunk_size, s_id):
     """
     count = Song.objects.all().exclude(audio=False).count()
     s = Song.objects.get(pk=s_id)
-    representations = numpy.empty([count, 5168])
+    representations = numpy.empty([chunk_size, 5168])
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('id'):
@@ -240,7 +240,7 @@ def load_pca_mel_representations(chunk_size, s_id):
     """
     count = Song.objects.all().exclude(audio=False).count()
     s = Song.objects.get(pk=s_id)
-    representations = numpy.empty([count, 320])
+    representations = numpy.empty([chunk_size, 320])
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('pca_mel_representation'):
@@ -270,7 +270,7 @@ def load_gru_mel_representations(chunk_size, s_id):
     """
     count = Song.objects.all().exclude(audio=False).count()
     s = Song.objects.get(pk=s_id)
-    representations = numpy.empty([count, 5712])
+    representations = numpy.empty([chunk_size, 5712])
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('id'):
@@ -302,7 +302,7 @@ def load_pca_tf_idf_representations(chunk_size, s_id):
         """
     count = Song.objects.all().exclude(audio=False).count()
     s = Song.objects.get(pk=s_id)
-    representations = numpy.empty([count, 4457])
+    representations = numpy.empty([chunk_size, 4457])
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('id'):
