@@ -212,7 +212,7 @@ def load_lstm_mfcc_representations(chunk_size, s_id):
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('id'):
-        if (i % chunk_size == 0) and (i != 0):
+        if ((i % chunk_size) == 0) and (i != 0):
             save_distances(s_id, s.lstm_mfcc_representation, representations, LSTM_MFCC_THRESHOLD, 'LSTM_MFCC', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_lstm_mfcc_representation()
@@ -244,7 +244,7 @@ def load_pca_mel_representations(chunk_size, s_id):
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('pca_mel_representation'):
-        if (i % chunk_size == 0) and (i != 0):
+        if ((i % chunk_size) == 0) and (i != 0):
             save_distances(s_id, s.pca_mel_representation, representations, PCA_MEL_THRESHOLD, 'PCA_MEL', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_pca_mel_representation()
@@ -274,7 +274,7 @@ def load_gru_mel_representations(chunk_size, s_id):
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('id'):
-        if (i % chunk_size == 0) and (i != 0):
+        if ((i % chunk_size) == 0) and (i != 0):
             save_distances(s_id, s.gru_mel_representation, representations, GRU_MEL_THRESHOLD, 'GRU_MEL', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_gru_mel_representation()
@@ -337,7 +337,7 @@ def load_w2v_representations(chunk_size, s_id):
     i = 0
     j = 0
     for song in Song.objects.all().order_by('id').exclude(audio=False).only('w2v_representation'):
-        if (i % chunk_size == 0) and (i != 0):
+        if ((i % chunk_size) == 0) and (i != 0):
             save_distances(s_id, s.w2v_representation, representations, W2V_THRESHOLD, 'W2V', j * chunk_size,
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_W2V_representation()
