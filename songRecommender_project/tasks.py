@@ -46,9 +46,9 @@ def recalculate_distances_for_relevant_lists(song_id, user_id):
     :param user_id: the user's id whose lists is the similarity recalculated to
     :return: None
     """
-    relevant_lists = List.objects.filter(user_id_id=user_id).values('id')
+    relevant_lists = List.objects.filter(user_id_id=user_id)
     for list in relevant_lists:
-        recalculate_all_distances_to_list(song_id=song_id, list_id=list)
+        recalculate_all_distances_to_list(song_id=song_id, list=list)
 
 @shared_task
 def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
