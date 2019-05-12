@@ -206,7 +206,6 @@ def load_lstm_mfcc_representations(chunk_size, s_id):
             break
         else:
             representations[i % chunk_size] = song.get_lstm_mfcc_representation()
-            print(i, 'lstm mfcc', str(i % chunk_size))
 
         i = i + 1
 
@@ -238,7 +237,6 @@ def load_pca_mel_representations(chunk_size, s_id):
             break
         else:
             representations[i % chunk_size] = song.get_pca_mel_representation()
-            print(i, 'pca mel', str(i % chunk_size))
 
         i = i + 1
 
@@ -269,7 +267,6 @@ def load_gru_mel_representations(chunk_size, s_id):
             break
         else:
             representations[i % chunk_size] = song.get_gru_mel_representation()
-            print(i, 'gru_mel')
 
         i = i + 1
 
@@ -296,15 +293,12 @@ def load_pca_tf_idf_representations(chunk_size, s_id):
                            (j + 1) * chunk_size)
             representations[i % chunk_size] = song.get_pca_tf_idf_representation()
             j = j + 1
-            print('distances', j, 'saved')
         elif i >= (count -1):
             representations = representations[:i% chunk_size]
             save_distances(s_id, s.pca_tf_idf_representation, representations, PCA_TF_IDF_THRESHOLD, 'PCA_TF-idf', j * chunk_size, i)
             break
         else:
             representations[i % chunk_size] = song.get_pca_tf_idf_representation()
-            print(i, 'pca_tf_idf')
-
         i = i + 1
 
 
@@ -319,9 +313,7 @@ def load_w2v_representations(chunk_size, s_id):
     :param s_id: the id of the songs to which all the similarities are calculated to
     :return: None
     """
-    print('starting with w2v represenations')
     count = Song.objects.all().count()
-    print(count)
     s = Song.objects.get(pk=s_id)
     representations = numpy.empty([chunk_size, 300])
     i = 0
@@ -338,7 +330,6 @@ def load_w2v_representations(chunk_size, s_id):
             break
         else:
             representations[i % chunk_size] = song.get_W2V_representation()
-            print(i, 'w2v')
 
         i = i + 1
 
@@ -381,9 +372,6 @@ def save_distances(song_id, song_representation, representations, threshold, dis
                     dist_1.save()
                     dist_2.save()
                     print('distance between' + str(song) + 'and' + str(s) + str(distances[i]) + 'saved')
-                else:
-                    print(str(i) + 'too small')
-
             i = i+1
     except Exception as e:
         print(e)

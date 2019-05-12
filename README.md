@@ -4,7 +4,7 @@ This application is a part of a Bachelor Thesis from MFF UK by Michaela Vystrcil
 
 ## Instalation
 
-This installation is for a computer with a Linux operating system
+The installation guide is for a computer with a Linux operating system
 
 ### pre-requisities
 
@@ -50,13 +50,13 @@ then create a user which will be interacting with the database
 
 change the encoding to UTF-8 which is expected by Django
 
-`ALTER ROLE myprojectuser SET client_encoding TO 'utf8';`
+`ALTER ROLE postgres SET client_encoding TO 'utf8';`
 
 now, grant all access rights to the database user:
 
-`GRANT ALL PRIVILEGES ON DATABASE myproject TO myprojectuser;`
+`GRANT ALL PRIVILEGES ON DATABASE postgres TO postgres;`
 
-Exit the Postgres session using `\q` then exit the postgrew user's shell session with `exit`.
+Exit the Postgres session using `\q` then exit the postgres user's shell session with `exit`.
 
 ### Setup the application
 
@@ -78,9 +78,8 @@ The mp3 files are also not a part of the Git project which means, that only song
 after its ran will be playable. They are expected to be in the `mp3_files/mp3_files` directory.
 
 
-It is not necessary to download the models and place them into the correct directory in order for the application to run,
- they will be loaded into memory when starting the server
-but need to be in the correct directory.
+It is necessary to download the models and place them into the correct directory in order for the application to run,
+ they will be loaded into memory when starting the server.
  
  #### Running the application
 Before starting the application, it is necessary to apply migrations to the database
@@ -116,8 +115,8 @@ For implementation details and high-level developer information, please see the 
 #### Root 
 The root of the project songRecommender_project contains:
  
- * songRecommender directory -- modules desribed in more detail below
- * songRecommender_project directory -- modules described in more detail below
+ * `songRecommender` directory -- modules desribed in more detail below
+ * `songRecommender_project` directory -- modules described in more detail below
  * `manage.py` from which the application is being run
  * `requirements.txt` describing the Python packages to run this application
  * `README.md` containing the application setup and installation
@@ -189,5 +188,5 @@ are defined and their features and properties set
 ### Additional remarks
 In this state, it is difficult to implement a new method into the application and extensive
 changes or better to say additions to the source code would have placed in order to do so. 
-Therefore a path to go in the future might be to ease this process and allow for easier new method
+Therefore a way to go in the future might be to ease this process and allow for easier new method
 implementation.

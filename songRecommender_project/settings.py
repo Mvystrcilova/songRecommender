@@ -57,7 +57,6 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = 'songRecommender_project.urls'
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 STATICFILES_DIRS = [
      os.path.join(BASE_DIR, "songRecommender/static"),
      os.path.join(BASE_DIR, "mp3_files/"),
@@ -137,16 +136,18 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.0/howto/static-files/
 
-STATIC_URL = '/static/'
-
 # Redirect to home URL after login (Default redirects to /accounts/profile/)
 LOGIN_REDIRECT_URL = '/songRecommender/index'
 
-#aby zatim fungovaly maily
+# email configuration
 EMAIL_DISABLED = True
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+# Celery configuration
 CELERY_BROKER_URL = 'amqp://localhost'
 BROKER_POOL_LIMIT = None
+
+# Default distance type configuration
 SELECTED_DISTANCE_TYPE = "GRU_MEL"
 
 # Distance thresholds for 51x16594 distances

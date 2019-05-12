@@ -77,10 +77,10 @@ class Profile(models.Model):
 
 
     def get_object(self):
-        return self.request.user
+        return self.user
 
     def __str__(self):
-        return self.request.user.username
+        return self.user.username
 
     def get_profile(self):
         return self
@@ -124,8 +124,6 @@ class List(models.Model):
         nearby_songs = Distance_to_List.objects.filter(list_id=self.pk, distance_Type=list_user.user_selected_distance_type
                                                        ).exclude(song_id_id__in=played_songs.values_list('song_id1_id', flat=True)).exclude()
         return nearby_songs
-            # self.nearby_songs.exclude(Distance_to_List__song_id__in=self.songs.values_list(
-            # 'song_id_id', flat=True)).order_by('-link_to_list')[:10]
 
 
 class Song_in_List(models.Model):
@@ -136,7 +134,6 @@ class Song_in_List(models.Model):
     list_id = models.ForeignKey(List, on_delete=models.CASCADE)
     song_id = models.ForeignKey(Song, on_delete=models.CASCADE)
     order = models.PositiveIntegerField(null=True)
-    # for debugging reasons here
 
     class Meta:
         ordering = ['-order']
@@ -224,10 +221,6 @@ class Distance_to_List(models.Model):
     )
     distance_Type = models.CharField(max_length= 20, choices=DISTANCE_CHOICES)
 
-    # def get_nearby_songs(listid):
-    #     nearby_songs = Distance_to_List.objects.filter(list_id=listid).order_by('-distance')[:10]
-    #     return nearby_songs
-
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name
 
@@ -261,10 +254,6 @@ class Distance_to_User(models.Model):
     class Meta:
         ordering = ['-distance']
         unique_together=(('user_id', 'song_id', 'distance_Type'))
-
-    # def get_nearby_songs(userid):
-    #     nearby_songs = Distance_to_User.objects.filter(user_id=userid).order_by('-distance')[:10]
-    #     return nearby_songs
 
     def __str__(self):
         return self.song_id.artist + ' - ' + self.song_id.song_name

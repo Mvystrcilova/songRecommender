@@ -59,13 +59,12 @@ for i, row in df.iterrows():
             response = urllib.request.urlopen(url)
             html = response.read()
             soup = BeautifulSoup(html, 'html.parser')
-            # for vid in soup.findAll(attrs={'class':'yt-uix-tile-link'}):
-            #     print('https://www.youtube.com' + vid['href'])
+
             if ((i % 500) == 0) and (i != 0):
                 time.sleep(600)
             vid = soup.findAll(attrs={'class':'yt-uix-tile-link'})[0]
-            M
-            df.at[i, 'link'] = change_youtube_url(l)
+
+            df.at[i, 'link'] = change_youtube_url(vid)
             name = df.at[i,'songTitle'] + '-' + df.at[i, 'artist'] + ".mp3"
             ydl_opts = {
                 'format': 'bestaudio/best',
@@ -77,13 +76,12 @@ for i, row in df.iterrows():
                 'outtmpl': MP3FILES_DIR + "%(title)s.%(ext)s"
             }
             with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([l])
-                info_dict = ydl.extract_info(l, download=False)
+                ydl.download([vid])
+                info_dict = ydl.extract_info(vid, download=False)
                 df.at[i, 'link_on_disc'] = MP3FILES_DIR + info_dict.get('title', None) + ".mp3"
-            # df.at[i,'link_on_disc']
             h.write(df.at[i, 'songTitle'] + ';' + df.at[i, 'artist'] + ';' + "\"" + df.at[i, 'lyrics'] +"\""
                     ';' + df.at[i, 'link'] + ';' + df.at[i, 'link_on_disc'] + ";\n")
-            print(l)
+            print(vid)
 
         except youtube_dl.utils.DownloadError:
             h.close()

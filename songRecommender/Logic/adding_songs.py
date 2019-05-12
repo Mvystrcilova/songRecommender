@@ -156,21 +156,12 @@ def get_audio_data(song):
     """
     sound = AudioSegment.from_mp3(song.link_on_disc)
 
-    if len(sound) < 65000:
-        sound = sound.set_channels(1)
-        beginning = sound[10000:15000]
-        middle = sound[int(len(sound)/2):(len(sound)/2 + 5000)]
-        end = sound[-10000:-5000]
-
-    else:
-        sound = sound.set_channels(1)
-        beginning = sound[20000:25000]
-        middle = sound[int(len(sound)/2):(int(len(sound)/2) + 5000)]
-        end = sound[-15000:-10000]
+    sound = sound.set_channels(1)
+    beginning = sound[10000:15000]
+    middle = sound[int(len(sound)/2):(int(len(sound)/2) + 5000)]
+    end = sound[-15000:-10000]
 
     s = beginning + middle + end
-    # play(s)
-    print(len(s))
     s.export('temp_wav_file.wav', format='wav')
     y, sr = librosa.load('temp_wav_file.wav')
 

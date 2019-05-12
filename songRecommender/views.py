@@ -380,14 +380,7 @@ def addSong(request):
             if created:
                 song.text = form.cleaned_data['text']
                 song.link = form.cleaned_data['link']
-                # new_link = change_youtube_url(song.link)
-                # changes the youtube link to an embedable format
-                # if new_link:
-                #     song.link = new_link
                 song.save()
-                # else:
-                #     form = SongModelForm()
-                #     return render(request, 'songRecommender/addSong.html', {'form': form})
 
                 # adds the song the user added to his played songs
                 played_song, created = Played_Song.objects.get_or_create(user_id=request.user.profile, song_id1=song, numOfTimesPlayed=1, opinion=1)
@@ -402,7 +395,7 @@ def addSong(request):
                 return HttpResponseRedirect(reverse('recommended_songs'))
 
             # if the song already was in the database, it will redirect to a fail page with a link to
-            # the song that potentialy collides with the new added.
+            # the song that potentially collides with the new added.
             else:
                 return redirect('add_song_failed', song.pk)
 
