@@ -60,7 +60,7 @@ def recalculate_distances_to_user(song_id, cur_user_id, distance_type):
 
     for s in relevant_song_ids:
         user_distance, created = Distance_to_User.objects.get_or_create(user_id_id=cur_user_id, song_id_id=s['song_2_id'], distance_Type=distance_type)
-        played_song = Played_Song.objects.get(song_id1_id=s)
+        played_song = Played_Song.objects.get(song_id1_id=s['song_2_id'])
         if created:
             user_distance.distance = (played_song.opinion+1)*s['distance']
         else:
@@ -82,7 +82,7 @@ def recalculate_distances_to_list(song_id, list_id, distance_type):
     for s in relevant_song_ids:
         list_distance, created = Distance_to_List.objects.get_or_create(list_id_id=list_id, song_id_id=s['song_2_id'],
                                                                         distance_Type=distance_type)
-        played_song = Played_Song.objects.get(song_id1_id=s)
+        played_song = Played_Song.objects.get(song_id1_id=s['song_2_id'])
         if created:
             list_distance.distance = (played_song.opinion+1)*s['distance']
         else:
