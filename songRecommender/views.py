@@ -387,7 +387,7 @@ def addSong(request):
                 if created:
                     played_song.save()
 
-                handle_added_song(song.pk)
+                handle_added_song.delay(song.pk)
                 recalculate_distanced_when_new_song_added.delay(song.pk)
 
 
@@ -484,7 +484,7 @@ def add_song_to_list(request, pk, pk2):
         song_in_list = Song_in_List(song_id_id=pk, list_id_id=pk2)
         song_in_list.save()
 
-        check_if_in_played.delay(pk, request.user, is_being_played=False)
+        check_if_in_played(pk, request.user, is_being_played=False)
         recalculate_all_distances_to_list.delay(pk, pk2)
 
         return redirect('song_detail', pk)
