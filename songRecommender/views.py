@@ -106,14 +106,14 @@ class SongDetailView(LoginRequiredMixin, generic.DetailView):
         context = super(SongDetailView, self).get_context_data(**kwargs)
         check_if_in_played(context['object'].pk, self.request.user, is_being_played=True)
 
-        played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk)
+        played_songs = Played_Song.objects.filter(user_id=self.request.user.profile.pk).values_list('song_id1_id')
         context['played_song'] = Played_Song.objects.filter(
-            song_id1=context['object'], user_id=self.request.user.profile)
+            song_id1=context['object'], user_id=self.request.user.profile).only('song_id1')
         context['my_lists'] = List.objects.filter(user_id=self.request.user)
         #POZOR!!! Napraseni kod, co ale funguje, mozna potom prejmenovat, vraci se distance ale pouziva song
         context['nearby_songs'] = Distance.objects.filter(
             distance_Type=self.request.user.profile.user_selected_distance_type, song_2=context['object']).exclude(
-            song_1_id__in=played_songs.values_list('song_id1_id', flat=True).order_by('-distance'))[:10]
+            song_1_id__in=played_songs).order_by('-distance')[:10]
         context['link'] = context['object'].link_on_disc
         return context
 
