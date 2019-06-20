@@ -505,7 +505,7 @@ def logout(request):
     logout(request)
     return render(request, 'registration/logged_out.html')
 
-
+@login_required()
 def search(request):
     """implements the search, shows ten best results if there
     are ten with a rank higher than 0, which means, if there
@@ -527,7 +527,7 @@ def search(request):
 
     return render(request, 'songRecommender/search_results.html', {'entries': {}, 'query': {}, 'my_lists': my_lists })
 
-
+@login_required()
 def change_distance(request):
     """
     Changes the distance based on which the recommendations are calculated
