@@ -3,7 +3,7 @@
 Logic/document-similarity-master
 *.sqlite3
 Logic/GoogleNews-vectors-negative300.bin
-**/__pycache__
+**/__pycache__/
 *.pyc
 songRecommender/migrations
 songRecommender/data/song_*
@@ -12,3 +12,4 @@ Logic/TF-idf/*
 */distances/*
 */models/*
 */representations/*
+
