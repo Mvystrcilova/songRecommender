@@ -111,7 +111,7 @@ statsmodels==0.9.0
 stevedore==1.30.0
 tables==3.4.4
 tensorboard==1.12.2
-tensorflow==1.13.0rc2
+tensorflow==2.4.0rc1
 tensorflow-estimator==1.13.0rc0
 termcolor==1.1.0
 tqdm==4.28.1
