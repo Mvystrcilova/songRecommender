@@ -27,7 +27,7 @@ Django>=2.2.5
 dnspython==1.16.0
 docutils==0.14
 et-xmlfile==1.0.1
-eventlet==0.24.1
+eventlet==0.31.0
 ffmpeg==1.4
 future==0.17.1
 gast==0.2.2
