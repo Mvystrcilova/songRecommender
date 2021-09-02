@@ -187,6 +187,6 @@ are defined and their features and properties set
 
 ### Additional remarks
 In this state, it is difficult to implement a new method into the application and extensive
-changes or better to say additions to the source code would have placed in order to do so. 
-Therefore a way to go in the future might be to ease this process and allow for easier new method
+changes or better to say additions to the source code would have to be implemented in order to do so. 
+Therefore a way possible future direction might be to ease this process and allow for easier new method
 implementation.
